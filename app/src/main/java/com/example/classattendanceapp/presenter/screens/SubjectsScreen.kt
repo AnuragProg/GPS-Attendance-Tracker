@@ -45,7 +45,7 @@ fun SubjectsScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    var showAddSubjectDialog = classAttendanceViewModel.floatingButtonClicked.collectAsState()
+    val showAddSubjectDialog = classAttendanceViewModel.floatingButtonClicked.collectAsState()
 
     var subjectNameTextField by remember{
         mutableStateOf("")

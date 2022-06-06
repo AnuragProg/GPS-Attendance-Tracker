@@ -48,7 +48,7 @@ fun TimeTableScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    var showAddTimeTableDialog = classAttendanceViewModel.floatingButtonClicked.collectAsState()
+    val showAddTimeTableDialog = classAttendanceViewModel.floatingButtonClicked.collectAsState()
 
     var showSelectDayDropDownMenu by remember{
         mutableStateOf(false)
