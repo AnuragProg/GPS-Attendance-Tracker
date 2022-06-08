@@ -4,7 +4,6 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.DismissDirection
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
@@ -20,6 +19,8 @@ import com.example.classattendanceapp.presenter.screens.LogsScreen
 import com.example.classattendanceapp.presenter.screens.SubjectsScreen
 import com.example.classattendanceapp.presenter.screens.TimeTableScreen
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -28,11 +29,20 @@ fun ClassAttendanceNavigationHost(){
 
     val navController = rememberNavController()
     val classAttendanceViewModel = hiltViewModel<ClassAttendanceViewModel>()
+    var visibility by remember{ mutableStateOf(false) }
+    var goneToAnotherScreen by remember{ mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
-    var previousDestination by remember{ mutableStateOf<String?>(null) }
-    var nextDestination by remember{ mutableStateOf<String?>(null) }
-    var isGoingToNextScreen by remember{ mutableStateOf(false)}
-
+    fun navigate(
+        route: String
+    ){
+        coroutineScope.launch{
+            visibility = false
+            delay(800)
+            navController.navigate(route)
+            goneToAnotherScreen = !goneToAnotherScreen
+        }
+    }
 
 
 
@@ -40,12 +50,11 @@ fun ClassAttendanceNavigationHost(){
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
             ClassAttendanceBottomNavigationBar(
-                navController = navController
-            ) { pDestination, nDestination, isGoing ->
-                previousDestination = pDestination
-                nextDestination = nDestination
-                isGoingToNextScreen = isGoing
-            }
+                navController = navController,
+                navigate = { route ->
+                    navigate(route)
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -67,8 +76,12 @@ fun ClassAttendanceNavigationHost(){
             navController = navController,
             startDestination = Screens.SUBJECTSSCREEN.route,
         ){
+
             composable(Screens.LOGSSCREEN.route){
-                var visibility by remember{ mutableStateOf(false) }
+
+                LaunchedEffect(goneToAnotherScreen){
+                    visibility = true
+                }
                 AnimatedVisibility(
                     visible = visibility,
                     enter = scaleIn(
@@ -86,13 +99,18 @@ fun ClassAttendanceNavigationHost(){
                 ){
                     LogsScreen(classAttendanceViewModel)
                 }
-                if(it.destination.route == Screens.LOGSSCREEN.route) visibility = true
-                if(isGoingToNextScreen) visibility = false
-                if(nextDestination == Screens.LOGSSCREEN.route) visibility = true
             }
 
             composable(Screens.SUBJECTSSCREEN.route){
-                var visibility by remember{ mutableStateOf(false) }
+
+                LaunchedEffect(goneToAnotherScreen){
+                    /* This Launched Effect is implemented here because
+                    This is the Starting screen so the visibility needs to be true
+                    after some time to cause animation
+                    ( Any screen that is going to be hosting the launch should implement this )
+                    */
+                    visibility = true
+                }
                 AnimatedVisibility(
                     visible = visibility,
                     enter = scaleIn(
@@ -110,13 +128,12 @@ fun ClassAttendanceNavigationHost(){
                 ) {
                     SubjectsScreen(classAttendanceViewModel)
                 }
-                if(it.destination.route == Screens.SUBJECTSSCREEN.route) visibility = true
-                if(isGoingToNextScreen) visibility = false
-                if(nextDestination == Screens.SUBJECTSSCREEN.route) visibility = true
             }
 
             composable(Screens.TIMETABLESCREEN.route){
-                var visibility by remember{ mutableStateOf(false) }
+                LaunchedEffect(goneToAnotherScreen){
+                    visibility = true
+                }
                 AnimatedVisibility(
                     visible = visibility,
                     enter = scaleIn(
@@ -134,9 +151,6 @@ fun ClassAttendanceNavigationHost(){
                 ) {
                     TimeTableScreen(classAttendanceViewModel)
                 }
-                if(it.destination.route == Screens.TIMETABLESCREEN.route) visibility = true
-                if(isGoingToNextScreen) visibility = false
-                if(nextDestination == Screens.TIMETABLESCREEN.route) visibility = true
             }
         }
     }

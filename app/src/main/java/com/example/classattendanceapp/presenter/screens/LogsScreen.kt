@@ -1,32 +1,25 @@
 package com.example.classattendanceapp.presenter.screens
 
 import android.annotation.SuppressLint
-import android.text.format.DateFormat
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.classattendanceapp.data.models.Logs
-import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.domain.models.ModifiedLogs
 import com.example.classattendanceapp.domain.models.ModifiedSubjects
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -43,7 +36,7 @@ fun LogsScreen(
         mutableStateListOf<ModifiedLogs>()
     }
 
-    var showAddLogsAlertDialog = classAttendanceViewModel.floatingButtonClicked.collectAsState()
+    val showAddLogsAlertDialog = classAttendanceViewModel.floatingButtonClicked.collectAsState()
 
     var showAddLogsSubjectNameAlertDialog by remember{
         mutableStateOf(false)
@@ -246,9 +239,11 @@ fun LogsScreen(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            reverseLayout = true
         ){
-            items(logsList){
+            items(logsList.size){
+                val currentIndex = logsList.size - 1 - it
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -265,13 +260,13 @@ fun LogsScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.CenterStart
                         ){
-                            Text(it.subjectName)
+                            Text(logsList[currentIndex].subjectName)
                         }
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ){
-                            Text(it.day + " | " + it.month + " " + it.date.toString() + "," + it.year.toString())
+                            Text(logsList[currentIndex].day + " | " + logsList[currentIndex].month + " " + logsList[currentIndex].date.toString() + "," + logsList[currentIndex].year.toString())
                         }
                         Box(
                             modifier = Modifier
@@ -285,7 +280,7 @@ fun LogsScreen(
                             contentAlignment = Alignment.CenterEnd
                         ){
                             Text(
-                                when(it.wasPresent){
+                                when(logsList[currentIndex].wasPresent){
                                     true -> "Present"
                                     else -> "Absent"
                                 }
@@ -302,7 +297,7 @@ fun LogsScreen(
                             TextButton(
                                 onClick = {
                                     coroutineScope.launch{
-                                        classAttendanceViewModel.deleteLogs(it._id)
+                                        classAttendanceViewModel.deleteLogs(logsList[currentIndex]._id)
                                     }
                                     showOverFlowMenu = false
                                 }

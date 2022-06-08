@@ -1,0 +1,156 @@
+package com.example.classattendanceapp.domain.utils.location
+
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.Looper
+import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import kotlinx.coroutines.flow.*
+
+
+object ClassLocationManager {
+
+    lateinit var locationManager: LocationManager
+
+    private fun getLocationManager(context: Context): LocationManager{
+        locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager
+    }
+
+    private fun isLocationPermissionGranted(context: Context): Boolean {
+        return if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                0
+            )
+            false
+        } else {
+            true
+        }
+    }
+
+
+    @SuppressLint("MissingPermission")
+    fun getLocation(context: Context) = flow {
+        getLocationManager(context)
+        var currentLocation : Location?
+        if(!isLocationPermissionGranted(context)){
+            Log.d("location", "Returning because of permission not granted")
+            emit(null)
+        }
+        val hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        val hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        val locationByGps = MutableStateFlow<Location?>(null)
+        val locationByNetwork = MutableStateFlow<Location?>(null)
+        val gpsListener = object: LocationListener{
+            override fun onLocationChanged(location: Location) {
+                Log.d("location", "gps location change detected with value $location")
+                locationByGps.value = location
+            }
+
+        }
+        val networkListener = object: LocationListener{
+            override fun onLocationChanged(location: Location) {
+                Log.d("location", "network location change detected with value $location")
+                locationByNetwork.value = location
+
+            }
+        }
+        Log.d("location", "hasGps -> $hasGps | hasNetwork -> $hasNetwork")
+        if(hasGps){
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                5000,
+                0F,
+                gpsListener,
+                Looper.getMainLooper()
+            )
+
+            // For requesting single updates
+//            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
+//                // Use getCurrentLocation
+//                locationManager.getCurrentLocation(
+//                    LocationManager.GPS_PROVIDER,
+//                    null,
+//                    ContextCompat.getMainExecutor(context),
+//                ){
+//                    locationByGps = it
+//                }
+//            }else{
+//                // Use requestSingleUpdate
+//                locationManager.requestSingleUpdate(
+//                    LocationManager.GPS_PROVIDER,
+//                    { location -> locationByGps = location },
+//                    context.mainLooper
+//                )
+//            }
+        }
+        if(hasNetwork){
+            locationManager.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER,
+                5000,
+                0f,
+                networkListener,
+                Looper.getMainLooper()
+
+            )
+
+            // for requesting single updates
+//            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
+//                // Use getCurrentLocation
+//                locationManager.getCurrentLocation(
+//                    LocationManager.NETWORK_PROVIDER,
+//                    null,
+//                    ContextCompat.getMainExecutor(context),
+//                ){
+//                    locationByNetwork = it
+//                }
+//            }else{
+//                // Use requestSingleUpdate
+//                locationManager.requestSingleUpdate(
+//                    LocationManager.GPS_PROVIDER,
+//                    { location -> locationByNetwork = location },
+//                    context.mainLooper
+//                )
+//            }
+        }
+
+
+
+        locationByGps.collect {
+            currentLocation = if(locationByGps.value!=null && locationByNetwork.value!=null){
+                if(locationByGps.value!!.accuracy > locationByNetwork.value!!.accuracy){
+                    locationByGps.value
+                }else{
+                    locationByNetwork.value
+                }
+            }else if(locationByGps!=null){
+                locationByGps.value
+            }else if(locationByNetwork!=null){
+                locationByNetwork.value
+            }else{
+                Log.d("location", "Returning because network and gps are not retrieved successfully")
+                null
+            }
+            emit(currentLocation)
+        }
+    }
+}

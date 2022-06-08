@@ -1,6 +1,7 @@
 package com.example.classattendanceapp.presenter.screens
 
 import android.util.Log
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -204,27 +205,31 @@ fun SubjectsScreen(
                                 ){
                                     var startAnimation by remember{mutableStateOf(false)}
                                     val target = animateFloatAsState(
-                                        targetValue = if(startAnimation) it.attendancePercentage.toFloat()/100 else 0f,
+                                        targetValue = if(startAnimation) it.attendancePercentage.toFloat() else 0f,
                                         animationSpec = tween(
-                                            durationMillis = 2000,
-                                            delayMillis = 100
+                                            durationMillis = 1000,
+                                            delayMillis = 50
                                         )
                                     )
 
-                                    LaunchedEffect(key1 = Unit){
-                                        startAnimation = true
-                                    }
+                                    val arcColor = animateColorAsState(
+                                        targetValue = if(target.value < 75f) Color.Red else Color.Green
+                                    )
                                     Canvas(modifier = Modifier.size(60.dp)){
                                         drawArc(
-                                            color = if(it.attendancePercentage < 75f) Color.Red else Color.Green,
+                                            color = arcColor.value,
                                             startAngle = 270f,
-                                            sweepAngle = 360 * target.value,
+                                            sweepAngle = 360 * target.value/100,
                                             useCenter = false,
                                             size = this.size,
                                             style = Stroke(15f, cap = StrokeCap.Round)
                                         )
                                     }
-                                    Text(it.attendancePercentage.toString() + "%")
+                                    Text("${String.format("%.2f", target.value)}%")
+
+                                    LaunchedEffect(key1 = Unit){
+                                        startAnimation = true
+                                    }
                                 }
                             }
                         }
