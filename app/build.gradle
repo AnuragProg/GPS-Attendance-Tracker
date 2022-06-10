@@ -51,7 +51,7 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.core:core-ktx:1.8.0'
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
@@ -63,10 +63,6 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     testImplementation "io.mockk:mockk:1.12.4"
-
-
-//    implementation "androidx.compose.material3:material3-window-size-class:1.0.0-alpha13"
-//    implementation "androidx.compose.material3:material3:1.0.0-alpha13"
 
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'

@@ -81,7 +81,8 @@ fun SubjectsScreen(
                         onValueChange = { subjectNameTextField = it },
                         placeholder = {
                             Text("Subject Name")
-                        }
+                        },
+                        maxLines = 1
                     )
                 }
             },

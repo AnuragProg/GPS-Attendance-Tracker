@@ -12,14 +12,17 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.*
+import kotlin.coroutines.cancellation.CancellationException
 
 
 object ClassLocationManager {
 
     lateinit var locationManager: LocationManager
 
-    private fun getLocationManager(context: Context): LocationManager{
+    private fun getLocationManager(context: Context): LocationManager {
         locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager
     }
@@ -51,31 +54,31 @@ object ClassLocationManager {
     @SuppressLint("MissingPermission")
     fun getLocation(context: Context) = flow {
         getLocationManager(context)
-        var currentLocation : Location?
-        if(!isLocationPermissionGranted(context)){
+//        var currentLocation: Location?
+        if (!isLocationPermissionGranted(context)) {
             Log.d("location", "Returning because of permission not granted")
             emit(null)
         }
         val hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        val hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+//        val hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         val locationByGps = MutableStateFlow<Location?>(null)
-        val locationByNetwork = MutableStateFlow<Location?>(null)
-        val gpsListener = object: LocationListener{
+//        val locationByNetwork = MutableStateFlow<Location?>(null)
+        val gpsListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 Log.d("location", "gps location change detected with value $location")
                 locationByGps.value = location
             }
-
         }
-        val networkListener = object: LocationListener{
-            override fun onLocationChanged(location: Location) {
-                Log.d("location", "network location change detected with value $location")
-                locationByNetwork.value = location
 
-            }
-        }
-        Log.d("location", "hasGps -> $hasGps | hasNetwork -> $hasNetwork")
-        if(hasGps){
+//        val networkListener = object: LocationListener{
+//            override fun onLocationChanged(location: Location) {
+//                Log.d("location", "network location change detected with value $location")
+//                locationByNetwork.value = location
+//            }
+//        }
+
+//        Log.d("location", "hasGps -> $hasGps | hasNetwork -> $hasNetwork")
+        if (hasGps) {
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
                 5000,
@@ -103,17 +106,17 @@ object ClassLocationManager {
 //                )
 //            }
         }
-        if(hasNetwork){
-            locationManager.requestLocationUpdates(
-                LocationManager.NETWORK_PROVIDER,
-                5000,
-                0f,
-                networkListener,
-                Looper.getMainLooper()
+//        if(hasNetwork){
+//            locationManager.requestLocationUpdates(
+//                LocationManager.NETWORK_PROVIDER,
+//                5000,
+//                0f,
+//                networkListener,
+//                Looper.getMainLooper()
+//
+//            )
 
-            )
-
-            // for requesting single updates
+        // for requesting single updates
 //            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
 //                // Use getCurrentLocation
 //                locationManager.getCurrentLocation(
@@ -131,26 +134,33 @@ object ClassLocationManager {
 //                    context.mainLooper
 //                )
 //            }
-        }
+
+
 
 
 
         locationByGps.collect {
-            currentLocation = if(locationByGps.value!=null && locationByNetwork.value!=null){
-                if(locationByGps.value!!.accuracy > locationByNetwork.value!!.accuracy){
-                    locationByGps.value
-                }else{
-                    locationByNetwork.value
-                }
-            }else if(locationByGps!=null){
-                locationByGps.value
-            }else if(locationByNetwork!=null){
-                locationByNetwork.value
-            }else{
-                Log.d("location", "Returning because network and gps are not retrieved successfully")
-                null
-            }
-            emit(currentLocation)
+//            currentLocation = if(locationByGps.value!=null){
+//                Log.d("broadcast", "locationByGps and locationByNetwork both are available")
+//                if(locationByGps.value!!.accuracy > locationByNetwork.value!!.accuracy){
+//                    locationByGps.value
+//                }else{
+//                    locationByNetwork.value
+//                }
+//            }else if(locationByGps!=null){
+//                Log.d("broadcast", "locationByGps is available")
+//                locationByGps.value
+//            }else if(locationByNetwork!=null){
+//                Log.d("broadcast", "locationByNetwork is available")
+//                locationByNetwork.value
+//            }else{
+//                Log.d("location", "Returning because network and gps are not retrieved successfully")
+//                null
+//            }
+//            Log.d("broadcast", "emitting value $currentLocation")
+//            emit(currentLocation)
+            emit(locationByGps.value)
+
         }
     }
 }

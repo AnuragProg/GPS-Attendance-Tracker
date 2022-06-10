@@ -87,7 +87,12 @@ class ClassAttendanceViewModel @Inject constructor(
     }
 
     suspend fun insertSubject(subject: Subject){
-        classAttendanceUseCase.insertSubjectUseCase(subject)
+        classAttendanceUseCase.insertSubjectUseCase(
+            Subject(
+                subject._id,
+                subject.subjectName.trim()
+            )
+        )
     }
 
     suspend fun insertTimeTable(
@@ -101,8 +106,6 @@ class ClassAttendanceViewModel @Inject constructor(
             timeTableId = id.toInt(),
             timeTable = timeTable
         )
-
-
     }
 
     suspend fun deleteLogs(id: Int){

@@ -37,7 +37,8 @@ object NotificationHandler {
         subjectId: Int,
         subjectName: String,
         hour: Int,
-        minute: Int
+        minute: Int,
+        message: String? // present or absent
     ){
         val intent = Intent(context, MainActivity::class.java)
 
@@ -45,10 +46,15 @@ object NotificationHandler {
 
         val pendingIntent = PendingIntent.getActivity(context, OPENMAINACTIVITYREQUESTCODE, intent, PendingIntent.FLAG_IMMUTABLE)
 
+        val contentMessage = message?.let{
+            "$subjectName - $hour:$minute marked $it"
+        } ?: "$subjectName - $hour:$minute"
+
+
         val notification = NotificationCompat.Builder(context, CHANNELID)
             .setSmallIcon(R.drawable.ic_launcher_background)
             .setContentTitle("Mark your attendance!")
-            .setContentText("$subjectName - $hour:$minute")
+            .setContentText(contentMessage)
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))

@@ -240,7 +240,7 @@ fun LogsScreen(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
-            reverseLayout = true
+            reverseLayout = true,
         ){
             items(logsList.size){
                 val currentIndex = logsList.size - 1 - it
