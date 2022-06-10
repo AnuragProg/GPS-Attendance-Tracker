@@ -1,7 +1,7 @@
 package com.example.classattendanceapp.presenter.navigationcomponents
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.FloatingActionButton
@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,6 +33,9 @@ fun ClassAttendanceNavigationHost(){
     var visibility by remember{ mutableStateOf(false) }
     var goneToAnotherScreen by remember{ mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val allowToAddTimeTable by remember{
+        mutableStateOf(false)
+    }
 
     fun navigate(
         route: String
@@ -43,6 +47,7 @@ fun ClassAttendanceNavigationHost(){
             goneToAnotherScreen = !goneToAnotherScreen
         }
     }
+
 
 
 
@@ -60,7 +65,8 @@ fun ClassAttendanceNavigationHost(){
             FloatingActionButton(
                 onClick = {
                     classAttendanceViewModel.changeFloatingButtonClickedState(true)
-                }
+                },
+
             ) {
                 Icon(
                     Icons.Filled.Add,

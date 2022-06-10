@@ -27,38 +27,13 @@ object ClassLocationManager {
         return locationManager
     }
 
-    private fun isLocationPermissionGranted(context: Context): Boolean {
-        return if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ),
-                0
-            )
-            false
-        } else {
-            true
-        }
-    }
 
 
     @SuppressLint("MissingPermission")
     fun getLocation(context: Context) = flow {
         getLocationManager(context)
 //        var currentLocation: Location?
-        if (!isLocationPermissionGranted(context)) {
-            Log.d("location", "Returning because of permission not granted")
-            emit(null)
-        }
+
         val hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 //        val hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         val locationByGps = MutableStateFlow<Location?>(null)

@@ -131,6 +131,7 @@ fun SubjectsScreen(
         ){
             items(subjectsList){
                 val dismissState = rememberDismissState()
+
                 SwipeToDismiss(
                     state = dismissState,
                     background = {
@@ -241,8 +242,3 @@ fun SubjectsScreen(
     }
 }
 
-//@Preview
-//@Composable
-//fun SubjectsScreenPreview(){
-//    SubjectsScreen()
-//}
