@@ -9,11 +9,7 @@ import com.google.accompanist.permissions.*
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun AskPermissions(
-    state: (
-        values: Map<String, Boolean>
-    ) -> Unit
-){
+fun PermissionHandler(){
 
     val permissions = rememberMultiplePermissionsState(
         permissions = listOf(
@@ -89,11 +85,6 @@ fun AskPermissions(
             }
 
         }
-        val permissionStates = mutableMapOf<String, Boolean>()
-        permissions.permissions.forEach{ perm ->
-            permissionStates[perm.permission] = perm.status.isGranted
-        }
-        state(permissionStates)
     } )
 }
 

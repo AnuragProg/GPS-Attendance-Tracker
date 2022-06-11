@@ -19,6 +19,7 @@ import kotlin.coroutines.CoroutineContext
 class ClassAlarmBroadcastReceiver : BroadcastReceiver() {
 
     private val TIMETABLEID = "timetable_id"
+    private val SUBJECTID = "subject_id"
     private val SUBJECTNAME = "subject_name"
     private val HOUR = "hour"
     private val MINUTE = "minute"
@@ -31,12 +32,16 @@ class ClassAlarmBroadcastReceiver : BroadcastReceiver() {
         Log.d("broadcast","Broadcast received")
         if(intent != null && context != null) {
             val timeTableId = intent.getIntExtra(TIMETABLEID, -1)
+            val subjectId = intent.getIntExtra(SUBJECTID, -1)
             val subjectName = intent.getStringExtra(SUBJECTNAME)
             val hour = intent.getIntExtra(HOUR, -1)
             val minute = intent.getIntExtra(MINUTE, -1)
-
+            if(timeTableId == -1 || subjectId == -1 || subjectName == null || hour == -1 || minute == -1){
+                return
+            }
             val inputData = workDataOf(
                 TIMETABLEID to timeTableId,
+                SUBJECTID to subjectId,
                 SUBJECTNAME to subjectName,
                 HOUR to hour,
                 MINUTE to minute
@@ -44,6 +49,7 @@ class ClassAlarmBroadcastReceiver : BroadcastReceiver() {
             val startOperationWorkRequest = OneTimeWorkRequestBuilder<LocationMarkAttendanceWorker>()
                 .setInputData(inputData)
                 .build()
+
             WorkManager.getInstance(context)
                 .enqueue(startOperationWorkRequest)
         }

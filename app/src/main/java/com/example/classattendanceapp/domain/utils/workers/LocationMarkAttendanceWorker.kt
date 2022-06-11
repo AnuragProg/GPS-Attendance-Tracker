@@ -6,6 +6,8 @@ import android.location.Location
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.example.classattendanceapp.data.db.ClassAttendanceDatabase
+import com.example.classattendanceapp.data.models.Logs
 import com.example.classattendanceapp.domain.utils.internetcheck.NetworkCheck
 import com.example.classattendanceapp.domain.utils.location.ClassLocationManager
 import com.example.classattendanceapp.domain.utils.notifications.NotificationHandler
@@ -15,6 +17,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.*
 
 
 class LocationMarkAttendanceWorker(
@@ -25,6 +28,7 @@ class LocationMarkAttendanceWorker(
     private val SUBJECTNAME = "subject_name"
     private val HOUR = "hour"
     private val MINUTE = "minute"
+    private val SUBJECTID = "subject_id"
 
     private val radius : Double = 0.0002
     private val latitude: Double = 30.2709
@@ -33,10 +37,15 @@ class LocationMarkAttendanceWorker(
 
     override fun doWork(): Result {
         Log.d("broadcast", "starting doWork and retrieving data from inputData")
+        val subjectId = inputData.getInt(SUBJECTID, -1)
         val subjectName = inputData.getString(SUBJECTNAME)
         val timeTableId = inputData.getInt(TIMETABLEID, -1)
         val hour = inputData.getInt(HOUR, -1)
         val minute = inputData.getInt(MINUTE, -1)
+
+        if(timeTableId == -1 || subjectId == -1 || subjectName == null || hour == -1 || minute == -1){
+            return Result.retry()
+        }
 
         Log.d("broadcast", "retrieved data are subjectName -> $subjectName | timeTableId -> $timeTableId" +
                 " | hour -> $hour | minute -> $minute")
@@ -47,13 +56,14 @@ class LocationMarkAttendanceWorker(
 
             Log.d("broadcast", "Launching locationGetterJob")
             val locationGetterJob = CoroutineScope(Dispatchers.IO).launch {
-                Log.d("broadcast", "Started GlobalScope")
+                Log.d("broadcast", "Started LocationGetterJob")
                 ClassLocationManager.getLocation(context).collectLatest {
                     if(it != null){
                         Log.d("broadcast", "New Location received")
                         Log.d("broadcast", "Latitude -> ${it.latitude} | Longitude -> ${it.longitude}")
                         location.value = it
                         Log.d("broadcast", "Cancelling getLocation.collectLatest() coroutine")
+
                         this.cancel()
                     }
                 }
@@ -69,8 +79,18 @@ class LocationMarkAttendanceWorker(
                         TODO -> If they are then mark present other wise absent
                         TODO -> Then send message Present and Absent according to the action performed
                          */
-
-                        createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context)
+                        Log.d("broadcast", "Marking present in database")
+                        val classAttendanceDao = ClassAttendanceDatabase.getInstance(context).classAttendanceDao
+                        classAttendanceDao.insertLogs(
+                            Logs(
+                                0,
+                                subjectId,
+                                subjectName,
+                                Calendar.getInstance().time,
+                                true
+                            )
+                        )
+                        createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context, "Present")
                         locationGetterJob.cancel()
                         this.cancel()
                     }

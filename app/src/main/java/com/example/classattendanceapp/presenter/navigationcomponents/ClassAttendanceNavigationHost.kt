@@ -11,14 +11,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.classattendanceapp.presenter.screens.LogsScreen
-import com.example.classattendanceapp.presenter.screens.SubjectsScreen
-import com.example.classattendanceapp.presenter.screens.TimeTableScreen
+import com.example.classattendanceapp.presenter.screens.logsscreen.LogsScreen
+import com.example.classattendanceapp.presenter.screens.subjectsscreen.SubjectsScreen
+import com.example.classattendanceapp.presenter.screens.timetablescreen.TimeTableScreen
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -37,6 +36,8 @@ fun ClassAttendanceNavigationHost(){
         mutableStateOf(false)
     }
 
+
+
     fun navigate(
         route: String
     ){
@@ -49,10 +50,11 @@ fun ClassAttendanceNavigationHost(){
     }
 
 
-
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = {
+            ClassAttendanceTopBar(classAttendanceViewModel)
+        },
         bottomBar = {
             ClassAttendanceBottomNavigationBar(
                 navController = navController,
@@ -75,6 +77,9 @@ fun ClassAttendanceNavigationHost(){
             }
         }
     ) {
+
+        PermissionHandler()
+
         NavHost(
             modifier = Modifier
                 .fillMaxSize()

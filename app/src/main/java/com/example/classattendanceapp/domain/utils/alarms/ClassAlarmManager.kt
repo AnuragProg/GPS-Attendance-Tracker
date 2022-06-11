@@ -11,10 +11,11 @@ import java.util.*
 
 object ClassAlarmManager {
 
-    private val TIMETABLEID = "timetable_id"
-    private val SUBJECTNAME = "subject_name"
-    private val HOUR = "hour"
-    private val MINUTE = "minute"
+    private const val TIMETABLEID = "timetable_id"
+    private const val SUBJECTNAME = "subject_name"
+    private const val HOUR = "hour"
+    private const val MINUTE = "minute"
+    private const val SUBJECTID = "subject_id"
 
     fun registerAlarm(
         context: Context,
@@ -27,6 +28,7 @@ object ClassAlarmManager {
             action = "com.example.classattendanceapp.domain.utils.alarms.ClassAlarmBroadcastReceiver.${timeTable.subjectName}.$timeTableId"
             Log.d("action", action!! + " \n For Registering Alarm")
             putExtra(TIMETABLEID, timeTableId)
+            putExtra(SUBJECTID, timeTable.subjectId)
             putExtra(SUBJECTNAME, timeTable.subjectName)
             putExtra(HOUR, timeTable.hour)
             putExtra(MINUTE, timeTable.minute)

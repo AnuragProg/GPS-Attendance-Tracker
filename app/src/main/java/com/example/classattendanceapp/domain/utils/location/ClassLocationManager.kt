@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -43,6 +44,22 @@ object ClassLocationManager {
                 Log.d("location", "gps location change detected with value $location")
                 locationByGps.value = location
             }
+
+            // For older versions than sdk 30 these should be defined
+            // as per old code convention
+
+            override fun onProviderEnabled(provider: String) {
+            }
+
+            override fun onProviderDisabled(provider: String) {
+            }
+
+            override fun onFlushComplete(requestCode: Int) {
+            }
+
+            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+            }
+
         }
 
 //        val networkListener = object: LocationListener{
@@ -135,7 +152,6 @@ object ClassLocationManager {
 //            Log.d("broadcast", "emitting value $currentLocation")
 //            emit(currentLocation)
             emit(locationByGps.value)
-
         }
     }
 }

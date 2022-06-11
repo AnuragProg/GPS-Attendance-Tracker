@@ -1,4 +1,4 @@
-package com.example.classattendanceapp.presenter.screens
+package com.example.classattendanceapp.presenter.screens.logsscreen
 
 import android.annotation.SuppressLint
 import android.util.Log

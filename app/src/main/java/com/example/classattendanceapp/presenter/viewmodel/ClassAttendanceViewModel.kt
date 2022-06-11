@@ -26,10 +26,17 @@ class ClassAttendanceViewModel @Inject constructor(
 ): ViewModel() {
 
     private var _floatingButtonClicked = MutableStateFlow(false)
-    val floatingButtonClicked get() = _floatingButtonClicked
+    val floatingButtonClicked: StateFlow<Boolean> get() = _floatingButtonClicked
 
     fun changeFloatingButtonClickedState(state: Boolean){
         _floatingButtonClicked.value = state
+    }
+
+    private var _showAddLocationCoordinateDialog = MutableStateFlow(false)
+    val showAddLocationCoordinateDialog:StateFlow<Boolean> get() = _showAddLocationCoordinateDialog
+
+    fun changeAddLocationCoordinateState(state: Boolean){
+        _showAddLocationCoordinateDialog.value = state
     }
 
     suspend fun getAllLogs() = flow{
