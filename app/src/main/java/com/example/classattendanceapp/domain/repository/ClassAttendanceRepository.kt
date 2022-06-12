@@ -1,9 +1,11 @@
 package com.example.classattendanceapp.domain.repository
 
+import androidx.datastore.preferences.core.Preferences
 import com.example.classattendanceapp.data.models.Logs
 import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.data.models.TimeTable
 import kotlinx.coroutines.flow.Flow
+import kotlin.reflect.KClass
 
 interface ClassAttendanceRepository {
 
@@ -37,6 +39,8 @@ interface ClassAttendanceRepository {
 
     suspend fun getTimeTableWithId(id: Int): TimeTable
 
+    suspend fun writeOrUpdateCoordinateInDataStore(key: Preferences.Key<Double>, value: Double)
 
+    suspend fun getCoordinateInDataStore(key: Preferences.Key<Double>): Flow<Double?>
 
 }

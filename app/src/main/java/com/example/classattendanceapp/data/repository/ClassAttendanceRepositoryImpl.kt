@@ -1,14 +1,19 @@
 package com.example.classattendanceapp.data.repository
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.*
 import com.example.classattendanceapp.data.db.ClassAttendanceDao
 import com.example.classattendanceapp.data.models.Logs
 import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.data.models.TimeTable
 import com.example.classattendanceapp.domain.repository.ClassAttendanceRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 class ClassAttendanceRepositoryImpl(
-    private val dao: ClassAttendanceDao
+    private val dao: ClassAttendanceDao,
+    private val dataStore: DataStore<Preferences>
 ) : ClassAttendanceRepository{
 
     override suspend fun insertSubject(subject: Subject) {
@@ -55,6 +60,17 @@ class ClassAttendanceRepositoryImpl(
         return dao.getTimeTableWithId(id)
     }
 
+    override suspend fun writeOrUpdateCoordinateInDataStore(key: Preferences.Key<Double>, value: Double) {
+        dataStore.edit{ pref ->
+            pref[key] = value
+        }
+    }
+
+    override suspend fun getCoordinateInDataStore(key: Preferences.Key<Double>): Flow<Double?> {
+        return dataStore.data.map { pref->
+            pref[key]
+        }
+    }
 
     override fun getAllSubjects(): Flow<List<Subject>> {
         return dao.getAllSubjects()

@@ -1,10 +1,15 @@
 package com.example.classattendanceapp.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.example.classattendanceapp.data.db.ClassAttendanceDao
 import com.example.classattendanceapp.data.db.ClassAttendanceDatabase
 import com.example.classattendanceapp.data.repository.ClassAttendanceRepositoryImpl
 import com.example.classattendanceapp.domain.repository.ClassAttendanceRepository
+import com.example.classattendanceapp.domain.usecases.datastoreusecase.GetCoordinateInDataStoreUseCase
+import com.example.classattendanceapp.domain.usecases.datastoreusecase.WriteOrUpdateCoordinateInDataStoreUseCase
 import com.example.classattendanceapp.domain.usecases.logsusecase.*
 import com.example.classattendanceapp.domain.usecases.subjectsusecase.DeleteSubjectUseCase
 import com.example.classattendanceapp.domain.usecases.subjectsusecase.GetSubjectsUseCase
@@ -22,6 +27,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ClassAttendanceModule {
 
+    private val Context.classAttendanceDatastore by preferencesDataStore(
+        name = "CLASSATTENDANCEDATASTORE"
+    )
+
     @Provides
     @Singleton
     fun providesClassAttendanceDao(@ApplicationContext context: Context): ClassAttendanceDao{
@@ -31,10 +40,12 @@ object ClassAttendanceModule {
     @Provides
     @Singleton
     fun providesClassAttendanceRepository(
-        classAttendanceDao: ClassAttendanceDao
+        classAttendanceDao: ClassAttendanceDao,
+        dataStore: DataStore<Preferences>
     ): ClassAttendanceRepository{
         return  ClassAttendanceRepositoryImpl(
-            classAttendanceDao
+            classAttendanceDao,
+            dataStore
         )
     }
 
@@ -58,8 +69,17 @@ object ClassAttendanceModule {
             insertTimeTableUseCase = InsertTimeTableUseCase(classAttendanceRepository),
             getLogOfSubjectUseCase = GetLogOfSubjectUseCase(classAttendanceRepository),
             getLogOfSubjectIdUseCase = GetLogOfSubjectIdUseCase(classAttendanceRepository),
-            getTimeTableOfDayUseCase = GetTimeTableOfDayUseCase(classAttendanceRepository)
+            getTimeTableOfDayUseCase = GetTimeTableOfDayUseCase(classAttendanceRepository),
+            getCoordinateInDataStoreUseCase = GetCoordinateInDataStoreUseCase(classAttendanceRepository),
+            writeOrUpdateCoordinateInDataStoreUseCase = WriteOrUpdateCoordinateInDataStoreUseCase(classAttendanceRepository)
         )
     }
 
+    @Provides
+    @Singleton
+    fun providesClassAttendanceDatastore(
+        @ApplicationContext context: Context
+    ): DataStore<Preferences>{
+        return context.classAttendanceDatastore
+    }
 }

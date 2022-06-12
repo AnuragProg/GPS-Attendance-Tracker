@@ -3,6 +3,7 @@ package com.example.classattendanceapp.presenter.viewmodel
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.lifecycle.ViewModel
 import com.example.classattendanceapp.data.models.Logs
 import com.example.classattendanceapp.data.models.Subject
@@ -24,6 +25,9 @@ import javax.inject.Inject
 class ClassAttendanceViewModel @Inject constructor(
     private val classAttendanceUseCase: ClassAttendanceUseCase
 ): ViewModel() {
+
+    private val longitudeDataStoreKey = doublePreferencesKey("userLongitude")
+    private val latitudeDataStoreKey = doublePreferencesKey("userLatitude")
 
     private var _floatingButtonClicked = MutableStateFlow(false)
     val floatingButtonClicked: StateFlow<Boolean> get() = _floatingButtonClicked
@@ -148,4 +152,34 @@ class ClassAttendanceViewModel @Inject constructor(
         classAttendanceUseCase.deleteLogsWithSubjectIdUseCase(subjectId)
     }
 
+    private var _latitudeInDataStore = MutableStateFlow<Double?>(null)
+    private var _longitudeInDataStore = MutableStateFlow<Double?>(null)
+
+    val latitudeInDataStore : StateFlow<Double?> get() = _latitudeInDataStore
+    val longitudeInDataStore: StateFlow<Double?> get() = _longitudeInDataStore
+
+    fun changeUserLatitude(latitude: Double){
+        _latitudeInDataStore.value = latitude
+    }
+    fun changeUserLongitude(longitude: Double){
+        _longitudeInDataStore.value = longitude
+    }
+
+    suspend fun getCoordinateInDataStore(){
+        val latitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(latitudeDataStoreKey)
+        val longitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(longitudeDataStoreKey)
+        latitudeDataStoreFlow.combine(longitudeDataStoreFlow){ latitude, longitude ->
+           if(latitude!=null && longitude!=null){
+               changeUserLatitude(latitude)
+               changeUserLongitude(longitude)
+           }
+        }
+    }
+
+
+
+    suspend fun writeOrUpdateCoordinateInDataStore(latitude: Double, longitude: Double){
+        classAttendanceUseCase.writeOrUpdateCoordinateInDataStoreUseCase(latitudeDataStoreKey, latitude)
+        classAttendanceUseCase.writeOrUpdateCoordinateInDataStoreUseCase(longitudeDataStoreKey, longitude)
+    }
 }
