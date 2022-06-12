@@ -25,57 +25,66 @@ fun AddLocationCoordinateDialog(
     var slongitude by remember{
         mutableStateOf("")
     }
-    AlertDialog(
-        onDismissRequest = {
-        classAttendanceViewModel.changeAddLocationCoordinateState(false)
-    },
-        text = {
-            Column(){
-                Text("Add Coordinates")
-                Spacer(modifier = Modifier.height(10.dp))
-                OutlinedTextField(
-                    value = slatitude,
-                    onValueChange = {
-                        slatitude = it
-                    },
-                    placeholder = {
-                        Text("Latitude")
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Decimal
+
+    val showAddLocationCoordinateDialog = classAttendanceViewModel.showAddLocationCoordinateDialog.collectAsState()
+
+    if(showAddLocationCoordinateDialog.value){
+        AlertDialog(
+            onDismissRequest = {
+                classAttendanceViewModel.changeAddLocationCoordinateState(false)
+            },
+            text = {
+                Column(){
+                    Text("Add Coordinates")
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = slatitude,
+                        onValueChange = {
+                            slatitude = it
+                        },
+                        placeholder = {
+                            Text("Latitude")
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal
+                        )
                     )
-                )
-                OutlinedTextField(
-                    value = slongitude,
-                    onValueChange = {
-                        slongitude = it
-                    },
-                    placeholder = {
-                        Text("Longitude")
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Decimal
+                    OutlinedTextField(
+                        value = slongitude,
+                        onValueChange = {
+                            slongitude = it
+                        },
+                        placeholder = {
+                            Text("Longitude")
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal
+                        )
                     )
-                )
-            }
-        },
-        buttons = {
-            Row(){
-                TextButton(onClick = {
-                    // TODO -> Add location to preferences datastore
-                    classAttendanceViewModel.changeAddLocationCoordinateState(false)
-                }) {
-                    Text("Register")
                 }
-                Spacer(modifier = Modifier.width(10.dp))
-                TextButton(onClick = {
-                    classAttendanceViewModel.changeAddLocationCoordinateState(false)
-                }) {
-                    Text("Cancel")
+            },
+            buttons = {
+                Row(){
+                    TextButton(onClick = {
+                        // TODO -> Add location to preferences datastore
+                        slatitude = ""
+                        slongitude = ""
+                        classAttendanceViewModel.changeAddLocationCoordinateState(false)
+                    }) {
+                        Text("Register")
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    TextButton(onClick = {
+                        slatitude = ""
+                        slongitude = ""
+                        classAttendanceViewModel.changeAddLocationCoordinateState(false)
+                    }) {
+                        Text("Cancel")
+                    }
                 }
             }
-        }
-    )
+        )
+    }
 }

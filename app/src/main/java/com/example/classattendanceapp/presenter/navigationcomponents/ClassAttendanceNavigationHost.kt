@@ -2,6 +2,7 @@ package com.example.classattendanceapp.presenter.navigationcomponents
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.FloatingActionButton
@@ -10,6 +11,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -50,6 +52,9 @@ fun ClassAttendanceNavigationHost(){
     }
 
 
+    AddLocationCoordinateDialog(classAttendanceViewModel = classAttendanceViewModel)
+
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -87,6 +92,8 @@ fun ClassAttendanceNavigationHost(){
             navController = navController,
             startDestination = Screens.SUBJECTSSCREEN.route,
         ){
+
+            
 
             composable(Screens.LOGSSCREEN.route){
 

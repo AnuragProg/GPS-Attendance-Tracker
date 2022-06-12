@@ -39,6 +39,13 @@ class ClassAttendanceViewModel @Inject constructor(
         _showAddLocationCoordinateDialog.value = state
     }
 
+    private var _showOverFlowMenu = MutableStateFlow(false)
+    val showOverFlowMenu : StateFlow<Boolean> get() = _showOverFlowMenu
+
+    fun changeOverFlowMenuState(state: Boolean){
+        _showOverFlowMenu.value = state
+    }
+
     suspend fun getAllLogs() = flow{
         classAttendanceUseCase.getAllLogsUseCase().collect{
             val tempLogList = mutableListOf<ModifiedLogs>()
