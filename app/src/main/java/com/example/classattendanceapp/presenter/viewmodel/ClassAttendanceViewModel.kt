@@ -3,8 +3,10 @@ package com.example.classattendanceapp.presenter.viewmodel
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.classattendanceapp.data.models.Logs
 import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.data.models.TimeTable
@@ -17,8 +19,10 @@ import com.example.classattendanceapp.domain.utils.alarms.ClassAlarmManager
 import com.example.classattendanceapp.presenter.utils.DateToSimpleFormat
 import com.example.classattendanceapp.presenter.utils.Days
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -152,34 +156,43 @@ class ClassAttendanceViewModel @Inject constructor(
         classAttendanceUseCase.deleteLogsWithSubjectIdUseCase(subjectId)
     }
 
-    private var _latitudeInDataStore = MutableStateFlow<Double?>(null)
-    private var _longitudeInDataStore = MutableStateFlow<Double?>(null)
+    private var _currentLatitudeInDataStore = MutableStateFlow<Double?>(null)
+    private var _currentLongitudeInDataStore = MutableStateFlow<Double?>(null)
 
-    val latitudeInDataStore : StateFlow<Double?> get() = _latitudeInDataStore
-    val longitudeInDataStore: StateFlow<Double?> get() = _longitudeInDataStore
+    val currentLatitudeInDataStore : StateFlow<Double?> get() = _currentLatitudeInDataStore
+    val currentLongitudeInDataStore: StateFlow<Double?> get() = _currentLongitudeInDataStore
 
-    fun changeUserLatitude(latitude: Double){
-        _latitudeInDataStore.value = latitude
+    fun changeUserLatitude(latitude: Double?){
+        _currentLatitudeInDataStore.value = latitude
     }
-    fun changeUserLongitude(longitude: Double){
-        _longitudeInDataStore.value = longitude
+    fun changeUserLongitude(longitude: Double?){
+        _currentLongitudeInDataStore.value = longitude
     }
 
-    suspend fun getCoordinateInDataStore(){
-        val latitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(latitudeDataStoreKey)
-        val longitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(longitudeDataStoreKey)
-        latitudeDataStoreFlow.combine(longitudeDataStoreFlow){ latitude, longitude ->
-           if(latitude!=null && longitude!=null){
-               changeUserLatitude(latitude)
-               changeUserLongitude(longitude)
-           }
+    fun getCoordinateInDataStore(
+        coroutineScope: CoroutineScope
+    ){
+        coroutineScope.launch{
+            val latitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(latitudeDataStoreKey)
+            val longitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(longitudeDataStoreKey)
+            latitudeDataStoreFlow.combine(longitudeDataStoreFlow){ latitude, longitude ->
+                Pair(latitude, longitude)
+            }.collectLatest { coordinates ->
+                changeUserLatitude(coordinates.first)
+                changeUserLongitude(coordinates.second)
+            }
         }
     }
-
-
 
     suspend fun writeOrUpdateCoordinateInDataStore(latitude: Double, longitude: Double){
         classAttendanceUseCase.writeOrUpdateCoordinateInDataStoreUseCase(latitudeDataStoreKey, latitude)
         classAttendanceUseCase.writeOrUpdateCoordinateInDataStoreUseCase(longitudeDataStoreKey, longitude)
+    }
+
+    fun deleteCoordinateInDataStore(){
+        viewModelScope.launch{
+            classAttendanceUseCase.deleteCoordinateInDataStoreUseCase(latitudeDataStoreKey)
+            classAttendanceUseCase.deleteCoordinateInDataStoreUseCase(longitudeDataStoreKey)
+        }
     }
 }

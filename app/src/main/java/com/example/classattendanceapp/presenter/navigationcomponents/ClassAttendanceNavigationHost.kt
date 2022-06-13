@@ -39,7 +39,6 @@ fun ClassAttendanceNavigationHost(){
     }
 
 
-
     fun navigate(
         route: String
     ){

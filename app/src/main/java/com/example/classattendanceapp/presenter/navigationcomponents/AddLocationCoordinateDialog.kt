@@ -18,6 +18,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -29,7 +31,7 @@ fun AddLocationCoordinateDialog(
     val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
-
+    Log.d("coroutinescope", "$coroutineScope is the coroutine scope")
     var slatitude by remember{
         mutableStateOf("")
     }
@@ -39,6 +41,30 @@ fun AddLocationCoordinateDialog(
 
     val showAddLocationCoordinateDialog = classAttendanceViewModel.showAddLocationCoordinateDialog.collectAsState()
 
+    var currentLatitudeInDataStore by remember{
+        mutableStateOf<Double?>(null)
+    }
+    var currentLongitudeInDataStore by remember{
+        mutableStateOf<Double?>(null)
+    }
+
+
+    LaunchedEffect(Unit){
+        classAttendanceViewModel.getCoordinateInDataStore(this)
+    }
+
+    LaunchedEffect(Unit){
+        classAttendanceViewModel.currentLatitudeInDataStore.combine(
+            classAttendanceViewModel.currentLongitudeInDataStore
+        ){ lat, lon ->
+            Pair(lat, lon)
+        }.collectLatest { coordinates ->
+            Log.d("coordinates", "Collected coordinates are $coordinates")
+            currentLatitudeInDataStore = coordinates.first
+            currentLongitudeInDataStore = coordinates.second
+        }
+    }
+
     if(showAddLocationCoordinateDialog.value){
         AlertDialog(
             onDismissRequest = {
@@ -46,28 +72,36 @@ fun AddLocationCoordinateDialog(
             },
             text = {
                 Column(){
-                    Text("Add Coordinates")
+                    Text("Coordinates")
+                    Spacer(modifier = Modifier.height(10.dp))
+                    if(currentLatitudeInDataStore != null && currentLongitudeInDataStore != null){
+                        Text("Current Coordinates = Latitude:${currentLatitudeInDataStore}" +
+                                " | Longitude:${currentLongitudeInDataStore}")
+                    }
                     Spacer(modifier = Modifier.height(10.dp))
                     OutlinedTextField(
                         value = slatitude,
                         onValueChange = {
                             slatitude = it
                         },
-                        placeholder = {
+                        label = {
                             Text("Latitude")
+
                         },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Decimal
                         )
                     )
+                    Spacer(modifier = Modifier.height(10.dp))
                     OutlinedTextField(
                         value = slongitude,
                         onValueChange = {
                             slongitude = it
                         },
-                        placeholder = {
+                        label = {
                             Text("Longitude")
+
                         },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
@@ -80,12 +114,18 @@ fun AddLocationCoordinateDialog(
                         color = Color.Red,
                         fontSize = 10.sp
                     )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    TextButton(onClick = {
+                        classAttendanceViewModel.deleteCoordinateInDataStore()
+                    }) {
+                        Text("Clear Location")
+                    }
                 }
             },
             buttons = {
                 Row(){
                     TextButton(onClick = {
-                        // TODO -> Add location to preferences datastore
+
                         coroutineScope.launch{
                             try{
                                 if(slatitude.isNotBlank() && slongitude.isNotBlank()){

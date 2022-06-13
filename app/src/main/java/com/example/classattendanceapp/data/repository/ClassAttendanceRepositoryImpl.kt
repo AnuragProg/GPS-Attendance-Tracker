@@ -72,6 +72,12 @@ class ClassAttendanceRepositoryImpl(
         }
     }
 
+    override suspend fun deleteCoordinateInDataStore(key: Preferences.Key<Double>) {
+        dataStore.edit{ pref ->
+            pref.remove(key)
+        }
+    }
+
     override fun getAllSubjects(): Flow<List<Subject>> {
         return dao.getAllSubjects()
     }

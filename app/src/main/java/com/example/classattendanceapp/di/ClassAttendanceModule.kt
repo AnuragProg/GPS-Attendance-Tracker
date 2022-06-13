@@ -8,6 +8,7 @@ import com.example.classattendanceapp.data.db.ClassAttendanceDao
 import com.example.classattendanceapp.data.db.ClassAttendanceDatabase
 import com.example.classattendanceapp.data.repository.ClassAttendanceRepositoryImpl
 import com.example.classattendanceapp.domain.repository.ClassAttendanceRepository
+import com.example.classattendanceapp.domain.usecases.datastoreusecase.DeleteCoordinateInDataStoreUseCase
 import com.example.classattendanceapp.domain.usecases.datastoreusecase.GetCoordinateInDataStoreUseCase
 import com.example.classattendanceapp.domain.usecases.datastoreusecase.WriteOrUpdateCoordinateInDataStoreUseCase
 import com.example.classattendanceapp.domain.usecases.logsusecase.*
@@ -71,7 +72,8 @@ object ClassAttendanceModule {
             getLogOfSubjectIdUseCase = GetLogOfSubjectIdUseCase(classAttendanceRepository),
             getTimeTableOfDayUseCase = GetTimeTableOfDayUseCase(classAttendanceRepository),
             getCoordinateInDataStoreUseCase = GetCoordinateInDataStoreUseCase(classAttendanceRepository),
-            writeOrUpdateCoordinateInDataStoreUseCase = WriteOrUpdateCoordinateInDataStoreUseCase(classAttendanceRepository)
+            writeOrUpdateCoordinateInDataStoreUseCase = WriteOrUpdateCoordinateInDataStoreUseCase(classAttendanceRepository),
+            deleteCoordinateInDataStoreUseCase = DeleteCoordinateInDataStoreUseCase(classAttendanceRepository)
         )
     }
 

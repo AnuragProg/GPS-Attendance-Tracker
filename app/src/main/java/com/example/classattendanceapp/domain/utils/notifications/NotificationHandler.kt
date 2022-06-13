@@ -5,8 +5,10 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.media.RingtoneManager
 import android.os.Build
+import android.util.DisplayMetrics
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.classattendanceapp.MainActivity
@@ -51,15 +53,30 @@ object NotificationHandler {
         } ?: "$subjectName - $hour:$minute"
 
 
-        val notification = NotificationCompat.Builder(context, CHANNELID)
-            .setSmallIcon(R.drawable.ic_launcher_background)
-            .setContentTitle("Mark your attendance!")
-            .setContentText(contentMessage)
-            .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-            .setAutoCancel(true)
-            .build()
+        val notification = if(message!=null){
+            NotificationCompat.Builder(context, CHANNELID)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setContentTitle("Mark your attendance!")
+                .setContentText(contentMessage)
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(
+                    message
+                ))
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setAutoCancel(true)
+                .build()
+        }else{
+            NotificationCompat.Builder(context, CHANNELID)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setContentTitle("Mark your attendance!")
+                .setContentText(contentMessage)
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setAutoCancel(true)
+                .build()
+        }
         with(NotificationManagerCompat.from(context)){
             notify(subjectId, notification)
         }

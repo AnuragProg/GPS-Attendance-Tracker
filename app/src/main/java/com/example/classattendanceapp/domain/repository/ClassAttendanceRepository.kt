@@ -43,4 +43,6 @@ interface ClassAttendanceRepository {
 
     suspend fun getCoordinateInDataStore(key: Preferences.Key<Double>): Flow<Double?>
 
+    suspend fun deleteCoordinateInDataStore(key: Preferences.Key<Double>)
+
 }

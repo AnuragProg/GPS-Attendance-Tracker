@@ -23,9 +23,8 @@ object ClassLocationManager {
 
     lateinit var locationManager: LocationManager
 
-    private fun getLocationManager(context: Context): LocationManager {
+    private fun getLocationManager(context: Context) {
         locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager
     }
 
 
@@ -33,43 +32,25 @@ object ClassLocationManager {
     @SuppressLint("MissingPermission")
     fun getLocation(context: Context) = flow {
         getLocationManager(context)
-//        var currentLocation: Location?
 
         val hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-//        val hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
         val locationByGps = MutableStateFlow<Location?>(null)
-//        val locationByNetwork = MutableStateFlow<Location?>(null)
+
         val gpsListener = object : LocationListener {
+
             override fun onLocationChanged(location: Location) {
-                Log.d("location", "gps location change detected with value $location")
                 locationByGps.value = location
             }
 
             // For older versions than sdk 30 these should be defined
             // as per old code convention
-
-            override fun onProviderEnabled(provider: String) {
-            }
-
-            override fun onProviderDisabled(provider: String) {
-            }
-
-            override fun onFlushComplete(requestCode: Int) {
-            }
-
-            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-            }
-
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
+            override fun onFlushComplete(requestCode: Int) {}
+            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
         }
 
-//        val networkListener = object: LocationListener{
-//            override fun onLocationChanged(location: Location) {
-//                Log.d("location", "network location change detected with value $location")
-//                locationByNetwork.value = location
-//            }
-//        }
-
-//        Log.d("location", "hasGps -> $hasGps | hasNetwork -> $hasNetwork")
         if (hasGps) {
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
@@ -78,80 +59,13 @@ object ClassLocationManager {
                 gpsListener,
                 Looper.getMainLooper()
             )
-
-            // For requesting single updates
-//            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
-//                // Use getCurrentLocation
-//                locationManager.getCurrentLocation(
-//                    LocationManager.GPS_PROVIDER,
-//                    null,
-//                    ContextCompat.getMainExecutor(context),
-//                ){
-//                    locationByGps = it
-//                }
-//            }else{
-//                // Use requestSingleUpdate
-//                locationManager.requestSingleUpdate(
-//                    LocationManager.GPS_PROVIDER,
-//                    { location -> locationByGps = location },
-//                    context.mainLooper
-//                )
-//            }
+        }else{
+            return@flow
         }
-//        if(hasNetwork){
-//            locationManager.requestLocationUpdates(
-//                LocationManager.NETWORK_PROVIDER,
-//                5000,
-//                0f,
-//                networkListener,
-//                Looper.getMainLooper()
-//
-//            )
-
-        // for requesting single updates
-//            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
-//                // Use getCurrentLocation
-//                locationManager.getCurrentLocation(
-//                    LocationManager.NETWORK_PROVIDER,
-//                    null,
-//                    ContextCompat.getMainExecutor(context),
-//                ){
-//                    locationByNetwork = it
-//                }
-//            }else{
-//                // Use requestSingleUpdate
-//                locationManager.requestSingleUpdate(
-//                    LocationManager.GPS_PROVIDER,
-//                    { location -> locationByNetwork = location },
-//                    context.mainLooper
-//                )
-//            }
-
-
-
 
 
         locationByGps.collect {
-//            currentLocation = if(locationByGps.value!=null){
-//                Log.d("broadcast", "locationByGps and locationByNetwork both are available")
-//                if(locationByGps.value!!.accuracy > locationByNetwork.value!!.accuracy){
-//                    locationByGps.value
-//                }else{
-//                    locationByNetwork.value
-//                }
-//            }else if(locationByGps!=null){
-//                Log.d("broadcast", "locationByGps is available")
-//                locationByGps.value
-//            }else if(locationByNetwork!=null){
-//                Log.d("broadcast", "locationByNetwork is available")
-//                locationByNetwork.value
-//            }else{
-//                Log.d("location", "Returning because network and gps are not retrieved successfully")
-//                null
-//            }
-//            Log.d("broadcast", "emitting value $currentLocation")
-//            emit(currentLocation)
-            emit(locationByGps.value)
+            emit(it)
         }
     }
 }

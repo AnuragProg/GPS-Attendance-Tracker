@@ -1,5 +1,6 @@
 package com.example.classattendanceapp.domain.usecases.usecase
 
+import com.example.classattendanceapp.domain.usecases.datastoreusecase.DeleteCoordinateInDataStoreUseCase
 import com.example.classattendanceapp.domain.usecases.datastoreusecase.GetCoordinateInDataStoreUseCase
 import com.example.classattendanceapp.domain.usecases.datastoreusecase.WriteOrUpdateCoordinateInDataStoreUseCase
 import com.example.classattendanceapp.domain.usecases.logsusecase.*
@@ -25,5 +26,6 @@ data class ClassAttendanceUseCase(
     val getLogOfSubjectIdUseCase: GetLogOfSubjectIdUseCase,
     val getTimeTableOfDayUseCase: GetTimeTableOfDayUseCase,
     val getCoordinateInDataStoreUseCase: GetCoordinateInDataStoreUseCase,
-    val writeOrUpdateCoordinateInDataStoreUseCase: WriteOrUpdateCoordinateInDataStoreUseCase
+    val writeOrUpdateCoordinateInDataStoreUseCase: WriteOrUpdateCoordinateInDataStoreUseCase,
+    val deleteCoordinateInDataStoreUseCase: DeleteCoordinateInDataStoreUseCase
 )

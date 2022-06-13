@@ -33,6 +33,6 @@ object CoordinateCalculations {
             long2,
             lat1,
             lat2
-        )
+        ) * 1000
     }
 }
