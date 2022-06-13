@@ -28,7 +28,6 @@ object ClassLocationManager {
     }
 
 
-
     @SuppressLint("MissingPermission")
     fun getLocation(context: Context) = flow {
         getLocationManager(context)
@@ -51,6 +50,7 @@ object ClassLocationManager {
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
         }
 
+        Log.d("broadcast", "The gps is $hasGps")
         if (hasGps) {
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
@@ -59,10 +59,7 @@ object ClassLocationManager {
                 gpsListener,
                 Looper.getMainLooper()
             )
-        }else{
-            return@flow
         }
-
 
         locationByGps.collect {
             emit(it)

@@ -33,8 +33,7 @@ import kotlinx.coroutines.launch
 
 
 @SuppressLint("CoroutineCreationDuringComposition")
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TimeTableScreen(
     classAttendanceViewModel: ClassAttendanceViewModel
@@ -61,9 +60,6 @@ fun TimeTableScreen(
         )
     }
 
-    var showNoSubjectsFound by remember{
-        mutableStateOf(false)
-    }
 
     var subjectInAlertDialog by remember{
         mutableStateOf<ModifiedSubjects?>(null)
@@ -85,7 +81,7 @@ fun TimeTableScreen(
 
         classAttendanceViewModel.getTimeTable().collectLatest { timetables ->
             timetableList.clear()
-            var i = 0;
+            var i = 0
             timetables.keys.forEach{
                 Log.d("debugging" , "${++i}th value is $it")
                 timetableList[it] = timetables[it]!!
@@ -257,8 +253,8 @@ fun TimeTableScreen(
 
 
 
-    Box(){
-        Column(){
+    Box{
+        Column{
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,

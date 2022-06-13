@@ -24,10 +24,6 @@ class ClassAlarmBroadcastReceiver : BroadcastReceiver() {
     private val HOUR = "hour"
     private val MINUTE = "minute"
 
-    private val radius : Double = 0.0002
-    private val latitude: Double = 30.2709
-    private val longitude: Double = 77.9865
-
     override fun onReceive(context: Context?, intent: Intent?){
         Log.d("broadcast","Broadcast received")
         if(intent != null && context != null) {

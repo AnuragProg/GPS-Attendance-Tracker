@@ -135,6 +135,7 @@ class ClassAttendanceViewModel @Inject constructor(
     }
 
     suspend fun deleteSubject(id: Int){
+        classAttendanceUseCase.deleteLogsWithSubjectIdUseCase(id)
         classAttendanceUseCase.deleteSubjectUseCase(id)
     }
 

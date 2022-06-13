@@ -168,7 +168,6 @@ fun SubjectsScreen(
                                 onClick = {
                                     coroutineScope.launch{
                                         classAttendanceViewModel.deleteSubject(it._id)
-                                        classAttendanceViewModel.deleteLogsWithSubjectId(it._id)
                                     }
                                     showOverFlowMenu = false
                                 }

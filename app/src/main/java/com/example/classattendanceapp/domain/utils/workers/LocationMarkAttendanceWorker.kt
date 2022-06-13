@@ -20,11 +20,8 @@ import com.example.classattendanceapp.domain.utils.maths.CoordinateCalculations
 import com.example.classattendanceapp.domain.utils.notifications.NotificationHandler
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -42,15 +39,8 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
     private val MINUTE = "minute"
     private val SUBJECTID = "subject_id"
 
-    private val radius : Double = 0.0002
-    private val latitude: Double = 30.2709
-    private val longitude: Double = 77.9865
-
     private val longitudeDataStoreKey = doublePreferencesKey("userLongitude")
     private val latitudeDataStoreKey = doublePreferencesKey("userLatitude")
-
-
-
 
     override fun doWork(): Result {
 
@@ -87,24 +77,14 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
 
             val locationGetterJob = CoroutineScope(Dispatchers.IO).launch {
 
-
                 Log.d("broadcast", "Started LocationGetterJob")
-
 
                 ClassLocationManager.getLocation(context).collectLatest {
                     if(it != null){
-
-
                         Log.d("broadcast", "New Location received")
                         Log.d("broadcast", "Latitude -> ${it.latitude} | Longitude -> ${it.longitude}")
-
-
                         location.value = it
-
-
                         Log.d("broadcast", "Cancelling getLocation.collectLatest() coroutine")
-
-
                         this.cancel()
                     }
                 }
@@ -113,88 +93,76 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
 
 
             CoroutineScope(Dispatchers.IO).launch{
-                location.collectLatest { currentLocation ->
-                    if (currentLocation != null) {
+                try{
+                    withTimeout(5000) {
+                        location.collectLatest { currentLocation ->
+                            if (currentLocation != null) {
+                                Log.d("broadcast", "location StateFlow has been updated with location -> $currentLocation")
+                                // Location Based Attendance Feature
+                                val userSpecifiedLocation = dataStore.data.map{ pref ->
+                                    pref[latitudeDataStoreKey]
+                                }.combine(
+                                    dataStore.data.map{ pref ->
+                                        pref[longitudeDataStoreKey]
+                                    }
+                                ){ lat, lon ->
+                                    Pair(lat, lon)
+                                }.first()
 
+                                val classAttendanceDao = ClassAttendanceDatabase.getInstance(context).classAttendanceDao
 
-                        Log.d("broadcast", "location StateFlow has been updated with location -> $currentLocation")
-                        // Location Based Attendance Feature
-
-                        val userSpecifiedLocation = dataStore.data.map{ pref ->
-                            pref[latitudeDataStoreKey]
-                        }.combine(
-                            dataStore.data.map{ pref ->
-                                pref[longitudeDataStoreKey]
-                            }
-                        ){ lat, lon ->
-                            Pair(lat, lon)
-                        }.first()
-
-                        val classAttendanceDao = ClassAttendanceDatabase.getInstance(context).classAttendanceDao
-
-                        Log.d("broadcast", "current -> latitude : ${currentLocation.latitude} | longitude : ${currentLocation.longitude}")
-                        Log.d("broadcast", "user -> latitude : ${userSpecifiedLocation.first} | longitude : ${userSpecifiedLocation.second}")
-                        if(userSpecifiedLocation.first!=null && userSpecifiedLocation.second!=null){
-                            val distance = CoordinateCalculations.distanceBetweenPointsInM(
-                                lat1 = currentLocation.latitude,
-                                long1 = currentLocation.longitude,
-                                lat2 = userSpecifiedLocation.first!!,
-                                long2 = userSpecifiedLocation.second!!,
-                            )
-                            Log.d("broadcast", "Calculated Distance is $distance")
-                            if(distance<20){
-
-
-                                Log.d("broadcast", "Marking present in database")
-
-
-                                classAttendanceDao.insertLogs(
-                                    Logs(
-                                        0,
-                                        subjectId,
-                                        subjectName,
-                                        Calendar.getInstance().time,
-                                        true
+                                Log.d("broadcast", "current -> latitude : ${currentLocation.latitude} | longitude : ${currentLocation.longitude}")
+                                Log.d("broadcast", "user -> latitude : ${userSpecifiedLocation.first} | longitude : ${userSpecifiedLocation.second}")
+                                if(userSpecifiedLocation.first!=null && userSpecifiedLocation.second!=null){
+                                    val distance = CoordinateCalculations.distanceBetweenPointsInM(
+                                        lat1 = currentLocation.latitude,
+                                        long1 = currentLocation.longitude,
+                                        lat2 = userSpecifiedLocation.first!!,
+                                        long2 = userSpecifiedLocation.second!!,
                                     )
-                                )
-                                createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context, "Present \nLatitude = ${currentLocation.latitude}\nLongitude = ${currentLocation.longitude}")
-                            }else{
-
-
-                                Log.d("broadcast", "Marking absent in database")
-
-
-                                classAttendanceDao.insertLogs(
-                                    Logs(
-                                        0,
-                                        subjectId,
-                                        subjectName,
-                                        Calendar.getInstance().time,
-                                        false
-                                    )
-                                )
-                                createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context, "Absent \nLatitude = ${currentLocation.latitude}\nLongitude = ${currentLocation.longitude}")
+                                    Log.d("broadcast", "Calculated Distance is $distance")
+                                    if(distance<20){
+                                        Log.d("broadcast", "Marking present in database")
+                                        classAttendanceDao.insertLogs(
+                                            Logs(
+                                                0,
+                                                subjectId,
+                                                subjectName,
+                                                Calendar.getInstance().time,
+                                                true
+                                            )
+                                        )
+                                        createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context, "Present \nLatitude = ${currentLocation.latitude}\nLongitude = ${currentLocation.longitude}")
+                                    }else{
+                                        Log.d("broadcast", "Marking absent in database")
+                                        classAttendanceDao.insertLogs(
+                                            Logs(
+                                                0,
+                                                subjectId,
+                                                subjectName,
+                                                Calendar.getInstance().time,
+                                                false
+                                            )
+                                        )
+                                        createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context, "Absent \nLatitude = ${currentLocation.latitude}\nLongitude = ${currentLocation.longitude}")
+                                    }
+                                }else{
+                                    createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context)
+                                }
+                                locationGetterJob.cancel()
+                                this@launch.cancel()
                             }
-                        }else{
-                            createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context)
                         }
-                        // ********************
-
-
-                        locationGetterJob.cancel()
-                        this.cancel()
                     }
+                }catch(e: TimeoutCancellationException){
+                    createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context)
+                    this.cancel()
                 }
             }
-
-
         } else {
             Log.d("broadcast", "NetworkCheck unsuccessful")
             Log.d("broadcast", "Executing Normal Notification sequence")
-
-
             createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute , context)
-
         }
         return Result.success()
     }
@@ -210,11 +178,7 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
         if (timeTableId == -1 || hour == -1 || minute == -1 || subjectName == null) {
             return
         }
-
-
         Log.d("broadcast", "Successfully have details $timeTableId $subjectName $hour $minute")
-
-
         NotificationHandler.createNotificationChannel(context)
         NotificationHandler.createAndShowNotification(
             context,
