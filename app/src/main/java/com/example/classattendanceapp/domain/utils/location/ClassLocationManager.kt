@@ -13,8 +13,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -31,15 +30,28 @@ object ClassLocationManager {
     @SuppressLint("MissingPermission")
     fun getLocation(context: Context) = flow {
         getLocationManager(context)
-
+        val location = MutableStateFlow<Location?>(null)
         val hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-
+        val hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         val locationByGps = MutableStateFlow<Location?>(null)
-
+        val locationByNetwork = MutableStateFlow<Location?>(null)
         val gpsListener = object : LocationListener {
 
             override fun onLocationChanged(location: Location) {
                 locationByGps.value = location
+            }
+
+            // For older versions than sdk 30 these should be defined
+            // as per old code convention
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
+            override fun onFlushComplete(requestCode: Int) {}
+            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+        }
+        val networkListener = object : LocationListener {
+
+            override fun onLocationChanged(location: Location) {
+                locationByNetwork.value = location
             }
 
             // For older versions than sdk 30 these should be defined
@@ -60,9 +72,46 @@ object ClassLocationManager {
                 Looper.getMainLooper()
             )
         }
+        Log.d("broadcast", "The network is $hasNetwork")
+        if (hasNetwork) {
+            locationManager.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER,
+                5000,
+                0F,
+                networkListener,
+                Looper.getMainLooper()
+            )
+        }
 
-        locationByGps.collect {
-            emit(it)
+        Log.d("broadcast", "Starting combine locationCoroutine")
+
+        CoroutineScope(Dispatchers.IO).launch{
+            locationByGps.combine(locationByNetwork){ gpsLocation, networkLocation ->
+                Pair(gpsLocation, networkLocation)
+            }.collectLatest{ coordinates ->
+                Log.d("broadcast", "Getting combined coordinates $coordinates")
+                if(coordinates.first!=null && coordinates.second!=null){
+                    if(coordinates.first!!.accuracy >= coordinates.second!!.accuracy){
+                        Log.d("broadcast", "Emitting gps location with accuracy ${coordinates.first!!.accuracy}")
+                        location.value = coordinates.first
+                    }else{
+                        Log.d("broadcast", "Emitting network location with accuracy ${coordinates.second!!.accuracy}")
+
+                        location.value = coordinates.second
+                    }
+                    this.cancel()
+                }else if(coordinates.first!=null){
+                    Log.d("broadcast", "Gps is not null so emitting gps fetched coordinates")
+                    location.value = coordinates.first
+                }else if(coordinates.second!=null){
+                    Log.d("broadcast", "Network is not null so emitting network fetched coordinates")
+                    location.value = coordinates.second
+                }
+            }
+        }
+
+        location.collect { currentLocation ->
+            emit(currentLocation)
         }
     }
 }

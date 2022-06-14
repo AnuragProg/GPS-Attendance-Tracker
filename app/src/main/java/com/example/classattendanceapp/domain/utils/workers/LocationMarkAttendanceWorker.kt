@@ -94,7 +94,7 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
 
             CoroutineScope(Dispatchers.IO).launch{
                 try{
-                    withTimeout(5000) {
+                    withTimeout(15000) {
                         location.collectLatest { currentLocation ->
                             if (currentLocation != null) {
                                 Log.d("broadcast", "location StateFlow has been updated with location -> $currentLocation")
@@ -153,8 +153,10 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
                                 this@launch.cancel()
                             }
                         }
+                        this@withTimeout.cancel()
                     }
                 }catch(e: TimeoutCancellationException){
+                    Log.d("broadcast", "${e.cause} thrown, creating simple notification")
                     createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context)
                     this.cancel()
                 }
