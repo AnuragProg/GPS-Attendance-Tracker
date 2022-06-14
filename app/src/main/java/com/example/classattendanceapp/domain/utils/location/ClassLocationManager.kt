@@ -85,7 +85,8 @@ object ClassLocationManager {
 
         Log.d("broadcast", "Starting combine locationCoroutine")
 
-        CoroutineScope(Dispatchers.IO).launch{
+        val updateCurrentLocationCoordinatesJob = CoroutineScope(Dispatchers.IO).launch{
+
             locationByGps.combine(locationByNetwork){ gpsLocation, networkLocation ->
                 Pair(gpsLocation, networkLocation)
             }.collectLatest{ coordinates ->
@@ -109,9 +110,10 @@ object ClassLocationManager {
                 }
             }
         }
-
-        location.collect { currentLocation ->
-            emit(currentLocation)
+        location.collect{
+            delay(5000)
+            emit(it)
+            updateCurrentLocationCoordinatesJob.cancel()
         }
     }
 }

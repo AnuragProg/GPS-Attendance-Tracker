@@ -98,7 +98,7 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
                         location.collectLatest { currentLocation ->
                             if (currentLocation != null) {
                                 Log.d("broadcast", "location StateFlow has been updated with location -> $currentLocation")
-                                // Location Based Attendance Feature
+                                // Getting Institute Location from datastore
                                 val userSpecifiedLocation = dataStore.data.map{ pref ->
                                     pref[latitudeDataStoreKey]
                                 }.combine(
@@ -109,6 +109,7 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
                                     Pair(lat, lon)
                                 }.first()
 
+                                // Dao instance to mark either Absent or Present
                                 val classAttendanceDao = ClassAttendanceDatabase.getInstance(context).classAttendanceDao
 
                                 Log.d("broadcast", "current -> latitude : ${currentLocation.latitude} | longitude : ${currentLocation.longitude}")
@@ -120,7 +121,7 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
                                         lat2 = userSpecifiedLocation.first!!,
                                         long2 = userSpecifiedLocation.second!!,
                                     )
-                                    Log.d("broadcast", "Calculated Distance is $distance")
+                                    Log.d("broadcast", "Calculated Distance is $distance meters")
                                     if(distance<20){
                                         Log.d("broadcast", "Marking present in database")
                                         classAttendanceDao.insertLogs(
@@ -132,7 +133,7 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
                                                 true
                                             )
                                         )
-                                        createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context, "Present \nLatitude = ${currentLocation.latitude}\nLongitude = ${currentLocation.longitude}")
+                                        createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context, "Present \nLatitude = " + String.format("%.6f",currentLocation.latitude) + "\nLongitude = " + String.format("%.6f",currentLocation.longitude)+"\nDistance = " +String.format("%.6f",distance))
                                     }else{
                                         Log.d("broadcast", "Marking absent in database")
                                         classAttendanceDao.insertLogs(
@@ -144,20 +145,22 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
                                                 false
                                             )
                                         )
-                                        createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context, "Absent \nLatitude = ${currentLocation.latitude}\nLongitude = ${currentLocation.longitude}")
+                                        createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context, "Absent \nLatitude = " + String.format("%.6f",currentLocation.latitude)+ "\nLongitude = " + String.format("%.6f",currentLocation.longitude) + "\nDistance = " +String.format("%.6f", distance))
                                     }
                                 }else{
                                     createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context)
                                 }
                                 locationGetterJob.cancel()
-                                this@launch.cancel()
+                                Log.d("broadcast", "Cancelling withTimeout coroutine")
+                                this@withTimeout.cancel()
                             }
+
                         }
-                        this@withTimeout.cancel()
                     }
                 }catch(e: TimeoutCancellationException){
                     Log.d("broadcast", "${e.cause} thrown, creating simple notification")
                     createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context)
+                }finally{
                     this.cancel()
                 }
             }
