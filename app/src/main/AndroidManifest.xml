@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
     <application
         android:name=".ClassAttendanceApplication"
@@ -25,7 +26,6 @@
             android:theme="@style/Theme.ClassAttendanceApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -33,7 +33,10 @@
             android:enabled="true"
             android:exported="true"
             >
-
+            <intent-filter>
+                <action android:name="com.example.classattendanceapp.domain.utils.alarms.ClassAlarmBroadcastReceiver"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </receiver>
         <provider
             android:name="androidx.startup.InitializationProvider"

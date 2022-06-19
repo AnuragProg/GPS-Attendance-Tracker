@@ -23,6 +23,8 @@ class ClassAlarmBroadcastReceiver : BroadcastReceiver() {
     private val SUBJECTNAME = "subject_name"
     private val HOUR = "hour"
     private val MINUTE = "minute"
+    private val DAYOFTHEWEEK = "day_of_the_week"
+
 
     override fun onReceive(context: Context?, intent: Intent?){
         Log.d("broadcast","Broadcast received")
@@ -32,7 +34,8 @@ class ClassAlarmBroadcastReceiver : BroadcastReceiver() {
             val subjectName = intent.getStringExtra(SUBJECTNAME)
             val hour = intent.getIntExtra(HOUR, -1)
             val minute = intent.getIntExtra(MINUTE, -1)
-            if(timeTableId == -1 || subjectId == -1 || subjectName == null || hour == -1 || minute == -1){
+            val day_of_the_week = intent.getIntExtra(DAYOFTHEWEEK, -1)
+            if(timeTableId == -1 || subjectId == -1 || subjectName == null || hour == -1 || minute == -1 || day_of_the_week == -1){
                 return
             }
             val inputData = workDataOf(
@@ -40,7 +43,8 @@ class ClassAlarmBroadcastReceiver : BroadcastReceiver() {
                 SUBJECTID to subjectId,
                 SUBJECTNAME to subjectName,
                 HOUR to hour,
-                MINUTE to minute
+                MINUTE to minute,
+                DAYOFTHEWEEK to day_of_the_week
             )
             val startOperationWorkRequest = OneTimeWorkRequestBuilder<LocationMarkAttendanceWorker>()
                 .setInputData(inputData)

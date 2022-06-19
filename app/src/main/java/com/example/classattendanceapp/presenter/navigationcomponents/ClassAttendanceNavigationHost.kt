@@ -25,7 +25,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ClassAttendanceNavigationHost(){
 
@@ -34,9 +33,7 @@ fun ClassAttendanceNavigationHost(){
     var visibility by remember{ mutableStateOf(false) }
     var goneToAnotherScreen by remember{ mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    val allowToAddTimeTable by remember{
-        mutableStateOf(false)
-    }
+
 
 
     fun navigate(
@@ -44,7 +41,6 @@ fun ClassAttendanceNavigationHost(){
     ){
         coroutineScope.launch{
             visibility = false
-            delay(800)
             navController.navigate(route)
             goneToAnotherScreen = !goneToAnotherScreen
         }
@@ -99,23 +95,8 @@ fun ClassAttendanceNavigationHost(){
                 LaunchedEffect(goneToAnotherScreen){
                     visibility = true
                 }
-                AnimatedVisibility(
-                    visible = visibility,
-                    enter = scaleIn(
-                        animationSpec = tween(
-                            durationMillis = 500,
-                            delayMillis = 100
-                        )
-                    ),
-                    exit = scaleOut(
-                        animationSpec = tween(
-                            durationMillis = 500,
-                            delayMillis = 100
-                        )
-                    ),
-                ){
-                    LogsScreen(classAttendanceViewModel)
-                }
+                LogsScreen(classAttendanceViewModel)
+
             }
 
             composable(Screens.SUBJECTSSCREEN.route){
@@ -128,46 +109,14 @@ fun ClassAttendanceNavigationHost(){
                     */
                     visibility = true
                 }
-                AnimatedVisibility(
-                    visible = visibility,
-                    enter = scaleIn(
-                        animationSpec = tween(
-                            durationMillis = 500,
-                            delayMillis = 100
-                        )
-                    ),
-                    exit = scaleOut(
-                        animationSpec = tween(
-                            durationMillis = 500,
-                            delayMillis = 100
-                        )
-                    )
-                ) {
-                    SubjectsScreen(classAttendanceViewModel)
-                }
+                SubjectsScreen(classAttendanceViewModel)
             }
 
             composable(Screens.TIMETABLESCREEN.route){
                 LaunchedEffect(goneToAnotherScreen){
                     visibility = true
                 }
-                AnimatedVisibility(
-                    visible = visibility,
-                    enter = scaleIn(
-                        animationSpec = tween(
-                            durationMillis = 500,
-                            delayMillis = 100
-                        )
-                    ),
-                    exit = scaleOut(
-                        animationSpec = tween(
-                            durationMillis = 500,
-                            delayMillis = 100
-                        )
-                    )
-                ) {
-                    TimeTableScreen(classAttendanceViewModel)
-                }
+                TimeTableScreen(classAttendanceViewModel)
             }
         }
     }
