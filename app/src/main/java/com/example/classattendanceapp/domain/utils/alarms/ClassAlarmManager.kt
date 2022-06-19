@@ -45,15 +45,10 @@ object ClassAlarmManager {
 
         val pendingIntent = PendingIntent.getBroadcast(context, timeTableId, intent, PendingIntent.FLAG_IMMUTABLE)
         if(Calendar.getInstance().time.time >= calendar.time.time){
-            Log.d("broadcast", "Now time -> ${Calendar.getInstance().time.time} and set time is ${calendar.time.time}")
-            Log.d("broadcast", "Setting Alarm for ${calendar.time.time + AlarmManager.INTERVAL_DAY*7} next week")
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.time.time + AlarmManager.INTERVAL_DAY*7, pendingIntent)
         }else{
-            Log.d("broadcast", "Now time -> ${Calendar.getInstance().time.time} and set time is ${calendar.time.time}")
-            Log.d("broadcast", "Setting Alarm for ${calendar.time.time} this week")
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.time.time, pendingIntent)
         }
-//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.time.time, AlarmManager.INTERVAL_DAY*7, pendingIntent)
     }
 
     fun cancelAlarm(

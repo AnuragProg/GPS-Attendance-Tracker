@@ -5,7 +5,7 @@ import com.example.classattendanceapp.data.models.Logs
 import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.data.models.TimeTable
 import kotlinx.coroutines.flow.Flow
-import kotlin.reflect.KClass
+
 
 interface ClassAttendanceRepository {
 

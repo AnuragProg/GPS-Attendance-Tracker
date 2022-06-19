@@ -44,6 +44,8 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
 
     private val longitudeDataStoreKey = doublePreferencesKey("userLongitude")
     private val latitudeDataStoreKey = doublePreferencesKey("userLatitude")
+    private val rangeDataStoreKey = doublePreferencesKey("userRange")
+
 
     override fun doWork(): Result {
 
@@ -67,29 +69,7 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
 
 
         if (NetworkCheck.isInternetAvailable(context)) {
-
-
             Log.d("worker", "NetworkCheck successful")
-
-
-            val location = MutableStateFlow<Location?>(null)
-
-
-//            Log.d("worker", "Launching locationGetterJob")
-//            val locationGetterJob = CoroutineScope(Dispatchers.IO).launch {
-//                Log.d("worker", "Started LocationGetterJob")
-//
-//                ClassLocationManager.getLocation(context).collectLatest {
-//                    if(it != null){
-//                        Log.d("worker", "New Location received")
-//                        Log.d("worker", "Latitude -> ${it.latitude} | Longitude -> ${it.longitude}")
-//                        location.value = it
-//                        Log.d("worker", "Cancelling getLocation.collectLatest() coroutine")
-//                        this.cancel()
-//                    }
-//                }
-//            }
-
             CoroutineScope(Dispatchers.IO).launch{
                 try{
                     withTimeout(15000) {
@@ -98,16 +78,22 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
                                 Log.d("worker",
                                     "location StateFlow has been updated with location -> $currentLocation")
                                 // Getting Institute Location from datastore
-                                val userSpecifiedLocation = dataStore.data.map { pref ->
-                                    pref[latitudeDataStoreKey]
-                                }.combine(
+                                // if no userSpecifiedLocation found in datastore
+                                // then timeout will reach and exception will be raised
+                                val userSpecifiedLocation = combine(
+                                    dataStore.data.map { pref ->
+                                        pref[latitudeDataStoreKey]
+                                    },
                                     dataStore.data.map { pref ->
                                         pref[longitudeDataStoreKey]
+                                    },
+                                    dataStore.data.map{ pref ->
+                                        pref[rangeDataStoreKey]
                                     }
-                                ) { lat, lon ->
-                                    Pair(lat, lon)
+                                ) { lat, lon, range ->
+                                    Triple(lat, lon, range)
                                 }.first {
-                                    it.first != null && it.second != null
+                                    it.first != null && it.second != null && it.third != null
                                 }
 
                                 Log.d("worker", "Received userSpecifiedLocation from datastore")
@@ -120,80 +106,69 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
                                     "current -> latitude : ${currentLocation.latitude} | longitude : ${currentLocation.longitude}")
                                 Log.d("worker",
                                     "user -> latitude : ${userSpecifiedLocation.first} | longitude : ${userSpecifiedLocation.second}")
-                                if (userSpecifiedLocation.first != null && userSpecifiedLocation.second != null) {
-                                    val distance = CoordinateCalculations.distanceBetweenPointsInM(
-                                        lat1 = currentLocation.latitude,
-                                        long1 = currentLocation.longitude,
-                                        lat2 = userSpecifiedLocation.first!!,
-                                        long2 = userSpecifiedLocation.second!!,
+
+                                val distance = CoordinateCalculations.distanceBetweenPointsInM(
+                                    lat1 = currentLocation.latitude,
+                                    long1 = currentLocation.longitude,
+                                    lat2 = userSpecifiedLocation.first!!,
+                                    long2 = userSpecifiedLocation.second!!,
+                                )
+                                Log.d("worker", "Calculated Distance is $distance meters")
+                                if (distance <= userSpecifiedLocation.third!!) {
+                                    Log.d("worker", "Marking present in database")
+                                    classAttendanceDao.insertLogs(
+                                        Logs(
+                                            0,
+                                            subjectId,
+                                            subjectName,
+                                            Calendar.getInstance().time,
+                                            true
+                                        )
                                     )
-                                    Log.d("worker", "Calculated Distance is $distance meters")
-                                    if (distance < 20) {
-                                        Log.d("worker", "Marking present in database")
-                                        classAttendanceDao.insertLogs(
-                                            Logs(
-                                                0,
-                                                subjectId,
-                                                subjectName,
-                                                Calendar.getInstance().time,
-                                                true
-                                            )
-                                        )
-                                        Log.d("worker", "Creating Present marked notification")
-                                        createNotificationChannelAndShowNotification(timeTableId,
-                                            subjectName,
-                                            hour,
-                                            minute,
-                                            context,
-                                            "Present \nLatitude = " + String.format("%.6f",
-                                                currentLocation.latitude) + "\nLongitude = " + String.format(
-                                                "%.6f",
-                                                currentLocation.longitude) + "\nDistance = " + String.format(
-                                                "%.6f",
-                                                distance))
-                                        this@withTimeout.cancel()
-                                    } else {
-                                        Log.d("worker", "Marking absent in database")
-                                        classAttendanceDao.insertLogs(
-                                            Logs(
-                                                0,
-                                                subjectId,
-                                                subjectName,
-                                                Calendar.getInstance().time,
-                                                false
-                                            )
-                                        )
-                                        Log.d("worker", "Creating Absent marked notification")
-                                        createNotificationChannelAndShowNotification(timeTableId,
-                                            subjectName,
-                                            hour,
-                                            minute,
-                                            context,
-                                            "Absent \nLatitude = " + String.format("%.6f",
-                                                currentLocation.latitude) + "\nLongitude = " + String.format(
-                                                "%.6f",
-                                                currentLocation.longitude) + "\nDistance = " + String.format(
-                                                "%.6f",
-                                                distance))
-                                        this@withTimeout.cancel()
-                                    }
-                                } else {
-                                    Log.d("worker",
-                                        "Creating simple notification due to userSpecifiedLocation being null")
+                                    Log.d("worker", "Creating Present marked notification")
                                     createNotificationChannelAndShowNotification(timeTableId,
                                         subjectName,
                                         hour,
                                         minute,
-                                        context)
+                                        context,
+                                        "Present \nLatitude = " + String.format("%.6f",
+                                            currentLocation.latitude) + "\nLongitude = " + String.format(
+                                            "%.6f",
+                                            currentLocation.longitude) + "\nDistance = " + String.format(
+                                            "%.6f",
+                                            distance))
+                                    this@withTimeout.cancel()
+                                } else {
+                                    Log.d("worker", "Marking absent in database")
+                                    classAttendanceDao.insertLogs(
+                                        Logs(
+                                            0,
+                                            subjectId,
+                                            subjectName,
+                                            Calendar.getInstance().time,
+                                            false
+                                        )
+                                    )
+                                    Log.d("worker", "Creating Absent marked notification")
+                                    createNotificationChannelAndShowNotification(timeTableId,
+                                        subjectName,
+                                        hour,
+                                        minute,
+                                        context,
+                                        "Absent \nLatitude = " + String.format("%.6f",
+                                            currentLocation.latitude) + "\nLongitude = " + String.format(
+                                            "%.6f",
+                                            currentLocation.longitude) + "\nDistance = " + String.format(
+                                            "%.6f",
+                                            distance))
                                     this@withTimeout.cancel()
                                 }
                             }
                         }
-
                     }
                 }catch(e: TimeoutCancellationException){
                     Log.d("worker",
-                        "Admissible time has runout so building normal notification")
+                        "Admissible time has run out so building normal notification")
                     createNotificationChannelAndShowNotification(timeTableId,
                         subjectName,
                         hour,
@@ -203,88 +178,6 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
                     this.cancel()
                 }
             }
-
-
-//            Log.d("worker", "Launching location var updates collection sequence")
-//            CoroutineScope(Dispatchers.IO).launch{
-//                try{
-//                    withTimeout(15000) {
-//                        location.collectLatest { currentLocation ->
-//                            if (currentLocation != null) {
-//                                Log.d("worker", "location StateFlow has been updated with location -> $currentLocation")
-//                                // Getting Institute Location from datastore
-//                                val userSpecifiedLocation = dataStore.data.map{ pref ->
-//                                    pref[latitudeDataStoreKey]
-//                                }.combine(
-//                                    dataStore.data.map{ pref ->
-//                                        pref[longitudeDataStoreKey]
-//                                    }
-//                                ){ lat, lon ->
-//                                    Pair(lat, lon)
-//                                }.first {
-//                                    it.first != null && it.second != null
-//                                }
-//
-//                                // Dao instance to mark either Absent or Present
-//                                val classAttendanceDao = ClassAttendanceDatabase.getInstance(context).classAttendanceDao
-//
-//                                Log.d("worker", "current -> latitude : ${currentLocation.latitude} | longitude : ${currentLocation.longitude}")
-//                                Log.d("worker", "user -> latitude : ${userSpecifiedLocation.first} | longitude : ${userSpecifiedLocation.second}")
-//                                if(userSpecifiedLocation.first!=null && userSpecifiedLocation.second!=null){
-//                                    val distance = CoordinateCalculations.distanceBetweenPointsInM(
-//                                        lat1 = currentLocation.latitude,
-//                                        long1 = currentLocation.longitude,
-//                                        lat2 = userSpecifiedLocation.first!!,
-//                                        long2 = userSpecifiedLocation.second!!,
-//                                    )
-//                                    Log.d("worker", "Calculated Distance is $distance meters")
-//                                    if(distance<20){
-//                                        Log.d("worker", "Marking present in database")
-//                                        classAttendanceDao.insertLogs(
-//                                            Logs(
-//                                                0,
-//                                                subjectId,
-//                                                subjectName,
-//                                                Calendar.getInstance().time,
-//                                                true
-//                                            )
-//                                        )
-//                                        Log.d("worker", "Creating Present marked notification")
-//                                        createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context, "Present \nLatitude = " + String.format("%.6f",currentLocation.latitude) + "\nLongitude = " + String.format("%.6f",currentLocation.longitude)+"\nDistance = " +String.format("%.6f",distance))
-//                                    }else{
-//                                        Log.d("worker", "Marking absent in database")
-//                                        classAttendanceDao.insertLogs(
-//                                            Logs(
-//                                                0,
-//                                                subjectId,
-//                                                subjectName,
-//                                                Calendar.getInstance().time,
-//                                                false
-//                                            )
-//                                        )
-//                                        Log.d("worker", "Creating Absent marked notification")
-//                                        createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context, "Absent \nLatitude = " + String.format("%.6f",currentLocation.latitude)+ "\nLongitude = " + String.format("%.6f",currentLocation.longitude) + "\nDistance = " +String.format("%.6f", distance))
-//                                    }
-//                                }else{
-//                                    Log.d("worker", "Creating simple notification due to userSpecifiedLocation being null")
-//                                    createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context)
-//                                }
-//                                locationGetterJob.cancel()
-//                                Log.d("worker", "Cancelling withTimeout coroutine")
-//                                this@withTimeout.cancel()
-//                            }
-//
-//                        }
-//                    }
-//                }catch(e: TimeoutCancellationException){
-//                    Log.d("worker", "${e.cause} thrown, creating simple notification")
-//                    createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute, context)
-//                }finally{
-//                    Log.d("worker", "Cancelling Overall Coroutine Scope")
-//                    locationGetterJob.cancel()
-//                    this.cancel()
-//                }
-//            }
         } else {
             Log.d("worker", "NetworkCheck unsuccessful")
             Log.d("worker", "Executing Normal Notification sequence")
@@ -306,7 +199,7 @@ class LocationMarkAttendanceWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    fun createNotificationChannelAndShowNotification(
+    private fun createNotificationChannelAndShowNotification(
         timeTableId: Int,
         subjectName: String?,
         hour: Int,

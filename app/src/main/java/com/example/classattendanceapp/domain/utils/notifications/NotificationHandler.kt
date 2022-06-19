@@ -42,9 +42,10 @@ object NotificationHandler {
         minute: Int,
         message: String? // present or absent
     ){
-        val intent = Intent(context, MainActivity::class.java)
+        val intent = Intent(context, MainActivity::class.java).apply{
+            putExtra("subject_id", subjectId)
+        }
 
-        intent.putExtra("subject_id", subjectId)
 
         val pendingIntent = PendingIntent.getActivity(context, OPENMAINACTIVITYREQUESTCODE, intent, PendingIntent.FLAG_IMMUTABLE)
 
@@ -56,7 +57,7 @@ object NotificationHandler {
         val notification = if(message!=null){
             NotificationCompat.Builder(context, CHANNELID)
                 .setSmallIcon(R.drawable.ic_launcher_background)
-                .setContentTitle("Mark your attendance!")
+                .setContentTitle("Marked your attendance!")
                 .setContentText(contentMessage)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

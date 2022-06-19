@@ -32,6 +32,7 @@ class ClassAttendanceViewModel @Inject constructor(
 
     private val longitudeDataStoreKey = doublePreferencesKey("userLongitude")
     private val latitudeDataStoreKey = doublePreferencesKey("userLatitude")
+    private val rangeDataStoreKey = doublePreferencesKey("userRange")
 
     private var _floatingButtonClicked = MutableStateFlow(false)
     val floatingButtonClicked: StateFlow<Boolean> get() = _floatingButtonClicked
@@ -159,15 +160,20 @@ class ClassAttendanceViewModel @Inject constructor(
 
     private var _currentLatitudeInDataStore = MutableStateFlow<Double?>(null)
     private var _currentLongitudeInDataStore = MutableStateFlow<Double?>(null)
+    private var _currentRangeInDataStore = MutableStateFlow<Double?>(null)
 
     val currentLatitudeInDataStore : StateFlow<Double?> get() = _currentLatitudeInDataStore
     val currentLongitudeInDataStore: StateFlow<Double?> get() = _currentLongitudeInDataStore
+    val currentRangeInDataStore : StateFlow<Double?> get() = _currentRangeInDataStore
 
     fun changeUserLatitude(latitude: Double?){
         _currentLatitudeInDataStore.value = latitude
     }
     fun changeUserLongitude(longitude: Double?){
         _currentLongitudeInDataStore.value = longitude
+    }
+    fun changeUserRange(range: Double?){
+        _currentRangeInDataStore.value = range
     }
 
     fun getCoordinateInDataStore(
@@ -176,18 +182,21 @@ class ClassAttendanceViewModel @Inject constructor(
         coroutineScope.launch{
             val latitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(latitudeDataStoreKey)
             val longitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(longitudeDataStoreKey)
-            latitudeDataStoreFlow.combine(longitudeDataStoreFlow){ latitude, longitude ->
-                Pair(latitude, longitude)
+            val rangeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(rangeDataStoreKey)
+            combine(latitudeDataStoreFlow,longitudeDataStoreFlow,rangeDataStoreFlow){ latitude, longitude, range ->
+                Triple(latitude, longitude, range)
             }.collectLatest { coordinates ->
                 changeUserLatitude(coordinates.first)
                 changeUserLongitude(coordinates.second)
+                changeUserRange(coordinates.third)
             }
         }
     }
 
-    suspend fun writeOrUpdateCoordinateInDataStore(latitude: Double, longitude: Double){
+    suspend fun writeOrUpdateCoordinateInDataStore(latitude: Double, longitude: Double, range: Double){
         classAttendanceUseCase.writeOrUpdateCoordinateInDataStoreUseCase(latitudeDataStoreKey, latitude)
         classAttendanceUseCase.writeOrUpdateCoordinateInDataStoreUseCase(longitudeDataStoreKey, longitude)
+        classAttendanceUseCase.writeOrUpdateCoordinateInDataStoreUseCase(rangeDataStoreKey, range)
     }
 
     fun deleteCoordinateInDataStore(){

@@ -5,10 +5,9 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,6 +37,9 @@ fun AddLocationCoordinateDialog(
     var slongitude by remember{
         mutableStateOf("")
     }
+    var srange by remember{
+        mutableStateOf("")
+    }
 
     val showAddLocationCoordinateDialog = classAttendanceViewModel.showAddLocationCoordinateDialog.collectAsState()
 
@@ -47,6 +49,9 @@ fun AddLocationCoordinateDialog(
     var currentLongitudeInDataStore by remember{
         mutableStateOf<Double?>(null)
     }
+    var currentRangeInDataStore by remember{
+        mutableStateOf<Double?>(null)
+    }
 
 
     LaunchedEffect(Unit){
@@ -54,14 +59,17 @@ fun AddLocationCoordinateDialog(
     }
 
     LaunchedEffect(Unit){
-        classAttendanceViewModel.currentLatitudeInDataStore.combine(
-            classAttendanceViewModel.currentLongitudeInDataStore
-        ){ lat, lon ->
-            Pair(lat, lon)
+        combine(
+            classAttendanceViewModel.currentLatitudeInDataStore,
+            classAttendanceViewModel.currentLongitudeInDataStore,
+            classAttendanceViewModel.currentRangeInDataStore
+        ){ lat, lon, range->
+            Triple(lat, lon, range)
         }.collectLatest { coordinates ->
             Log.d("coordinates", "Collected coordinates are $coordinates")
             currentLatitudeInDataStore = coordinates.first
             currentLongitudeInDataStore = coordinates.second
+            currentRangeInDataStore = coordinates.third
         }
     }
 
@@ -71,12 +79,15 @@ fun AddLocationCoordinateDialog(
                 classAttendanceViewModel.changeAddLocationCoordinateState(false)
             },
             text = {
-                Column(){
+                Column{
                     Text("Coordinates")
                     Spacer(modifier = Modifier.height(10.dp))
-                    if(currentLatitudeInDataStore != null && currentLongitudeInDataStore != null){
-                        Text("Current Coordinates = Latitude:${currentLatitudeInDataStore}" +
-                                " | Longitude:${currentLongitudeInDataStore}")
+                    if(currentLatitudeInDataStore != null && currentLongitudeInDataStore != null && currentRangeInDataStore != null){
+                        Text("Current Coordinates:" +
+                                "\nLatitude:${currentLatitudeInDataStore}" +
+                                "\nLongitude:${currentLongitudeInDataStore}" +
+                                "\nRange:${currentRangeInDataStore}"
+                        )
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     OutlinedTextField(
@@ -91,7 +102,18 @@ fun AddLocationCoordinateDialog(
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Decimal
-                        )
+                        ),
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    slatitude = ""
+                                }) {
+                                Icon(
+                                    Icons.Filled.Cancel,
+                                    contentDescription = null
+                                )
+                            }
+                        }
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     OutlinedTextField(
@@ -106,7 +128,43 @@ fun AddLocationCoordinateDialog(
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Decimal
-                        )
+                        ),
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    slongitude = ""
+                                }) {
+                                Icon(
+                                    Icons.Filled.Cancel,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = srange,
+                        onValueChange = {
+                            srange = it
+                        },
+                        label = {
+                            Text("Range (in m)")
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal
+                        ),
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    srange = ""
+                                }) {
+                                Icon(
+                                    Icons.Filled.Cancel,
+                                    contentDescription = null
+                                )
+                            }
+                        }
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
@@ -118,7 +176,7 @@ fun AddLocationCoordinateDialog(
                     TextButton(onClick = {
                         classAttendanceViewModel.deleteCoordinateInDataStore()
                     }) {
-                        Text("Clear Location")
+                        Text("Clear Fields")
                     }
                 }
             },
@@ -131,7 +189,8 @@ fun AddLocationCoordinateDialog(
                                 if(slatitude.isNotBlank() && slongitude.isNotBlank()){
                                     classAttendanceViewModel.writeOrUpdateCoordinateInDataStore(
                                         latitude = slatitude.toDouble(),
-                                        longitude = slongitude.toDouble()
+                                        longitude = slongitude.toDouble(),
+                                        range = srange.toDouble()
                                     )
                                     Toast.makeText(context, "Successfully saved Coordinates", Toast.LENGTH_SHORT).show()
                                 }else{
@@ -142,7 +201,8 @@ fun AddLocationCoordinateDialog(
                             }finally{
                                 slatitude = ""
                                 slongitude = ""
-                                classAttendanceViewModel.changeAddLocationCoordinateState(false)
+                                srange = ""
+//                                classAttendanceViewModel.changeAddLocationCoordinateState(false)
                             }
                         }
 
