@@ -181,7 +181,7 @@ fun AddLocationCoordinateDialog(
                 }
             },
             buttons = {
-                Row(){
+                Row{
                     TextButton(onClick = {
 
                         coroutineScope.launch{

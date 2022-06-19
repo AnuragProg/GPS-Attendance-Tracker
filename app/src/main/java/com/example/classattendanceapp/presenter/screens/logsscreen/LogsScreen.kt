@@ -57,7 +57,7 @@ fun LogsScreen(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit){
-        classAttendanceViewModel.getAllLogs().collectLatest{
+        classAttendanceViewModel.getAllLogsAdvanced().collect{
             logsList.clear()
             Log.d("debugging", "new list is $it")
             logsList.addAll(it)

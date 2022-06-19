@@ -28,6 +28,8 @@ import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewMod
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -72,19 +74,19 @@ fun TimeTableScreen(
     val datetimeDialogState = rememberMaterialDialogState()
 
     val timetableList = remember{
-        mutableStateMapOf<String, List<TimeTable>>()
+        mutableStateMapOf<String, MutableList<TimeTable>>()
     }
 
 
 
     LaunchedEffect(Unit){
-
-        classAttendanceViewModel.getTimeTable().collectLatest { timetables ->
+        classAttendanceViewModel.getTimeTableAdvanced().collectLatest { timetables ->
             timetableList.clear()
             var i = 0
             timetables.keys.forEach{
                 Log.d("debugging" , "${++i}th value is $it")
-                timetableList[it] = timetables[it]!!
+                timetableList[it] = mutableListOf()
+                timetableList[it]?.addAll(timetables[it]!!)
             }
         }
     }
@@ -284,14 +286,16 @@ fun TimeTableScreen(
                             if(timetableList[it.day]?.isEmpty() == true){
                                 Text("Nothing Here...")
                             }else{
-                                for(timetable in timetableList[it.day] ?: emptyList()){
+                                for(timetable in timetableList[it.day] ?: mutableListOf()){
                                     Box{
                                         Box(
                                             modifier = Modifier.fillMaxWidth(),
                                             contentAlignment = Alignment.CenterEnd
                                         ){
+
                                             IconButton(onClick = {
-                                                coroutineScope.launch{
+                                                timetableList[it.day]?.remove(timetable)
+                                                CoroutineScope(Dispatchers.IO).launch{
                                                     classAttendanceViewModel.deleteTimeTable(timetable._id, context)
                                                 }
                                             }) {

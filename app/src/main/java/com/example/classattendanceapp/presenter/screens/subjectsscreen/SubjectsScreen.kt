@@ -49,12 +49,11 @@ fun SubjectsScreen(
     }
 
     LaunchedEffect(Unit){
-        classAttendanceViewModel.getSubjects().collectLatest{
+        classAttendanceViewModel.getSubjectsAdvanced().collectLatest{
             subjectsList.clear()
             subjectsList.addAll(it)
         }
     }
-
 
     // Alert Dialog -> To add new subject
     if(showAddSubjectDialog.value){
@@ -64,7 +63,7 @@ fun SubjectsScreen(
                 subjectNameTextField = ""
             },
             text = {
-                Column(){
+                Column{
                     Text(
                         text = "Add new Subject",
                         fontWeight = FontWeight.Bold,
@@ -72,13 +71,12 @@ fun SubjectsScreen(
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     OutlinedTextField(
-                        modifier = Modifier.padding(10.dp),
                         value = subjectNameTextField,
                         onValueChange = { subjectNameTextField = it },
-                        placeholder = {
+                        label = {
                             Text("Subject Name")
                         },
-                        maxLines = 1
+                        singleLine = true
                     )
                 }
             },
@@ -127,9 +125,9 @@ fun SubjectsScreen(
         ){
             items(subjectsList){
                 val dismissState = rememberDismissState()
-
                 SwipeToDismiss(
                     state = dismissState,
+                    directions = setOf(DismissDirection.StartToEnd),
                     background = {
                         Surface(
                             modifier = Modifier
