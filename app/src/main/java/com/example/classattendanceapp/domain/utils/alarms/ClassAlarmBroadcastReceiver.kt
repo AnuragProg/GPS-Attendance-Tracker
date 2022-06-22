@@ -9,6 +9,7 @@ import androidx.work.*
 import com.example.classattendanceapp.domain.utils.internetcheck.NetworkCheck
 import com.example.classattendanceapp.domain.utils.location.ClassLocationManager
 import com.example.classattendanceapp.domain.utils.notifications.NotificationHandler
+import com.example.classattendanceapp.domain.utils.workers.ForegroundLocationMarkAttendanceWorker
 import com.example.classattendanceapp.domain.utils.workers.LocationMarkAttendanceWorker
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +47,7 @@ class ClassAlarmBroadcastReceiver : BroadcastReceiver() {
                 MINUTE to minute,
                 DAYOFTHEWEEK to day_of_the_week
             )
-            val startOperationWorkRequest = OneTimeWorkRequestBuilder<LocationMarkAttendanceWorker>()
+            val startOperationWorkRequest = OneTimeWorkRequestBuilder<ForegroundLocationMarkAttendanceWorker>()
                 .setInputData(inputData)
                 .build()
 

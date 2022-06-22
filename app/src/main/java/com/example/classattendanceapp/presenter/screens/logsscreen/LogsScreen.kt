@@ -74,7 +74,7 @@ fun LogsScreen(
                 subjectInAlertDialog = null
             },
             text = {
-                Column(){
+                Column{
                     Text(
                         text = "Add Log",
                         fontWeight = FontWeight.Bold,
@@ -312,8 +312,3 @@ fun LogsScreen(
     }
 }
 
-//@Preview
-//@Composable
-//fun LogsScreenPreview(){
-//    LogsScreen()
-//}
