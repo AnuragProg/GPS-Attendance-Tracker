@@ -11,6 +11,9 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
+    <uses-feature android:name="android.hardware.location.gps"/>
+    <uses-feature android:name="android.hardware.location.network"/>
+
     <application
         android:name=".ClassAttendanceApplication"
         android:allowBackup="true"

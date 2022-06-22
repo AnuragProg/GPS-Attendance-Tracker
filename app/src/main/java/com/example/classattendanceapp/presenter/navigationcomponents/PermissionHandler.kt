@@ -1,6 +1,7 @@
 package com.example.classattendanceapp.presenter.navigationcomponents
 
 import android.Manifest
+import android.os.Build
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
@@ -11,15 +12,26 @@ import com.google.accompanist.permissions.*
 @Composable
 fun PermissionHandler(){
 
-    val permissions = rememberMultiplePermissionsState(
-        permissions = listOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.INTERNET,
-            Manifest.permission.ACCESS_NETWORK_STATE,
-
+    val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        rememberMultiplePermissionsState(
+            permissions = listOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
         )
-    )
+    } else {
+        rememberMultiplePermissionsState(
+            permissions = listOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_NETWORK_STATE
+            )
+        )
+    }
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -79,6 +91,19 @@ fun PermissionHandler(){
                             perm.launchPermissionRequest()
                         }
                         perm.isPermanentlyDenied() -> {
+                        }
+                    }
+                }
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION -> {
+                    when{
+                        perm.status.isGranted->{
+
+                        }
+                        perm.status.shouldShowRationale ->{
+                            perm.launchPermissionRequest()
+                        }
+                        perm.isPermanentlyDenied() ->{
+
                         }
                     }
                 }
