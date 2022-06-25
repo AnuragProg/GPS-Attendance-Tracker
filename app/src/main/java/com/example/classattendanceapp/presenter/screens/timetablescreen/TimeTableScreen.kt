@@ -24,6 +24,7 @@ import com.example.classattendanceapp.data.models.TimeTable
 import com.example.classattendanceapp.domain.models.ModifiedSubjects
 import com.example.classattendanceapp.presenter.utils.DateToSimpleFormat
 import com.example.classattendanceapp.presenter.utils.Days
+import com.example.classattendanceapp.presenter.utils.ProcessState
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
@@ -31,6 +32,7 @@ import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
@@ -118,13 +120,16 @@ fun TimeTableScreen(
                             }
                         ) {
                             val subjectsList = remember{ mutableStateListOf<ModifiedSubjects>() }
-                            coroutineScope.launch {
-                                classAttendanceViewModel.getSubjects().collectLatest{
-                                    subjectsList.clear()
-                                    subjectsList.addAll(it)
-                                }
+                            var processState by remember{
+                                mutableStateOf(ProcessState.INITIAL)
                             }
-                            if(subjectsList.isNotEmpty()){
+                            LaunchedEffect(Unit){
+                                subjectsList.clear()
+                                val responseSubjectsList = classAttendanceViewModel.getSubjects().first()
+                                subjectsList.addAll(responseSubjectsList)
+                                processState = ProcessState.DONE
+                            }
+                            if(subjectsList.isNotEmpty() && processState == ProcessState.DONE){
                                 subjectsList.forEach{
                                     DropdownMenuItem(
                                         onClick = {
@@ -135,7 +140,7 @@ fun TimeTableScreen(
                                         Text(it.subjectName)
                                     }
                                 }
-                            }else{
+                            }else if(subjectsList.isEmpty() && processState == ProcessState.DONE){
                                 Text("No Subjects to select from!!")
                             }
                         }
