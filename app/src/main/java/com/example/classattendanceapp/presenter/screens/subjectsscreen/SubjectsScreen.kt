@@ -38,9 +38,13 @@ fun SubjectsScreen(
     classAttendanceViewModel: ClassAttendanceViewModel
 ){
 
-    val subjectsList = remember{
-        mutableStateListOf<ModifiedSubjects>()
-    }
+//    val subjectsList = remember{
+//        mutableStateListOf<ModifiedSubjects>()
+//    }
+
+    val subjectsList = classAttendanceViewModel.subjectsList.collectAsState()
+
+    val isInitialSubjectDataRetrievalDone = classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -57,15 +61,6 @@ fun SubjectsScreen(
         mutableStateOf(ProcessState.INITIAL)
     }
 
-    LaunchedEffect(Unit){
-        classAttendanceViewModel.getSubjectsAdvanced().collectLatest{
-            processState = ProcessState.INITIAL
-            subjectsList.clear()
-            subjectsList.addAll(it)
-            checkForSubjectListLength = !checkForSubjectListLength
-            processState = ProcessState.DONE
-        }
-    }
 
     // Alert Dialog -> To add new subject
     if(showAddSubjectDialog.value){
@@ -126,7 +121,7 @@ fun SubjectsScreen(
         )
     }
     
-    if(subjectsList.isEmpty() && processState == ProcessState.DONE){
+    if(subjectsList.value.isEmpty() && isInitialSubjectDataRetrievalDone.value){
         Log.d("subjects", "Showing no subjects icon")
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -143,6 +138,13 @@ fun SubjectsScreen(
                 text = "No Subjects"
             )
         }
+    } else if(subjectsList.value.isEmpty() && !isInitialSubjectDataRetrievalDone.value){
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            CircularProgressIndicator()
+        }
     }else{
         Log.d("subjects", "Showing subjects list")
         // Original Ui
@@ -154,7 +156,7 @@ fun SubjectsScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                items(subjectsList){
+                items(subjectsList.value){
                     val dismissState = rememberDismissState()
                     SwipeToDismiss(
                         state = dismissState,

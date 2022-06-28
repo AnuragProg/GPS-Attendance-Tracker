@@ -1,9 +1,7 @@
 package com.example.classattendanceapp.presenter.viewmodel
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,15 +10,12 @@ import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.data.models.TimeTable
 import com.example.classattendanceapp.domain.models.ModifiedLogs
 import com.example.classattendanceapp.domain.models.ModifiedSubjects
-import com.example.classattendanceapp.domain.models.ModifiedTimeTable
 import com.example.classattendanceapp.domain.usecases.usecase.ClassAttendanceUseCase
-import com.example.classattendanceapp.domain.utils.alarms.ClassAlarmBroadcastReceiver
 import com.example.classattendanceapp.domain.utils.alarms.ClassAlarmManager
 import com.example.classattendanceapp.presenter.utils.DateToSimpleFormat
 import com.example.classattendanceapp.presenter.utils.Days
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -29,6 +24,40 @@ import javax.inject.Inject
 class ClassAttendanceViewModel @Inject constructor(
     private val classAttendanceUseCase: ClassAttendanceUseCase
 ): ViewModel() {
+
+    init{
+        viewModelScope.launch {
+            Log.d("viewmodel", "Subjects retrieval started in viewmodel")
+            getSubjectsAdvanced().collectLatest { retrievedSubjectsList ->
+                if(!_isInitialSubjectDataRetrievalDone.value){
+                    _isInitialSubjectDataRetrievalDone.value = true
+                }
+                _subjectsList.value = retrievedSubjectsList
+            }
+        }
+        viewModelScope.launch {
+            Log.d("viewmodel", "Logs retrieval started in viewmodel")
+            getAllLogsAdvanced().collectLatest { retrievedLogsList ->
+                if(!_isInitialLogDataRetrievalDone.value){
+                    _isInitialLogDataRetrievalDone.value = true
+                }
+                _logsList.value = retrievedLogsList
+            }
+        }
+    }
+
+    private var _isInitialSubjectDataRetrievalDone = MutableStateFlow(false)
+    val isInitialSubjectDataRetrievalDone : StateFlow<Boolean> get() = _isInitialSubjectDataRetrievalDone
+
+    private var _isInitialLogDataRetrievalDone = MutableStateFlow(false)
+    val isInitialLogDataRetrievalDone : StateFlow<Boolean> get() = _isInitialLogDataRetrievalDone
+
+    private var _subjectsList = MutableStateFlow<List<ModifiedSubjects>>(emptyList())
+    val subjectsList : StateFlow<List<ModifiedSubjects>> get() = _subjectsList
+
+    private var _logsList = MutableStateFlow<List<ModifiedLogs>>(emptyList())
+    val logsList : StateFlow<List<ModifiedLogs>> get() = _logsList
+
 
     private val longitudeDataStoreKey = doublePreferencesKey("userLongitude")
     private val latitudeDataStoreKey = doublePreferencesKey("userLatitude")

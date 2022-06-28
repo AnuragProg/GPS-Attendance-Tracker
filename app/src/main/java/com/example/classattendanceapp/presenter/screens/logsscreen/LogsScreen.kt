@@ -38,9 +38,9 @@ fun LogsScreen(
     classAttendanceViewModel: ClassAttendanceViewModel
 ){
 
-    val logsList = remember{
-        mutableStateListOf<ModifiedLogs>()
-    }
+    val logsList = classAttendanceViewModel.logsList.collectAsState()
+
+    val isInitialLogDataRetrievalDone = classAttendanceViewModel.isInitialLogDataRetrievalDone.collectAsState()
 
     val showAddLogsAlertDialog = classAttendanceViewModel.floatingButtonClicked.collectAsState()
 
@@ -60,21 +60,8 @@ fun LogsScreen(
         mutableStateOf(false)
     }
 
-    var processState by remember{
-        mutableStateOf(ProcessState.INITIAL)
-    }
-
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit){
-        classAttendanceViewModel.getAllLogsAdvanced().collectLatest{
-            processState = ProcessState.INITIAL
-            logsList.clear()
-            Log.d("debugging", "new list is $it")
-            logsList.addAll(it)
-            processState = ProcessState.DONE
-        }
-    }
 
     // Making Log Dialog Box
     if(showAddLogsAlertDialog.value){
@@ -247,7 +234,7 @@ fun LogsScreen(
     }
 
 
-    if(logsList.isEmpty() && processState == ProcessState.DONE){
+    if(logsList.value.isEmpty() && isInitialLogDataRetrievalDone.value){
         Log.d("logs", "showing icons for no logs")
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -264,6 +251,14 @@ fun LogsScreen(
                 text = "No Logs"
             )
         }
+    } else if(logsList.value.isEmpty() && !isInitialLogDataRetrievalDone.value){
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+
+        ){
+            CircularProgressIndicator()
+        }
     }else{
         Log.d("logs", "showing logs instead")
         // Original UI
@@ -276,8 +271,8 @@ fun LogsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 reverseLayout = true,
             ){
-                items(logsList.size){
-                    val currentIndex = logsList.size - 1 - it
+                items(logsList.value.size){
+                    val currentIndex = logsList.value.size - 1 - it
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -296,7 +291,7 @@ fun LogsScreen(
                             ){
                                 Text(
                                     modifier = Modifier.width(80.dp),
-                                    text = logsList[currentIndex].subjectName,
+                                    text = logsList.value[currentIndex].subjectName,
                                     overflow = TextOverflow.Ellipsis,
                                     maxLines = 1
                                 )
@@ -307,7 +302,7 @@ fun LogsScreen(
                             ){
 
                                 Text(
-                                    text = logsList[currentIndex].day + " | " + logsList[currentIndex].month + " " + logsList[currentIndex].date.toString() + "," + logsList[currentIndex].year.toString(),
+                                    text = logsList.value[currentIndex].day + " | " + logsList.value[currentIndex].month + " " + logsList.value[currentIndex].date.toString() + "," + logsList.value[currentIndex].year.toString(),
                                 )
                             }
                             Box(
@@ -322,7 +317,7 @@ fun LogsScreen(
                                 contentAlignment = Alignment.CenterEnd
                             ){
                                 Text(
-                                    when(logsList[currentIndex].wasPresent){
+                                    when(logsList.value[currentIndex].wasPresent){
                                         true -> "Present"
                                         else -> "Absent"
                                     }
@@ -339,7 +334,7 @@ fun LogsScreen(
                                 TextButton(
                                     onClick = {
                                         coroutineScope.launch{
-                                            classAttendanceViewModel.deleteLogs(logsList[currentIndex]._id)
+                                            classAttendanceViewModel.deleteLogs(logsList.value[currentIndex]._id)
                                         }
                                         showOverFlowMenu = false
                                     }
