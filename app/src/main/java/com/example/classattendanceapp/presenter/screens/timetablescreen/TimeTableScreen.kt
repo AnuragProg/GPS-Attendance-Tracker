@@ -119,18 +119,10 @@ fun TimeTableScreen(
                                 showAddTimeTableSubjectNameAlertDialog = false
                             }
                         ) {
-                            val subjectsList = remember{ mutableStateListOf<ModifiedSubjects>() }
-                            var processState by remember{
-                                mutableStateOf(ProcessState.INITIAL)
-                            }
-                            LaunchedEffect(Unit){
-                                subjectsList.clear()
-                                val responseSubjectsList = classAttendanceViewModel.getSubjects().first()
-                                subjectsList.addAll(responseSubjectsList)
-                                processState = ProcessState.DONE
-                            }
-                            if(subjectsList.isNotEmpty() && processState == ProcessState.DONE){
-                                subjectsList.forEach{
+                            val subjectsList = classAttendanceViewModel.subjectsList.collectAsState()
+                            val isInitialSubjectDataRetrievalDone = classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
+                            if(subjectsList.value.isNotEmpty()){
+                                subjectsList.value.forEach{
                                     DropdownMenuItem(
                                         onClick = {
                                             subjectInAlertDialog = it
@@ -140,7 +132,7 @@ fun TimeTableScreen(
                                         Text(it.subjectName)
                                     }
                                 }
-                            }else if(subjectsList.isEmpty() && processState == ProcessState.DONE){
+                            }else if(subjectsList.value.isEmpty() && isInitialSubjectDataRetrievalDone.value){
                                 Text("No Subjects to select from!!")
                             }
                         }
@@ -263,7 +255,8 @@ fun TimeTableScreen(
     Box{
         Column{
             LazyColumn(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .animateContentSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally

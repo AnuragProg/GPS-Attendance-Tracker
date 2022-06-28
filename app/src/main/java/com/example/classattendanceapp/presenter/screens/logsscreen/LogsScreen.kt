@@ -112,23 +112,10 @@ fun LogsScreen(
                                     showAddLogsSubjectNameAlertDialog = false
                                 }
                             ) {
-                                val subjectsList = remember{
-                                    mutableStateListOf<ModifiedSubjects>()
-                                }
-                                var subjectFetchingState by remember{
-                                    mutableStateOf(ProcessState.INITIAL)
-                                }
-                                LaunchedEffect(Unit){
-                                    Log.d("logs", "fetching one time subject list from db")
-                                    subjectsList.clear()
-                                    val responseSubjectsList = classAttendanceViewModel.getSubjects().first()
-                                    Log.d("logs", "fetching complete with result $responseSubjectsList")
-                                    Log.d("logs", "Adding fetched response subjects list to subjectslist")
-                                    subjectsList.addAll(responseSubjectsList)
-                                    subjectFetchingState = ProcessState.DONE
-                                }
-                                if(subjectsList.isNotEmpty() && subjectFetchingState == ProcessState.DONE){
-                                    subjectsList.forEach{
+                                val subjectsList = classAttendanceViewModel.subjectsList.collectAsState()
+                                val isInitialSubjectDataRetrievalDone = classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
+                                if(subjectsList.value.isNotEmpty()){
+                                    subjectsList.value.forEach{
                                         DropdownMenuItem(
                                             onClick = {
                                                 subjectInAlertDialog = it
@@ -138,7 +125,7 @@ fun LogsScreen(
                                             Text(it.subjectName)
                                         }
                                     }
-                                }else if(subjectsList.isEmpty() && subjectFetchingState == ProcessState.DONE){
+                                }else if(subjectsList.value.isEmpty() && isInitialLogDataRetrievalDone.value){
                                     Text("No Subjects to select from!!")
                                 }
                             }
