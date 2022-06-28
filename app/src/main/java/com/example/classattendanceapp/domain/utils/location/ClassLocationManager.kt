@@ -8,7 +8,9 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withTimeout
 
 
 object ClassLocationManager {
@@ -75,65 +77,84 @@ object ClassLocationManager {
 
         Log.d("worker", "Starting combine locationCoroutine")
 
-
-//        locationByGps.combine(locationByNetwork){ gpsLocation, networkLocation ->
-//            Pair(gpsLocation, networkLocation)
-//        }.collect{ coordinates ->
-//            Log.d("worker", "Getting combined coordinates $coordinates")
-//            if(coordinates.first!=null && coordinates.second!=null){
-//                if(coordinates.first!!.accuracy >= coordinates.second!!.accuracy){
-//                    Log.d("worker", "Emitting gps location with accuracy ${coordinates.first!!.accuracy}")
-//                    emit(coordinates.first)
-//                }else{
-//                    Log.d("worker", "Emitting network location with accuracy ${coordinates.second!!.accuracy}")
-//                    emit(coordinates.second)
-//                }
-//            }else if(coordinates.first!=null){
-//                Log.d("worker", "Gps is not null so emitting gps fetched coordinates")
-//                emit(coordinates.first)
-//
-//            }else if(coordinates.second!=null){
-//                Log.d("worker", "Network is not null so emitting network fetched coordinates")
-//                emit(coordinates.second)
-//            }
-//        }
         if(!hasGps && !hasNetwork){
             Log.d("worker", "Don't have gps and network -> emitting null")
             emit(null)
         }else if(hasGps && hasNetwork){
             Log.d("worker", "Have both gps and network")
-            val gpsAndNetworkCombinedLocation = combine(
-                locationByGps, locationByNetwork
-            ){ gps, network ->
-                Pair(gps, network)
-            }.first{
-                it.first!=null && it.second!=null
+            try{
+                withTimeout(5000) {
+                    val gpsAndNetworkCombinedLocation = combine(
+                        locationByGps, locationByNetwork
+                    ) { gps, network ->
+                        Pair(gps, network)
+                    }.first {
+                        it.first != null && it.second != null
+                    }
+                    Log.d("worker",
+                        "retrieved location from both gps and network = $gpsAndNetworkCombinedLocation")
+                    val highestAccuracyLocation = if (
+                        gpsAndNetworkCombinedLocation.first!!.accuracy >= gpsAndNetworkCombinedLocation.second!!.accuracy
+                    ) {
+                        gpsAndNetworkCombinedLocation.first!!
+                    } else {
+                        gpsAndNetworkCombinedLocation.second!!
+                    }
+
+                    Log.d("worker", "Location with higher accuracy is $highestAccuracyLocation")
+                    Log.d("worker", "Emitting this location")
+                    emit(highestAccuracyLocation)
+                }
+            }catch(timeout: TimeoutCancellationException){
+                Log.d("worker", "Timeout Exception raised")
+                try{
+                    Log.d("worker", "Trying to get gps location instead")
+                    withTimeout(5000){
+                        val gpsLocation = locationByGps.first{
+                            it!=null
+                        }
+                        emit(gpsLocation)
+                    }
+                }catch (timeout: TimeoutCancellationException){
+                    Log.d("worker", "Timeout Exception raised")
+                    withTimeout(5000){
+                        Log.d("worker", "Trying to get network location instead")
+
+                        val networkLocation = locationByNetwork.first{
+                            it!=null
+                        }
+                        emit(networkLocation)
+                    }
+                }
             }
-            Log.d("worker", "retrieved location from both gps and network = $gpsAndNetworkCombinedLocation")
-            val highestAccuracyLocation = if(
-                gpsAndNetworkCombinedLocation.first!!.accuracy >= gpsAndNetworkCombinedLocation.second!!.accuracy
-            ){
-                gpsAndNetworkCombinedLocation.first!!
-            }else{
-                gpsAndNetworkCombinedLocation.second!!
-            }
-            Log.d("worker", "Location with higher accuracy is $highestAccuracyLocation")
-            Log.d("worker", "Emitting this location")
-            emit(highestAccuracyLocation)
         }else if(hasGps){
-            Log.d("worker", "Has Gps so emitting first non null location from gps")
-            emit(
-                locationByGps.first{
-                    it!=null
+            try{
+                withTimeout(5000){
+                    Log.d("worker", "Has Gps so emitting first non null location from gps")
+                    val gpsLocation = locationByGps.first {
+                        it != null
+                    }
+                    emit(gpsLocation)
                 }
-            )
+            }catch(timeout: TimeoutCancellationException){
+                Log.d("worker", "Timeout Exception raised emitting null")
+
+                emit(null)
+            }
         }else{
-            Log.d("worker", "Has Network so emitting first non null location from network")
-            emit(
-                locationByNetwork.first{
-                    it!=null
+            try{
+                withTimeout(5000){
+                    Log.d("worker", "Has Network so emitting first non null location from network")
+                    val networkLocation = locationByNetwork.first {
+                        it != null
+                    }
+                    emit(networkLocation)
                 }
-            )
+            }catch(timeout: TimeoutCancellationException){
+                Log.d("worker", "Timeout Exception raised emitting null")
+
+                emit(null)
+            }
         }
     }
 }

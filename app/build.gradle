@@ -93,7 +93,7 @@ dependencies {
     implementation "androidx.hilt:hilt-work:1.0.0"
     kapt "androidx.hilt:hilt-compiler:1.0.0"
 
-    implementation "com.google.accompanist:accompanist-permissions:0.24.10-beta"
+    implementation "com.google.accompanist:accompanist-permissions:0.24.12-rc"
 
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 }

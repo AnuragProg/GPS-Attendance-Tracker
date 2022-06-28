@@ -82,120 +82,121 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         Log.d("worker", "beginning NetworkCheck")
 
 
-        if (NetworkCheck.isInternetAvailable(context)) {
+//        if (NetworkCheck.isInternetAvailable(context)) {} else {
+//            Log.d("worker", "NetworkCheck unsuccessful")
+//            Log.d("worker", "Executing Normal Notification sequence")
+//            createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute , context)
+//        }
 
-            Log.d("worker", "NetworkCheck successful")
 
-            val userSpecifiedLocation = combine(
-                dataStore.data.map { pref ->
-                    pref[latitudeDataStoreKey] },
-                dataStore.data.map { pref ->
-                        pref[longitudeDataStoreKey] },
-                dataStore.data.map { pref ->
-                    pref[rangeDataStoreKey] }
-                ) { lat, lon, range ->
-                    Triple(lat, lon, range)
-                }.first()
-            Log.d("worker", "Received userSpecifiedLocation from datastore")
 
-            // Getting Institute Location from datastore
-            // if no userSpecifiedLocation found in datastore
-            if(userSpecifiedLocation.first==null || userSpecifiedLocation.second==null || userSpecifiedLocation.third==null){
-                Log.d("worker", "No coordinates stored by user so showing normal notification")
+
+        Log.d("worker", "NetworkCheck successful")
+
+        val userSpecifiedLocation = combine(
+            dataStore.data.map { pref ->
+                pref[latitudeDataStoreKey] },
+            dataStore.data.map { pref ->
+                pref[longitudeDataStoreKey] },
+            dataStore.data.map { pref ->
+                pref[rangeDataStoreKey] }
+        ) { lat, lon, range ->
+            Triple(lat, lon, range)
+        }.first()
+        Log.d("worker", "Received userSpecifiedLocation from datastore")
+
+        // Getting Institute Location from datastore
+        // if no userSpecifiedLocation found in datastore
+        if(userSpecifiedLocation.first==null || userSpecifiedLocation.second==null || userSpecifiedLocation.third==null){
+            Log.d("worker", "No coordinates stored by user so showing normal notification")
+            createNotificationChannelAndShowNotification(
+                timeTableId,
+                subjectName,
+                hour,
+                minute,
+                context
+            )
+            return Result.success()
+        }else{
+            Log.d("worker", "Retrieving single location")
+            val currentLocation = ClassLocationManager.getLocation(context).single()
+            if(currentLocation==null) {
                 createNotificationChannelAndShowNotification(
                     timeTableId,
                     subjectName,
                     hour,
                     minute,
-                    context
+                    context,
+                    "Unable to locate your current Location"
                 )
-            }else{
-                Log.d("worker", "Retrieving single location")
-                val currentLocation = ClassLocationManager.getLocation(context).single()
-                Log.d("worker", "Delaying 5 sec to get location from network and gps both")
-                if(currentLocation==null) {
-                    createNotificationChannelAndShowNotification(
-                        timeTableId,
+            }
+            else{
+                Log.d("worker",
+                    "location StateFlow has been updated with location -> $currentLocation")
+                // Dao instance to mark either Absent or Present
+                val classAttendanceDao =
+                    ClassAttendanceDatabase.getInstance(context).classAttendanceDao
+
+                Log.d("worker",
+                    "current -> latitude : ${currentLocation.latitude} | longitude : ${currentLocation.longitude}")
+                Log.d("worker",
+                    "user -> latitude : ${userSpecifiedLocation.first} | longitude : ${userSpecifiedLocation.second}")
+
+                val distance = CoordinateCalculations.distanceBetweenPointsInM(
+                    lat1 = currentLocation.latitude,
+                    long1 = currentLocation.longitude,
+                    lat2 = userSpecifiedLocation.first!!,
+                    long2 = userSpecifiedLocation.second!!,
+                )
+                Log.d("worker", "Calculated Distance is $distance meters")
+                if (distance <= userSpecifiedLocation.third!!) {
+                    Log.d("worker", "Marking present in database")
+                    classAttendanceDao.insertLogs(
+                        Logs(
+                            0,
+                            subjectId,
+                            subjectName,
+                            Calendar.getInstance().time,
+                            true
+                        )
+                    )
+                    Log.d("worker", "Creating Present marked notification")
+                    createNotificationChannelAndShowNotification(timeTableId,
                         subjectName,
                         hour,
                         minute,
                         context,
-                        "Unable to locate your current Location"
-                    )
-                }
-                else{
-                    Log.d("worker",
-                        "location StateFlow has been updated with location -> $currentLocation")
-                    // Dao instance to mark either Absent or Present
-                    val classAttendanceDao =
-                        ClassAttendanceDatabase.getInstance(context).classAttendanceDao
-
-                    Log.d("worker",
-                        "current -> latitude : ${currentLocation.latitude} | longitude : ${currentLocation.longitude}")
-                    Log.d("worker",
-                        "user -> latitude : ${userSpecifiedLocation.first} | longitude : ${userSpecifiedLocation.second}")
-
-                    val distance = CoordinateCalculations.distanceBetweenPointsInM(
-                        lat1 = currentLocation.latitude,
-                        long1 = currentLocation.longitude,
-                        lat2 = userSpecifiedLocation.first!!,
-                        long2 = userSpecifiedLocation.second!!,
-                    )
-                    Log.d("worker", "Calculated Distance is $distance meters")
-                    if (distance <= userSpecifiedLocation.third!!) {
-                        Log.d("worker", "Marking present in database")
-                        classAttendanceDao.insertLogs(
-                            Logs(
-                                0,
-                                subjectId,
-                                subjectName,
-                                Calendar.getInstance().time,
-                                true
-                            )
-                        )
-                        Log.d("worker", "Creating Present marked notification")
-                        createNotificationChannelAndShowNotification(timeTableId,
+                        "Present \nLatitude = " + String.format("%.6f",
+                            currentLocation.latitude) + "\nLongitude = " + String.format(
+                            "%.6f",
+                            currentLocation.longitude) + "\nDistance = " + String.format(
+                            "%.6f",
+                            distance))
+                } else {
+                    Log.d("worker", "Marking absent in database")
+                    classAttendanceDao.insertLogs(
+                        Logs(
+                            0,
+                            subjectId,
                             subjectName,
-                            hour,
-                            minute,
-                            context,
-                            "Present \nLatitude = " + String.format("%.6f",
-                                currentLocation.latitude) + "\nLongitude = " + String.format(
-                                "%.6f",
-                                currentLocation.longitude) + "\nDistance = " + String.format(
-                                "%.6f",
-                                distance))
-                    } else {
-                        Log.d("worker", "Marking absent in database")
-                        classAttendanceDao.insertLogs(
-                            Logs(
-                                0,
-                                subjectId,
-                                subjectName,
-                                Calendar.getInstance().time,
-                                false
-                            )
+                            Calendar.getInstance().time,
+                            false
                         )
-                        Log.d("worker", "Creating Absent marked notification")
-                        createNotificationChannelAndShowNotification(timeTableId,
-                            subjectName,
-                            hour,
-                            minute,
-                            context,
-                            "Absent \nLatitude = " + String.format("%.6f",
-                                currentLocation.latitude) + "\nLongitude = " + String.format(
-                                "%.6f",
-                                currentLocation.longitude) + "\nDistance = " + String.format(
-                                "%.6f",
-                                distance))
-                    }
-
+                    )
+                    Log.d("worker", "Creating Absent marked notification")
+                    createNotificationChannelAndShowNotification(timeTableId,
+                        subjectName,
+                        hour,
+                        minute,
+                        context,
+                        "Absent \nLatitude = " + String.format("%.6f",
+                            currentLocation.latitude) + "\nLongitude = " + String.format(
+                            "%.6f",
+                            currentLocation.longitude) + "\nDistance = " + String.format(
+                            "%.6f",
+                            distance))
                 }
             }
-        } else {
-            Log.d("worker", "NetworkCheck unsuccessful")
-            Log.d("worker", "Executing Normal Notification sequence")
-            createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute , context)
         }
         Log.d("worker", "Reregistering exact Alarm of same time interval")
         ClassAlarmManager.registerAlarm(
@@ -210,6 +211,8 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 day_of_the_week
             )
         )
+
+
         return Result.success()
 
     }

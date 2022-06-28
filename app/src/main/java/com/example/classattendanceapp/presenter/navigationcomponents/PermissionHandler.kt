@@ -108,7 +108,6 @@ fun PermissionHandler(){
                     }
                 }
             }
-
         }
     } )
 }
