@@ -126,8 +126,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                     subjectName,
                     hour,
                     minute,
-                    context,
-                    "Unable to locate your current Location"
+                    context
                 )
             }
             else{
@@ -151,6 +150,11 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 Log.d("worker", "Calculated Distance is $distance meters")
                 if (distance <= userSpecifiedLocation.third!!) {
                     Log.d("worker", "Marking present in database")
+                    val subjectWithId = classAttendanceDao.getSubjectWithId(subjectId)
+                    subjectWithId.daysPresent++
+                    classAttendanceDao.insertSubject(
+                        subjectWithId
+                    )
                     classAttendanceDao.insertLogs(
                         Logs(
                             0,
@@ -174,6 +178,11 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             distance))
                 } else {
                     Log.d("worker", "Marking absent in database")
+                    val subjectWithId = classAttendanceDao.getSubjectWithId(subjectId)
+                    subjectWithId.daysAbsent++
+                    classAttendanceDao.insertSubject(
+                        subjectWithId
+                    )
                     classAttendanceDao.insertLogs(
                         Logs(
                             0,

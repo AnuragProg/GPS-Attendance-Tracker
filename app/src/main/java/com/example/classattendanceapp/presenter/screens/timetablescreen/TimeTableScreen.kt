@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
-@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TimeTableScreen(

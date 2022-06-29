@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ClassAttendanceDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSubject(subject: Subject)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLogs(logs: Logs)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTimeTable(timeTable: TimeTable): Long
 
     @Query("delete from subject where _id = :id")
@@ -33,6 +33,14 @@ interface ClassAttendanceDao {
 
     @Query("delete from logs where subjectId = :subjectId")
     suspend fun deleteLogsWithSubjectId(subjectId: Int)
+
+    @Transaction
+    @Query("select * from subject where _id = :id")
+    suspend fun getSubjectWithId(id: Int): Subject
+
+    @Transaction
+    @Query("select * from logs where _id = :id")
+    suspend fun getLogsWithId(id: Int): Logs
 
     @Transaction
     @Query("select * from logs")

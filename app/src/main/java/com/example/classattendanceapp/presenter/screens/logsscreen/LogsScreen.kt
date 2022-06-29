@@ -53,7 +53,7 @@ fun LogsScreen(
     }
 
     var presentOrAbsentInAlertDialog by remember{
-        mutableStateOf("Absent")
+        mutableStateOf<String?>(null)
     }
 
     var showPresentOrAbsentAlertDialog by remember{
@@ -68,7 +68,7 @@ fun LogsScreen(
         AlertDialog(
             onDismissRequest = {
                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-                presentOrAbsentInAlertDialog = "Absent"
+                presentOrAbsentInAlertDialog = null
                 subjectInAlertDialog = null
             },
             text = {
@@ -79,102 +79,99 @@ fun LogsScreen(
                         fontSize = 20.sp
                     )
                     Spacer(modifier = Modifier.height(5.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth()
 
-                    ){
-                        OutlinedButton(
-                            onClick = {
-                                showAddLogsSubjectNameAlertDialog = true
-                            }
-                        ) {
-                            Row(
-                                modifier = Modifier.width(120.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
-                                Text(subjectInAlertDialog?.subjectName ?: "")
-                                IconButton(
-                                    onClick = {
-                                        showAddLogsSubjectNameAlertDialog = true
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.Filled.ArrowDropDown,
-                                        contentDescription = "Open subjects"
-                                    )
-                                }
-                            }
-
-                            DropdownMenu(
-                                expanded = showAddLogsSubjectNameAlertDialog,
-                                onDismissRequest = {
-                                    showAddLogsSubjectNameAlertDialog = false
+                    OutlinedButton(
+                        onClick = {
+                            showAddLogsSubjectNameAlertDialog = true
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Text(subjectInAlertDialog?.subjectName ?: "Select Subject")
+                            IconButton(
+                                onClick = {
+                                    showAddLogsSubjectNameAlertDialog = true
                                 }
                             ) {
-                                val subjectsList = classAttendanceViewModel.subjectsList.collectAsState()
-                                val isInitialSubjectDataRetrievalDone = classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
-                                if(subjectsList.value.isNotEmpty()){
-                                    subjectsList.value.forEach{
-                                        DropdownMenuItem(
-                                            onClick = {
-                                                subjectInAlertDialog = it
-                                                showAddLogsSubjectNameAlertDialog = false
-                                            }
-                                        ) {
-                                            Text(it.subjectName)
-                                        }
-                                    }
-                                }else if(subjectsList.value.isEmpty() && isInitialLogDataRetrievalDone.value){
-                                    Text("No Subjects to select from!!")
-                                }
+                                Icon(
+                                    Icons.Filled.ArrowDropDown,
+                                    contentDescription = "Open subjects"
+                                )
                             }
                         }
 
-                        OutlinedButton(
-                            onClick = {
-                                showPresentOrAbsentAlertDialog = true
+                        DropdownMenu(
+                            expanded = showAddLogsSubjectNameAlertDialog,
+                            onDismissRequest = {
+                                showAddLogsSubjectNameAlertDialog = false
                             }
                         ) {
-                            Row(
-                                modifier = Modifier.width(80.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
-                                Text(presentOrAbsentInAlertDialog)
-                                IconButton(
-                                    onClick = {
-                                        showPresentOrAbsentAlertDialog = true
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.Filled.ArrowDropDown,
-                                        contentDescription = "Open present or absent menu"
-                                    )
-                                }
-                            }
-                            DropdownMenu(
-                                expanded = showPresentOrAbsentAlertDialog,
-                                onDismissRequest = {
-                                    showPresentOrAbsentAlertDialog = false
-                                }
-                            ) {
-                                listOf(
-                                    "Present",
-                                    "Absent"
-                                ).forEach{
+                            val subjectsList = classAttendanceViewModel.subjectsList.collectAsState()
+                            val isInitialSubjectDataRetrievalDone = classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
+                            if(subjectsList.value.isNotEmpty()){
+                                subjectsList.value.forEach{
                                     DropdownMenuItem(
                                         onClick = {
-                                            presentOrAbsentInAlertDialog = it
-                                            showPresentOrAbsentAlertDialog = false
+                                            subjectInAlertDialog = it
+                                            showAddLogsSubjectNameAlertDialog = false
                                         }
                                     ) {
-                                        Text(it)
+                                        Text(it.subjectName)
                                     }
+                                }
+                            }else if(subjectsList.value.isEmpty() && isInitialLogDataRetrievalDone.value){
+                                Text("No Subjects to select from!!")
+                            }
+                        }
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            showPresentOrAbsentAlertDialog = true
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Text(presentOrAbsentInAlertDialog ?: "Present/Absent")
+                            IconButton(
+                                onClick = {
+                                    showPresentOrAbsentAlertDialog = true
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Filled.ArrowDropDown,
+                                    contentDescription = "Open present or absent menu"
+                                )
+                            }
+                        }
+                        DropdownMenu(
+                            expanded = showPresentOrAbsentAlertDialog,
+                            onDismissRequest = {
+                                showPresentOrAbsentAlertDialog = false
+                            }
+                        ) {
+                            listOf(
+                                "Present",
+                                "Absent"
+                            ).forEach{
+                                DropdownMenuItem(
+                                    onClick = {
+                                        presentOrAbsentInAlertDialog = it
+                                        showPresentOrAbsentAlertDialog = false
+                                    }
+                                ) {
+                                    Text(it)
                                 }
                             }
                         }
                     }
+
                 }
             },
             buttons = {

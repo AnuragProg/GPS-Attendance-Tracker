@@ -60,6 +60,8 @@ class ClassAttendanceRepositoryImpl(
         return dao.getTimeTableWithId(id)
     }
 
+
+
     override suspend fun writeOrUpdateCoordinateInDataStore(key: Preferences.Key<Double>, value: Double) {
         dataStore.edit{ pref ->
             pref[key] = value
@@ -80,6 +82,14 @@ class ClassAttendanceRepositoryImpl(
 
     override fun getAllSubjects(): Flow<List<Subject>> {
         return dao.getAllSubjects()
+    }
+
+    override suspend fun getSubjectWithId(id: Int): Subject {
+        return dao.getSubjectWithId(id)
+    }
+
+    override suspend fun getLogsWithId(id: Int): Logs {
+        return dao.getLogsWithId(id)
     }
 
     override fun getLogOfSubject(subjectName: String): Flow<List<Logs>> {

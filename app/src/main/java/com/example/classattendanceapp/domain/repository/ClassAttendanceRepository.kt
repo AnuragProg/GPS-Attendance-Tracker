@@ -31,6 +31,10 @@ interface ClassAttendanceRepository {
 
     fun getAllSubjects(): Flow<List<Subject>>
 
+    suspend fun getSubjectWithId(id: Int): Subject
+
+    suspend fun getLogsWithId(id: Int): Logs
+
     fun getLogOfSubject(subjectName: String): Flow<List<Logs>>
 
     fun getLogOfSubjectId(subjectId: Int): Flow<List<Logs>>

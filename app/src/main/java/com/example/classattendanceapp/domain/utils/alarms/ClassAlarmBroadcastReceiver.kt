@@ -3,19 +3,9 @@ package com.example.classattendanceapp.domain.utils.alarms
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.location.Location
 import android.util.Log
 import androidx.work.*
-import com.example.classattendanceapp.domain.utils.internetcheck.NetworkCheck
-import com.example.classattendanceapp.domain.utils.location.ClassLocationManager
-import com.example.classattendanceapp.domain.utils.notifications.NotificationHandler
 import com.example.classattendanceapp.domain.utils.workers.ForegroundLocationMarkAttendanceWorker
-import com.example.classattendanceapp.domain.utils.workers.LocationMarkAttendanceWorker
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
-import kotlin.coroutines.CoroutineContext
 
 class ClassAlarmBroadcastReceiver : BroadcastReceiver() {
 

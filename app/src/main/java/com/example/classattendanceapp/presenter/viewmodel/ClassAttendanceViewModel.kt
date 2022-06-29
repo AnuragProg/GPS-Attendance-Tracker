@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.log
 
 @HiltViewModel
 class ClassAttendanceViewModel @Inject constructor(
@@ -84,27 +85,6 @@ class ClassAttendanceViewModel @Inject constructor(
         _showOverFlowMenu.value = state
     }
 
-    suspend fun getAllLogs() = flow{
-        classAttendanceUseCase.getAllLogsUseCase().collect{
-            val tempLogList = mutableListOf<ModifiedLogs>()
-            it.forEach {
-                val tempLog = ModifiedLogs(
-                    _id = it._id,
-                    subjectName = it.subjectName,
-                    subjectId = it.subjectId,
-                    date = DateToSimpleFormat.getDay(it.timestamp),
-                    day = DateToSimpleFormat.getDayOfTheWeek(it.timestamp),
-                    month = DateToSimpleFormat.getMonthStringFromNumber(it.timestamp),
-                    monthNumber = DateToSimpleFormat.getMonthNumber(it.timestamp),
-                    year = DateToSimpleFormat.getYear(it.timestamp),
-                    wasPresent = it.wasPresent
-                )
-                tempLogList.add(tempLog)
-            }
-            emit(tempLogList.toList())
-        }
-    }
-
     fun getAllLogsAdvanced() :Flow<List<ModifiedLogs>>{
         return classAttendanceUseCase.getAllLogsUseCase().map{
             val tempLogList = mutableListOf<ModifiedLogs>()
@@ -126,56 +106,26 @@ class ClassAttendanceViewModel @Inject constructor(
         }
     }
 
-    suspend fun getSubjects() = flow {
-        classAttendanceUseCase.getSubjectsUseCase().collect {
-            val tempSubjectList = mutableListOf<ModifiedSubjects>()
-            it.forEach{
-                val tempLogOfSubject = classAttendanceUseCase.getLogOfSubjectIdUseCase(it._id).first()
-                val percentage = if(tempLogOfSubject.isEmpty()) 0.toDouble() else String.format("%.2f",((tempLogOfSubject.filter{ it.wasPresent }.size.toDouble())/tempLogOfSubject.size.toDouble())*100).toDouble()
-
-                tempSubjectList.add(
-                    ModifiedSubjects(
-                        it._id,
-                        it.subjectName,
-                        percentage
-                    )
-                )
-            }
-            emit(tempSubjectList.toList())
-        }
-    }
-
     fun getSubjectsAdvanced() : Flow<List<ModifiedSubjects>>{
         return classAttendanceUseCase.getSubjectsUseCase().map {
             val tempSubjectList = mutableListOf<ModifiedSubjects>()
             it.forEach{
-                val tempLogOfSubject = classAttendanceUseCase.getLogOfSubjectIdUseCase(it._id).first()
-                val percentage = if(tempLogOfSubject.isEmpty()) 0.toDouble() else String.format("%.2f",((tempLogOfSubject.filter{ it.wasPresent }.size.toDouble())/tempLogOfSubject.size.toDouble())*100).toDouble()
-
+                val percentage = if((it.daysPresent+it.daysAbsent)!=0.toLong()){
+                    (it.daysPresent.toDouble()/(it.daysPresent+it.daysAbsent).toDouble())*100
+                }else{
+                    0.00
+                }
                 tempSubjectList.add(
                     ModifiedSubjects(
                         it._id,
                         it.subjectName,
-                        percentage
+                        percentage,
+                        it.daysPresent,
+                        it.daysAbsent
                     )
                 )
             }
             tempSubjectList
-        }
-    }
-
-    suspend fun getTimeTable() = flow<Map<String, List<TimeTable>>>{
-        val resultant = mutableMapOf<String, List<TimeTable>>()
-        classAttendanceUseCase.getTimeTableUseCase().collect{
-            for(day in Days.values()){
-                resultant[day.day] =
-                    // Faulty line
-                    // Instead of collecting another flow
-                    // Just filter out the already got list from the initial flow
-                    // assign the result to resultant
-                    classAttendanceUseCase.getTimeTableOfDayUseCase(day.value).first().ifEmpty { emptyList() }
-            }
-            emit(resultant)
         }
     }
 
@@ -192,6 +142,13 @@ class ClassAttendanceViewModel @Inject constructor(
     }
 
     suspend fun insertLogs(logs: Logs){
+        val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(logs.subjectId)
+        if(logs.wasPresent){
+            subjectWithId.daysPresent++
+        }else{
+            subjectWithId.daysAbsent++
+        }
+        classAttendanceUseCase.insertSubjectUseCase(subjectWithId)
         classAttendanceUseCase.insertLogsUseCase(logs)
     }
 
@@ -199,7 +156,9 @@ class ClassAttendanceViewModel @Inject constructor(
         classAttendanceUseCase.insertSubjectUseCase(
             Subject(
                 subject._id,
-                subject.subjectName.trim()
+                subject.subjectName.trim(),
+                subject.daysPresent,
+                subject.daysAbsent
             )
         )
     }
@@ -218,6 +177,16 @@ class ClassAttendanceViewModel @Inject constructor(
     }
 
     suspend fun deleteLogs(id: Int){
+        val logWithId = classAttendanceUseCase.getLogsWithIdUseCase(id)
+        val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(logWithId.subjectId)
+        if(logWithId.wasPresent){
+            subjectWithId.daysPresent--
+        }else{
+            subjectWithId.daysAbsent--
+        }
+        classAttendanceUseCase.insertSubjectUseCase(
+            subjectWithId
+        )
         classAttendanceUseCase.deleteLogsUseCase(id)
     }
 
@@ -234,14 +203,6 @@ class ClassAttendanceViewModel @Inject constructor(
             context = context,
             timeTable = tempTimeTable
         )
-    }
-
-    suspend fun deleteLogsWithSubject(subjectName: String){
-        classAttendanceUseCase.deleteLogsWithSubjectUseCase(subjectName)
-    }
-
-    suspend fun deleteLogsWithSubjectId(subjectId: Int){
-        classAttendanceUseCase.deleteLogsWithSubjectIdUseCase(subjectId)
     }
 
     private var _currentLatitudeInDataStore = MutableStateFlow<Double?>(null)

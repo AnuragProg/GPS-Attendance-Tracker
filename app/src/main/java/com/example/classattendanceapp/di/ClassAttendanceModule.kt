@@ -13,6 +13,7 @@ import com.example.classattendanceapp.domain.usecases.datastoreusecase.GetCoordi
 import com.example.classattendanceapp.domain.usecases.datastoreusecase.WriteOrUpdateCoordinateInDataStoreUseCase
 import com.example.classattendanceapp.domain.usecases.logsusecase.*
 import com.example.classattendanceapp.domain.usecases.subjectsusecase.DeleteSubjectUseCase
+import com.example.classattendanceapp.domain.usecases.subjectsusecase.GetSubjectWithIdWithUseCase
 import com.example.classattendanceapp.domain.usecases.subjectsusecase.GetSubjectsUseCase
 import com.example.classattendanceapp.domain.usecases.subjectsusecase.InsertSubjectUseCase
 import com.example.classattendanceapp.domain.usecases.timetableusecase.*
@@ -63,6 +64,8 @@ object ClassAttendanceModule {
             deleteLogsWithSubjectIdUseCase = DeleteLogsWithSubjectIdUseCase(classAttendanceRepository),
             getAllLogsUseCase = GetAllLogsUseCase(classAttendanceRepository),
             getSubjectsUseCase = GetSubjectsUseCase(classAttendanceRepository),
+            getSubjectWithIdWithUseCase = GetSubjectWithIdWithUseCase(classAttendanceRepository),
+            getLogsWithIdUseCase = GetLogsWithIdUseCase(classAttendanceRepository),
             getTimeTableUseCase = GetTimeTableUseCase(classAttendanceRepository),
             getTimeTableWithIdUseCase = GetTimeTableWithIdUseCase(classAttendanceRepository),
             insertLogsUseCase = InsertLogsUseCase(classAttendanceRepository),

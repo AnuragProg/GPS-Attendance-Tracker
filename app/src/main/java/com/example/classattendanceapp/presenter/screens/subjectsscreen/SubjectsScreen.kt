@@ -8,6 +8,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -32,15 +34,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SubjectsScreen(
     classAttendanceViewModel: ClassAttendanceViewModel
 ){
 
-//    val subjectsList = remember{
-//        mutableStateListOf<ModifiedSubjects>()
-//    }
 
     val subjectsList = classAttendanceViewModel.subjectsList.collectAsState()
 
@@ -54,11 +53,11 @@ fun SubjectsScreen(
         mutableStateOf("")
     }
 
-    var checkForSubjectListLength by remember{
-        mutableStateOf(false)
+    var initialPresent by remember{
+        mutableStateOf("0")
     }
-    var processState by remember{
-        mutableStateOf(ProcessState.INITIAL)
+    var initialAbsent by remember{
+        mutableStateOf("0")
     }
 
 
@@ -68,6 +67,8 @@ fun SubjectsScreen(
             onDismissRequest = {
                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                 subjectNameTextField = ""
+                initialPresent = 0.toString()
+                initialAbsent = 0.toString()
             },
             text = {
                 Column{
@@ -85,6 +86,34 @@ fun SubjectsScreen(
                         },
                         singleLine = true
                     )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = initialPresent,
+                        onValueChange = {
+                            initialPresent = it
+                        },
+                        label = {
+                            Text("Initial Presents")
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        singleLine = true
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = initialAbsent,
+                        onValueChange = {
+                            initialAbsent = it
+                        },
+                        label = {
+                                      Text("Initial Absents")
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        singleLine = true
+                    )
                 }
             },
             buttons = {
@@ -98,8 +127,17 @@ fun SubjectsScreen(
                         TextButton(
                             onClick = {
                                 coroutineScope.launch{
-                                    classAttendanceViewModel.insertSubject(Subject(0, subjectNameTextField))
+                                    classAttendanceViewModel.insertSubject(
+                                        Subject(
+                                            0,
+                                            subjectNameTextField,
+                                            initialPresent.toLong(),
+                                            initialAbsent.toLong()
+                                        )
+                                    )
                                     subjectNameTextField = ""
+                                    initialPresent = 0.toString()
+                                    initialAbsent = 0.toString()
                                 }
                                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                             }
@@ -157,117 +195,105 @@ fun SubjectsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
                 items(subjectsList.value){
-                    val dismissState = rememberDismissState()
-                    SwipeToDismiss(
-                        state = dismissState,
-                        directions = setOf(DismissDirection.StartToEnd),
-                        background = {
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(100.dp)
-                                    .padding(10.dp)
-                                    .background(Color.Red)
-                            ){
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.CenterStart
-                                ){
-                                    Icon(
-                                        Icons.Filled.Delete,
-                                        contentDescription = null
-                                    )
+                    var showOverFlowMenu by remember{ mutableStateOf(false) }
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                            .padding(10.dp)
+                            .animateItemPlacement()
+                            .combinedClickable(
+                                onClick = {
+                                    Log.d("debugging", "clicked once")
+                                },
+                                onLongClick = {
+                                    Log.d("debugging", "Clicked for long")
+                                    showOverFlowMenu = true
                                 }
-                            }
-                        },
+                            )
                     ) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(100.dp)
-                                .padding(10.dp)
-                                .animateItemPlacement()
+                        DropdownMenu(
+                            expanded = showOverFlowMenu,
+                            onDismissRequest = {
+                                showOverFlowMenu = false
+                            }
                         ) {
-                            var showOverFlowMenu by remember{ mutableStateOf(false) }
-                            DropdownMenu(
-                                expanded = showOverFlowMenu,
-                                onDismissRequest = {
+                            DropdownMenuItem(
+                                onClick = {
+                                    coroutineScope.launch{
+                                        classAttendanceViewModel.deleteSubject(it._id)
+                                    }
                                     showOverFlowMenu = false
                                 }
                             ) {
-                                DropdownMenuItem(
-                                    onClick = {
-                                        coroutineScope.launch{
-                                            classAttendanceViewModel.deleteSubject(it._id)
-                                        }
-                                        showOverFlowMenu = false
-                                    }
-                                ) {
-                                    Text("Delete")
-                                }
+                                Text("Delete")
                             }
+                            DropdownMenuItem(
+                                onClick = {
+                                    showOverFlowMenu = false
+                                    subjectNameTextField = it.subjectName
+                                    initialPresent = it.daysPresent.toString()
+                                    initialAbsent = it.daysAbsent.toString()
+                                    classAttendanceViewModel.changeFloatingButtonClickedState(true)
+                                }
+                            ) {
+                                Text("Edit")
+                            }
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                                ,
+                            contentAlignment = Alignment.CenterStart
+                        ){
+                            Text(
+                                modifier = Modifier.width(200.dp),
+                                text = it.subjectName,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1
+                            )
                             Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp)
-                                    .combinedClickable(
-                                        onClick = {
-                                            Log.d("debugging", "clicked once")
-                                        },
-                                        onLongClick = {
-                                            Log.d("debugging", "Clicked for long")
-                                            showOverFlowMenu = true
-                                        }
-                                    ),
-                                contentAlignment = Alignment.CenterStart
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.CenterEnd
                             ){
-                                Text(
-                                    modifier = Modifier.width(200.dp),
-                                    text = it.subjectName,
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 1
-                                )
+
                                 Box(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentAlignment = Alignment.CenterEnd
+                                    modifier = Modifier.size(60.dp),
+                                    contentAlignment = Alignment.Center
                                 ){
-
-                                    Box(
-                                        modifier = Modifier.size(60.dp),
-                                        contentAlignment = Alignment.Center
-                                    ){
-                                        var startAnimation by remember{mutableStateOf(false)}
-                                        val target = animateFloatAsState(
-                                            targetValue = if(startAnimation) it.attendancePercentage.toFloat() else 0f,
-                                            animationSpec = tween(
-                                                durationMillis = 1000,
-                                                delayMillis = 50
-                                            )
+                                    var startAnimation by remember{mutableStateOf(false)}
+                                    val target = animateFloatAsState(
+                                        targetValue = if(startAnimation) it.attendancePercentage.toFloat() else 0f,
+                                        animationSpec = tween(
+                                            durationMillis = 1000,
+                                            delayMillis = 50
                                         )
+                                    )
 
-                                        val arcColor = animateColorAsState(
-                                            targetValue = if(target.value < 75f) Color.Red else Color.Green
+                                    val arcColor = animateColorAsState(
+                                        targetValue = if(target.value < 75f) Color.Red else Color.Green
+                                    )
+                                    Canvas(modifier = Modifier.size(60.dp)){
+                                        drawArc(
+                                            color = arcColor.value,
+                                            startAngle = 270f,
+                                            sweepAngle = 360 * target.value/100,
+                                            useCenter = false,
+                                            size = this.size,
+                                            style = Stroke(15f, cap = StrokeCap.Round)
                                         )
-                                        Canvas(modifier = Modifier.size(60.dp)){
-                                            drawArc(
-                                                color = arcColor.value,
-                                                startAngle = 270f,
-                                                sweepAngle = 360 * target.value/100,
-                                                useCenter = false,
-                                                size = this.size,
-                                                style = Stroke(15f, cap = StrokeCap.Round)
-                                            )
-                                        }
-                                        Text("${String.format("%.2f", target.value)}%")
+                                    }
+                                    Text("${String.format("%.2f", target.value)}%")
 
-                                        LaunchedEffect(key1 = Unit){
-                                            startAnimation = true
-                                        }
+                                    LaunchedEffect(key1 = Unit){
+                                        startAnimation = true
                                     }
                                 }
                             }
                         }
                     }
+
                 }
             }
         }

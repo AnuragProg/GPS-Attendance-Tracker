@@ -7,5 +7,7 @@ import androidx.room.PrimaryKey
 data class Subject(
     @PrimaryKey(autoGenerate = true)
     val _id: Int,
-    val subjectName: String
+    val subjectName: String,
+    var daysPresent: Long,
+    var daysAbsent: Long
 )
