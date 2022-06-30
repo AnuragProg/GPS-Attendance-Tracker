@@ -22,6 +22,9 @@ interface ClassAttendanceDao {
     @Update
     suspend fun updateSubject(subject: Subject)
 
+    @Update
+    suspend fun updateLog(log: Logs)
+
     @Query("delete from subject where _id = :id")
     suspend fun deleteSubject(id: Int)
 

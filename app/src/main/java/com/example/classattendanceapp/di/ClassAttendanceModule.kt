@@ -55,6 +55,7 @@ object ClassAttendanceModule {
     ): ClassAttendanceUseCase{
         return ClassAttendanceUseCase(
             updateSubjectUseCase = UpdateSubjectUseCase(classAttendanceRepository),
+            updateLogUseCase = UpdateLogUseCase(classAttendanceRepository),
             deleteLogsUseCase = DeleteLogsUseCase(classAttendanceRepository),
             deleteSubjectUseCase = DeleteSubjectUseCase(classAttendanceRepository),
             deleteTimeTableUseCase = DeleteTimeTableUseCase(classAttendanceRepository),

@@ -9,6 +9,7 @@ import com.example.classattendanceapp.domain.usecases.timetableusecase.*
 
 data class ClassAttendanceUseCase(
     val updateSubjectUseCase: UpdateSubjectUseCase,
+    val updateLogUseCase: UpdateLogUseCase,
     val deleteLogsUseCase: DeleteLogsUseCase,
     val deleteSubjectUseCase: DeleteSubjectUseCase,
     val deleteTimeTableUseCase: DeleteTimeTableUseCase,

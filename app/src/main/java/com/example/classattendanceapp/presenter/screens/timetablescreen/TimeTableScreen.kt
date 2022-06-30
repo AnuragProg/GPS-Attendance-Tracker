@@ -58,8 +58,8 @@ fun TimeTableScreen(
 
     val selectedTime = remember{
         mutableStateListOf(
-            0,
-            0
+            0, // hour
+            0  // minute
         )
     }
 

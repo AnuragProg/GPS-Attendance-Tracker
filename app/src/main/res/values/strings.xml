@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Class Attendance Tracker</string>
+    <string name="select_subject">Select Subject</string>
+    <string name="no_subject_to_select_from">No Subjects to select from!!</string>
+    <string name="present_absent">Present/Absent</string>
+    <string name="log">Log</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_logs">No Logs</string>
+    <string name="delete">Delete</string>
+    <string name="present">Present</string>
+    <string name="absent">Absent</string>
 </resources>

@@ -11,5 +11,4 @@ data class ModifiedLogs(
     val monthNumber: Int,
     val year: Int,
     val wasPresent: Boolean
-
 )

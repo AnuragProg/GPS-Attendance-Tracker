@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -56,7 +57,6 @@ fun LogsScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-
     // Making Log Dialog Box
     if(showAddLogsAlertDialog.value){
         AlertDialog(
@@ -84,7 +84,7 @@ fun LogsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            Text(subjectInAlertDialog?.subjectName ?: "Select Subject")
+                            Text(subjectInAlertDialog?.subjectName ?: stringResource(R.string.select_subject))
                             IconButton(
                                 onClick = {
                                     showAddLogsSubjectNameAlertDialog = true
@@ -117,7 +117,7 @@ fun LogsScreen(
                                     }
                                 }
                             }else if(subjectsList.value.isEmpty() && isInitialLogDataRetrievalDone.value){
-                                Text("No Subjects to select from!!")
+                                Text(stringResource(R.string.no_subject_to_select_from))
                             }
                         }
                     }
@@ -132,7 +132,7 @@ fun LogsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            Text(presentOrAbsentInAlertDialog ?: "Present/Absent")
+                            Text(presentOrAbsentInAlertDialog ?: stringResource(R.string.present_absent))
                             IconButton(
                                 onClick = {
                                     showPresentOrAbsentAlertDialog = true
@@ -175,7 +175,11 @@ fun LogsScreen(
                     TextButton(
                         onClick = {
                             coroutineScope.launch {
-                                if(subjectInAlertDialog!=null){
+                                if(
+                                    subjectInAlertDialog!=null
+                                    &&
+                                    presentOrAbsentInAlertDialog !=null
+                                ){
                                     classAttendanceViewModel.insertLogs(
                                         Logs(
                                             0,
@@ -187,12 +191,12 @@ fun LogsScreen(
                                     )
                                 }
                                 subjectInAlertDialog = null
-                                presentOrAbsentInAlertDialog = "Absent"
+                                presentOrAbsentInAlertDialog = null
                                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                             }
                         }
                     ) {
-                        Text("Log")
+                        Text(stringResource(R.string.log))
                     }
 
                     Spacer(modifier = Modifier.width(10.dp))
@@ -204,7 +208,7 @@ fun LogsScreen(
                             classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                         }
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             }
@@ -226,7 +230,7 @@ fun LogsScreen(
             )
             Text(
                 modifier = Modifier.padding(5.dp),
-                text = "No Logs"
+                text = stringResource(R.string.no_logs)
             )
         }
     } else if(logsList.value.isEmpty() && !isInitialLogDataRetrievalDone.value){
@@ -251,13 +255,19 @@ fun LogsScreen(
             ){
                 items(logsList.value.size){
                     val currentIndex = logsList.value.size - 1 - it
+                    var showOverFlowMenu by remember{ mutableStateOf(false) }
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(100.dp)
                             .padding(10.dp)
+                            .combinedClickable(
+                                onClick = {},
+                                onLongClick = {
+                                    showOverFlowMenu = true
+                                }
+                            )
                     ){
-                        var showOverFlowMenu by remember{ mutableStateOf(false) }
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -286,18 +296,13 @@ fun LogsScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .combinedClickable(
-                                        onClick = {},
-                                        onLongClick = {
-                                            showOverFlowMenu = true
-                                        }
-                                    ),
+                                    ,
                                 contentAlignment = Alignment.CenterEnd
                             ){
                                 Text(
                                     when(logsList.value[currentIndex].wasPresent){
-                                        true -> "Present"
-                                        else -> "Absent"
+                                        true -> stringResource(R.string.present)
+                                        else -> stringResource(R.string.absent)
                                     }
                                 )
                             }
@@ -309,15 +314,15 @@ fun LogsScreen(
                                     showOverFlowMenu = false
                                 }
                             ) {
-                                TextButton(
+                                DropdownMenuItem(
                                     onClick = {
                                         coroutineScope.launch{
                                             classAttendanceViewModel.deleteLogs(logsList.value[currentIndex]._id)
                                         }
                                         showOverFlowMenu = false
                                     }
-                                ) {
-                                    Text("Delete")
+                                ){
+                                    Text(stringResource(R.string.delete))
                                 }
                             }
                         }
