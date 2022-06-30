@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface ClassAttendanceRepository {
 
+    suspend fun updateSubject(subject: Subject)
+
     suspend fun insertSubject(subject: Subject)
 
     suspend fun insertLogs(logs: Logs)

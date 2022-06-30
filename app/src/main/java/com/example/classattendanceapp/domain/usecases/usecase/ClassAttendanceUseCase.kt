@@ -4,13 +4,11 @@ import com.example.classattendanceapp.domain.usecases.datastoreusecase.DeleteCoo
 import com.example.classattendanceapp.domain.usecases.datastoreusecase.GetCoordinateInDataStoreUseCase
 import com.example.classattendanceapp.domain.usecases.datastoreusecase.WriteOrUpdateCoordinateInDataStoreUseCase
 import com.example.classattendanceapp.domain.usecases.logsusecase.*
-import com.example.classattendanceapp.domain.usecases.subjectsusecase.DeleteSubjectUseCase
-import com.example.classattendanceapp.domain.usecases.subjectsusecase.GetSubjectWithIdWithUseCase
-import com.example.classattendanceapp.domain.usecases.subjectsusecase.GetSubjectsUseCase
-import com.example.classattendanceapp.domain.usecases.subjectsusecase.InsertSubjectUseCase
+import com.example.classattendanceapp.domain.usecases.subjectsusecase.*
 import com.example.classattendanceapp.domain.usecases.timetableusecase.*
 
 data class ClassAttendanceUseCase(
+    val updateSubjectUseCase: UpdateSubjectUseCase,
     val deleteLogsUseCase: DeleteLogsUseCase,
     val deleteSubjectUseCase: DeleteSubjectUseCase,
     val deleteTimeTableUseCase: DeleteTimeTableUseCase,

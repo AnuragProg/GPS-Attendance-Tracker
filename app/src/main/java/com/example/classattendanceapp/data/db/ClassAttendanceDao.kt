@@ -19,6 +19,9 @@ interface ClassAttendanceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTimeTable(timeTable: TimeTable): Long
 
+    @Update
+    suspend fun updateSubject(subject: Subject)
+
     @Query("delete from subject where _id = :id")
     suspend fun deleteSubject(id: Int)
 

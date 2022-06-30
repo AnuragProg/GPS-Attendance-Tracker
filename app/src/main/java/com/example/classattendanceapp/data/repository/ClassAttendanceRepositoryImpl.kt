@@ -15,6 +15,9 @@ class ClassAttendanceRepositoryImpl(
     private val dao: ClassAttendanceDao,
     private val dataStore: DataStore<Preferences>
 ) : ClassAttendanceRepository{
+    override suspend fun updateSubject(subject: Subject) {
+        dao.updateSubject(subject)
+    }
 
     override suspend fun insertSubject(subject: Subject) {
         dao.insertSubject(subject)

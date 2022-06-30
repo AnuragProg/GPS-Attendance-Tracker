@@ -60,6 +60,10 @@ fun SubjectsScreen(
         mutableStateOf("0")
     }
 
+    var editingSubject by remember{
+        mutableStateOf<Int?>(null)
+    }
+
 
     // Alert Dialog -> To add new subject
     if(showAddSubjectDialog.value){
@@ -69,6 +73,7 @@ fun SubjectsScreen(
                 subjectNameTextField = ""
                 initialPresent = 0.toString()
                 initialAbsent = 0.toString()
+                editingSubject = null
             },
             text = {
                 Column{
@@ -127,17 +132,29 @@ fun SubjectsScreen(
                         TextButton(
                             onClick = {
                                 coroutineScope.launch{
-                                    classAttendanceViewModel.insertSubject(
-                                        Subject(
-                                            0,
-                                            subjectNameTextField,
-                                            initialPresent.toLong(),
-                                            initialAbsent.toLong()
+                                    if(editingSubject!=null){
+                                        classAttendanceViewModel.updateSubject(
+                                            Subject(
+                                                editingSubject!!,
+                                                subjectNameTextField,
+                                                initialPresent.toLong(),
+                                                initialAbsent.toLong()
+                                            )
                                         )
-                                    )
+                                    }else{
+                                        classAttendanceViewModel.insertSubject(
+                                            Subject(
+                                                0,
+                                                subjectNameTextField,
+                                                initialPresent.toLong(),
+                                                initialAbsent.toLong()
+                                            )
+                                        )
+                                    }
                                     subjectNameTextField = ""
                                     initialPresent = 0.toString()
                                     initialAbsent = 0.toString()
+                                    editingSubject = null
                                 }
                                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                             }
@@ -149,6 +166,9 @@ fun SubjectsScreen(
                             onClick = {
                                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                                 subjectNameTextField = ""
+                                initialPresent = 0.toString()
+                                initialAbsent = 0.toString()
+                                editingSubject = null
                             }
                         ) {
                             Text("Cancel")
@@ -167,7 +187,7 @@ fun SubjectsScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             Image(
-                modifier = Modifier.size(70.dp),
+                modifier = Modifier.size(150.dp),
                 painter = painterResource(id = R.drawable.subjects),
                 contentDescription = null
             )
@@ -234,6 +254,7 @@ fun SubjectsScreen(
                                     subjectNameTextField = it.subjectName
                                     initialPresent = it.daysPresent.toString()
                                     initialAbsent = it.daysAbsent.toString()
+                                    editingSubject = it._id
                                     classAttendanceViewModel.changeFloatingButtonClickedState(true)
                                 }
                             ) {

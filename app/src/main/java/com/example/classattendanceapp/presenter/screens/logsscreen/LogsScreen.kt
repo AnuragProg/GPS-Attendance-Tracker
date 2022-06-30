@@ -1,6 +1,5 @@
 package com.example.classattendanceapp.presenter.screens.logsscreen
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -15,18 +14,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.models.Logs
-import com.example.classattendanceapp.domain.models.ModifiedLogs
 import com.example.classattendanceapp.domain.models.ModifiedSubjects
-import com.example.classattendanceapp.presenter.utils.ProcessState
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -226,7 +220,7 @@ fun LogsScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             Image(
-                modifier = Modifier.size(70.dp),
+                modifier = Modifier.size(150.dp),
                 painter = painterResource(id = R.drawable.logs),
                 contentDescription = null
             )

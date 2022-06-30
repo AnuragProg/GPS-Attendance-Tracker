@@ -85,6 +85,10 @@ class ClassAttendanceViewModel @Inject constructor(
         _showOverFlowMenu.value = state
     }
 
+    suspend fun updateSubject(subject: Subject){
+        classAttendanceUseCase.updateSubjectUseCase(subject)
+    }
+
     fun getAllLogsAdvanced() :Flow<List<ModifiedLogs>>{
         return classAttendanceUseCase.getAllLogsUseCase().map{
             val tempLogList = mutableListOf<ModifiedLogs>()
