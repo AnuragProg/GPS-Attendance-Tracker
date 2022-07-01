@@ -10,8 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,18 +17,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.models.Subject
-import com.example.classattendanceapp.domain.models.ModifiedSubjects
-import com.example.classattendanceapp.presenter.utils.ProcessState
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
@@ -60,6 +55,10 @@ fun SubjectsScreen(
         mutableStateOf("0")
     }
 
+    /*
+    number -> subject Id to updated that subject
+    null -> if(null)not updating else updating
+     */
     var editingSubject by remember{
         mutableStateOf<Int?>(null)
     }
@@ -78,7 +77,7 @@ fun SubjectsScreen(
             text = {
                 Column{
                     Text(
-                        text = "Add new Subject",
+                        text = stringResource(R.string.add_new_subject),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
@@ -87,7 +86,7 @@ fun SubjectsScreen(
                         value = subjectNameTextField,
                         onValueChange = { subjectNameTextField = it },
                         label = {
-                            Text("Subject Name")
+                            Text(stringResource(R.string.subject_name))
                         },
                         singleLine = true
                     )
@@ -98,7 +97,7 @@ fun SubjectsScreen(
                             initialPresent = it
                         },
                         label = {
-                            Text("Initial Presents")
+                            Text(stringResource(R.string.initial_presents))
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
@@ -112,7 +111,7 @@ fun SubjectsScreen(
                             initialAbsent = it
                         },
                         label = {
-                                      Text("Initial Absents")
+                                      Text(stringResource(R.string.initial_absents))
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
@@ -159,7 +158,7 @@ fun SubjectsScreen(
                                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                             }
                         ) {
-                            Text("Add")
+                            Text(stringResource(R.string.add))
                         }
                         Spacer(modifier = Modifier.width(5.dp))
                         TextButton(
@@ -171,7 +170,7 @@ fun SubjectsScreen(
                                 editingSubject = null
                             }
                         ) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
                     }
                 }
@@ -193,7 +192,7 @@ fun SubjectsScreen(
             )
             Text(
                 modifier = Modifier.padding(5.dp),
-                text = "No Subjects"
+                text = stringResource(R.string.no_subjects)
             )
         }
     } else if(subjectsList.value.isEmpty() && !isInitialSubjectDataRetrievalDone.value){
@@ -246,7 +245,7 @@ fun SubjectsScreen(
                                     showOverFlowMenu = false
                                 }
                             ) {
-                                Text("Delete")
+                                Text(stringResource(R.string.delete))
                             }
                             DropdownMenuItem(
                                 onClick = {
@@ -258,7 +257,7 @@ fun SubjectsScreen(
                                     classAttendanceViewModel.changeFloatingButtonClickedState(true)
                                 }
                             ) {
-                                Text("Edit")
+                                Text(stringResource(R.string.edit))
                             }
                         }
                         Box(
@@ -314,7 +313,6 @@ fun SubjectsScreen(
                             }
                         }
                     }
-
                 }
             }
         }

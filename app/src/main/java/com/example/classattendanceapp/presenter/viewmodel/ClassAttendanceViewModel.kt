@@ -18,8 +18,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
-import kotlin.math.log
 
 @HiltViewModel
 class ClassAttendanceViewModel @Inject constructor(
@@ -47,6 +47,41 @@ class ClassAttendanceViewModel @Inject constructor(
         }
     }
 
+    private var _currentHour = MutableStateFlow(0)
+    val currentHour : StateFlow<Int> get() = _currentHour
+
+    private var _currentMinute = MutableStateFlow(0)
+    val currentMinute : StateFlow<Int> get() = _currentMinute
+
+    private var _currentYear = MutableStateFlow(0)
+    val currentYear : StateFlow<Int> get() = _currentYear
+
+    private var _currentMonth = MutableStateFlow(0)
+    val currentMonth : StateFlow<Int> get() = _currentMonth
+
+    private var _currentDay = MutableStateFlow(0)
+    val currentDay : StateFlow<Int> get() = _currentDay
+
+    fun changeCurrentHour(hour: Int){
+        _currentHour.value = hour
+    }
+
+    fun changeCurrentMinute(minute: Int){
+        _currentMinute.value = minute
+    }
+
+    fun changeCurrentYear(year: Int){
+        _currentYear.value = year
+    }
+
+    fun changeCurrentMonth(month: Int){
+        _currentMonth.value = month
+    }
+
+    fun changeCurrentDay(day: Int){
+        _currentDay.value = day
+    }
+
     private var _isInitialSubjectDataRetrievalDone = MutableStateFlow(false)
     val isInitialSubjectDataRetrievalDone : StateFlow<Boolean> get() = _isInitialSubjectDataRetrievalDone
 
@@ -67,8 +102,22 @@ class ClassAttendanceViewModel @Inject constructor(
     private var _floatingButtonClicked = MutableStateFlow(false)
     val floatingButtonClicked: StateFlow<Boolean> get() = _floatingButtonClicked
 
-    fun changeFloatingButtonClickedState(state: Boolean){
+    fun changeFloatingButtonClickedState(
+        state: Boolean,
+        doNotMakeChangesToTime: Boolean? = null
+    ){
+        if(doNotMakeChangesToTime==null && state){
+            updateHourMinuteYearMonthDay()
+        }
         _floatingButtonClicked.value = state
+    }
+
+    private fun updateHourMinuteYearMonthDay(){
+        _currentHour.value = getCurrentHour()
+        _currentMinute.value = getCurrentMinute()
+        _currentYear.value = getCurrentYear()
+        _currentMonth.value = getCurrentMonth()
+        _currentDay.value = getCurrentDay()
     }
 
     private var _showAddLocationCoordinateDialog = MutableStateFlow(false)
@@ -93,21 +142,30 @@ class ClassAttendanceViewModel @Inject constructor(
         classAttendanceUseCase.updateLogUseCase(log)
     }
 
-    fun getAllLogsAdvanced() :Flow<List<ModifiedLogs>>{
+    private fun getAllLogsAdvanced() :Flow<List<ModifiedLogs>>{
         return classAttendanceUseCase.getAllLogsUseCase().map{
             val tempLogList = mutableListOf<ModifiedLogs>()
             it.forEach {
+
                 val tempLog = ModifiedLogs(
                     _id = it._id,
                     subjectName = it.subjectName,
                     subjectId = it.subjectId,
+                    hour = DateToSimpleFormat.getHours(it.timestamp),
+                    minute = DateToSimpleFormat.getMinutes(it.timestamp),
                     date = DateToSimpleFormat.getDay(it.timestamp),
                     day = DateToSimpleFormat.getDayOfTheWeek(it.timestamp),
                     month = DateToSimpleFormat.getMonthStringFromNumber(it.timestamp),
-                    monthNumber = DateToSimpleFormat.getMonthNumber(it.timestamp),
+                    monthNumber = DateToSimpleFormat.getConventionalMonthNumber(it.timestamp),
                     year = DateToSimpleFormat.getYear(it.timestamp),
                     wasPresent = it.wasPresent
                 )
+                Log.d("datetime", "Date is ${DateToSimpleFormat.getDay(it.timestamp)}")
+                Log.d("datetime", "day is ${DateToSimpleFormat.getDayOfTheWeek(it.timestamp)}")
+                Log.d("datetime", "month is ${DateToSimpleFormat.getMonthStringFromNumber(it.timestamp)}")
+                Log.d("datetime", "monthNumber is ${DateToSimpleFormat.getMonthNumber(it.timestamp)}")
+                Log.d("datetime", "Year is ${DateToSimpleFormat.getYear(it.timestamp)}")
+
                 tempLogList.add(tempLog)
             }
             tempLogList
@@ -221,13 +279,13 @@ class ClassAttendanceViewModel @Inject constructor(
     val currentLongitudeInDataStore: StateFlow<Double?> get() = _currentLongitudeInDataStore
     val currentRangeInDataStore : StateFlow<Double?> get() = _currentRangeInDataStore
 
-    fun changeUserLatitude(latitude: Double?){
+    private fun changeUserLatitude(latitude: Double?){
         _currentLatitudeInDataStore.value = latitude
     }
-    fun changeUserLongitude(longitude: Double?){
+    private fun changeUserLongitude(longitude: Double?){
         _currentLongitudeInDataStore.value = longitude
     }
-    fun changeUserRange(range: Double?){
+    private fun changeUserRange(range: Double?){
         _currentRangeInDataStore.value = range
     }
 
@@ -259,5 +317,26 @@ class ClassAttendanceViewModel @Inject constructor(
             classAttendanceUseCase.deleteCoordinateInDataStoreUseCase(latitudeDataStoreKey)
             classAttendanceUseCase.deleteCoordinateInDataStoreUseCase(longitudeDataStoreKey)
         }
+    }
+
+    private fun getCurrentYear():Int{
+        val cal = Calendar.getInstance()
+        return cal.get(Calendar.YEAR)
+    }
+    private fun getCurrentMonth():Int{
+        val cal = Calendar.getInstance()
+        return cal.get(Calendar.MONTH)
+    }
+    private fun getCurrentDay():Int{
+        val cal = Calendar.getInstance()
+        return cal.get(Calendar.DAY_OF_MONTH)
+    }
+    private fun getCurrentHour():Int{
+        val cal = Calendar.getInstance()
+        return cal.get(Calendar.HOUR_OF_DAY)
+    }
+    private fun getCurrentMinute():Int{
+        val cal = Calendar.getInstance()
+        return cal.get(Calendar.MINUTE)
     }
 }

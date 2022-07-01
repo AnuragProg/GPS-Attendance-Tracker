@@ -1,6 +1,8 @@
 package com.example.classattendanceapp.presenter.screens.logsscreen
 
+import android.app.DatePickerDialog
 import android.util.Log
+import android.widget.DatePicker
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
@@ -12,6 +14,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -20,9 +23,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.models.Logs
-import com.example.classattendanceapp.domain.models.ModifiedSubjects
+import com.example.classattendanceapp.presenter.utils.DateToSimpleFormat
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.time.timepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.time.LocalTime
 import java.util.*
 
 
@@ -32,6 +41,7 @@ import java.util.*
 fun LogsScreen(
     classAttendanceViewModel: ClassAttendanceViewModel
 ){
+    val context = LocalContext.current
 
     val logsList = classAttendanceViewModel.logsList.collectAsState()
 
@@ -43,8 +53,12 @@ fun LogsScreen(
         mutableStateOf(false)
     }
 
-    var subjectInAlertDialog by remember{
-        mutableStateOf<ModifiedSubjects?>(null)
+    var subjectIdInAlertDialog by remember{
+        mutableStateOf<Int?>(null)
+    }
+
+    var subjectNameInAlertDialog by remember{
+        mutableStateOf<String?>(null)
     }
 
     var presentOrAbsentInAlertDialog by remember{
@@ -55,20 +69,79 @@ fun LogsScreen(
         mutableStateOf(false)
     }
 
+    // null -> no editing to be done
+    // id of log -> editing to be done of log with given id
+    var editingLog by remember{
+        mutableStateOf<Int?>(null)
+    }
+
+
+
+    val selectedYear = classAttendanceViewModel.currentYear.collectAsState()
+    val selectedMonth = classAttendanceViewModel.currentMonth.collectAsState()
+    val selectedDay = classAttendanceViewModel.currentDay.collectAsState()
+    val selectedHour = classAttendanceViewModel.currentHour.collectAsState()
+    val selectedMinute = classAttendanceViewModel.currentMinute.collectAsState()
+
+
     val coroutineScope = rememberCoroutineScope()
+
+
+    val datePickerDialogState =
+        remember{
+            mutableStateOf(DatePickerDialog(
+                context,
+                { _: DatePicker, year, month, day ->
+                    classAttendanceViewModel.changeCurrentYear(year)
+                    classAttendanceViewModel.changeCurrentMonth(month)
+                    classAttendanceViewModel.changeCurrentDay(day)
+                },
+                selectedYear.value,
+                selectedMonth.value,
+                selectedDay.value
+            ))
+        }
+
+    LaunchedEffect(Unit){
+        combine(
+            classAttendanceViewModel.currentDay,
+            classAttendanceViewModel.currentMonth,
+            classAttendanceViewModel.currentYear,
+        ){ day, month, year ->
+            Triple(day, month, year)
+        }.collectLatest{
+            datePickerDialogState.value = DatePickerDialog(
+                context,
+                {_:DatePicker, year, month, day ->
+                    classAttendanceViewModel.changeCurrentYear(year)
+                    classAttendanceViewModel.changeCurrentMonth(month)
+                    classAttendanceViewModel.changeCurrentDay(day)
+                },
+                it.third,
+                it.second,
+                it.first,
+            )
+        }
+    }
+
+    val timePickerDialogState = rememberMaterialDialogState()
+
 
     // Making Log Dialog Box
     if(showAddLogsAlertDialog.value){
+
         AlertDialog(
             onDismissRequest = {
                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                 presentOrAbsentInAlertDialog = null
-                subjectInAlertDialog = null
+                subjectIdInAlertDialog = null
+                subjectNameInAlertDialog = null
+                editingLog = null
             },
             text = {
                 Column{
                     Text(
-                        text = "Add Log",
+                        text = stringResource(R.string.add_log),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 20.sp
                     )
@@ -84,7 +157,7 @@ fun LogsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            Text(subjectInAlertDialog?.subjectName ?: stringResource(R.string.select_subject))
+                            Text(subjectNameInAlertDialog ?: stringResource(R.string.select_subject))
                             IconButton(
                                 onClick = {
                                     showAddLogsSubjectNameAlertDialog = true
@@ -109,7 +182,8 @@ fun LogsScreen(
                                 subjectsList.value.forEach{
                                     DropdownMenuItem(
                                         onClick = {
-                                            subjectInAlertDialog = it
+                                            subjectIdInAlertDialog = it._id
+                                            subjectNameInAlertDialog = it.subjectName
                                             showAddLogsSubjectNameAlertDialog = false
                                         }
                                     ) {
@@ -121,6 +195,8 @@ fun LogsScreen(
                             }
                         }
                     }
+                    
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     OutlinedButton(
                         onClick = {
@@ -151,8 +227,8 @@ fun LogsScreen(
                             }
                         ) {
                             listOf(
-                                "Present",
-                                "Absent"
+                                stringResource(R.string.present),
+                                stringResource(R.string.absent)
                             ).forEach{
                                 DropdownMenuItem(
                                     onClick = {
@@ -166,6 +242,74 @@ fun LogsScreen(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    OutlinedButton(
+                        onClick = {
+                            datePickerDialogState.value.show()
+                        }
+                    ) {
+                       Text(
+                           "${DateToSimpleFormat.getMonthStringFromNumber(selectedMonth.value)} ${selectedDay.value}, ${selectedYear.value}"
+                       )
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    OutlinedButton(
+                        onClick = {
+                            timePickerDialogState.show()
+                        }
+                    ) {
+                       Text(
+                           "${
+                               if(selectedHour.value<10){
+                           "0${selectedHour.value}"
+                       }else{
+                           selectedHour.value
+                       }}:${
+                           if(selectedMinute.value<10){
+                               "0${selectedMinute.value}"
+                           }else{
+                               selectedMinute.value
+                           }
+                       }")
+                    }
+
+                    MaterialDialog(
+                        dialogState = timePickerDialogState,
+                        buttons = {
+                            positiveButton(
+                                stringResource(R.string.ok),
+                                onClick = {
+                                    timePickerDialogState.hide()
+                                }
+                            )
+                            negativeButton(
+                                stringResource(R.string.cancel),
+                                onClick = {
+                                    timePickerDialogState.hide()
+                                }
+                            )
+                        },
+                        onCloseRequest = {
+                            timePickerDialogState.hide()
+                        }
+                    ){
+                        timepicker(
+                            is24HourClock = true,
+                            initialTime = LocalTime.of(
+                                selectedHour.value,
+                                selectedMinute.value,
+                                0,
+                                0
+                            )
+                        ){
+                            classAttendanceViewModel.changeCurrentHour(it.hour)
+                            classAttendanceViewModel.changeCurrentMinute(it.minute)
+                        }
+                    }
+
                 }
             },
             buttons = {
@@ -176,22 +320,38 @@ fun LogsScreen(
                         onClick = {
                             coroutineScope.launch {
                                 if(
-                                    subjectInAlertDialog!=null
+                                    subjectNameInAlertDialog!=null
                                     &&
                                     presentOrAbsentInAlertDialog !=null
                                 ){
-                                    classAttendanceViewModel.insertLogs(
-                                        Logs(
-                                            0,
-                                            subjectInAlertDialog!!._id,
-                                            subjectInAlertDialog!!.subjectName,
-                                            Calendar.getInstance().time,
-                                            presentOrAbsentInAlertDialog == "Present"
+                                    val logsTime = Calendar.getInstance()
+                                    logsTime.set(selectedYear.value, selectedMonth.value, selectedDay.value, selectedHour.value, selectedMinute.value, 0)
+                                    if(editingLog == null){
+                                        classAttendanceViewModel.insertLogs(
+                                            Logs(
+                                                0,
+                                                subjectIdInAlertDialog!!,
+                                                subjectNameInAlertDialog!!,
+                                                logsTime.time,
+                                                presentOrAbsentInAlertDialog == "Present"
+                                            )
                                         )
-                                    )
+                                    }else{
+                                        classAttendanceViewModel.updateLog(
+                                            Logs(
+                                                editingLog!!,
+                                                subjectIdInAlertDialog!!,
+                                                subjectNameInAlertDialog!!,
+                                                logsTime.time,
+                                                presentOrAbsentInAlertDialog == "Present"
+                                            )
+                                        )
+                                    }
                                 }
-                                subjectInAlertDialog = null
+                                subjectIdInAlertDialog = null
+                                subjectNameInAlertDialog = null
                                 presentOrAbsentInAlertDialog = null
+                                editingLog = null
                                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                             }
                         }
@@ -203,8 +363,10 @@ fun LogsScreen(
 
                     TextButton(
                         onClick = {
-                            subjectInAlertDialog = null
-                            presentOrAbsentInAlertDialog = "Absent"
+                            subjectIdInAlertDialog = null
+                            subjectNameInAlertDialog = null
+                            presentOrAbsentInAlertDialog = null
+                            editingLog = null
                             classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                         }
                     ) {
@@ -323,6 +485,29 @@ fun LogsScreen(
                                     }
                                 ){
                                     Text(stringResource(R.string.delete))
+                                }
+                                DropdownMenuItem(
+                                    onClick = {
+                                        editingLog = logsList.value[currentIndex]._id
+
+                                        subjectIdInAlertDialog = logsList.value[currentIndex].subjectId
+                                        subjectNameInAlertDialog = logsList.value[currentIndex].subjectName
+                                        presentOrAbsentInAlertDialog = if(logsList.value[currentIndex].wasPresent) "Present" else "Absent"
+                                        classAttendanceViewModel.changeCurrentYear(logsList.value[currentIndex].year)
+                                        classAttendanceViewModel.changeCurrentMonth(logsList.value[currentIndex].monthNumber)
+                                        classAttendanceViewModel.changeCurrentDay(logsList.value[currentIndex].date)
+                                        classAttendanceViewModel.changeCurrentHour(logsList.value[currentIndex].hour)
+                                        classAttendanceViewModel.changeCurrentMinute(logsList.value[currentIndex].minute)
+
+                                        classAttendanceViewModel.changeFloatingButtonClickedState(
+                                            state = true,
+                                            doNotMakeChangesToTime = true
+                                        )
+
+                                        showOverFlowMenu = false
+                                    }
+                                ){
+                                    Text(stringResource(R.string.edit))
                                 }
                             }
                         }

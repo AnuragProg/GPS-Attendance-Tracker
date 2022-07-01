@@ -65,7 +65,7 @@ dependencies {
     testImplementation "io.mockk:mockk:1.12.4"
 
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.6'
 
     implementation "androidx.compose.material:material-icons-extended:1.1.1"
     

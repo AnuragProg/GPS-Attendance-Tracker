@@ -23,6 +23,10 @@ object DateToSimpleFormat {
         return DateFormat.format("MM", date).toString().toInt()
     }
 
+    fun getConventionalMonthNumber(date: Date):Int{
+        return getMonthNumber(date) -1
+    }
+
     fun getMonthThreeWord(date: Date): String{
         return DateFormat.format("MMM", date).toString()
     }
@@ -36,19 +40,36 @@ object DateToSimpleFormat {
     }
 
     fun getMonthStringFromNumber(date: Date): String{
-        return when(getMonthNumber(date)){
-            0 -> "JANUARY"
-            1 -> "FEBRUARY"
-            2 -> "MARCH"
-            3 -> "APRIL"
-            4 -> "MAY"
-            5 -> "JUNE"
-            6 -> "JULY"
-            7 -> "AUGUST"
-            8 -> "SEPTEMBER"
-            9 -> "OCTOBER"
-            10 -> "NOVEMBER"
-            else -> "DECEMBER"
+        return when(getConventionalMonthNumber(date)){
+            0 -> "January"
+            1 -> "February"
+            2 -> "March"
+            3 -> "April"
+            4 -> "May"
+            5 -> "June"
+            6 -> "July"
+            7 -> "August"
+            8 -> "September"
+            9 -> "October"
+            10 -> "November"
+            else -> "December"
+        }
+    }
+
+    fun getMonthStringFromNumber(month: Int): String{
+        return when(month){
+            0 -> "January"
+            1 -> "February"
+            2 -> "March"
+            3 -> "April"
+            4 -> "May"
+            5 -> "June"
+            6 -> "July"
+            7 -> "August"
+            8 -> "September"
+            9 -> "October"
+            10 -> "November"
+            else -> "December"
         }
     }
 

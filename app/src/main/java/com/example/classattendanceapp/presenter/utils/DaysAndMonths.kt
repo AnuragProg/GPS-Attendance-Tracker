@@ -10,7 +10,7 @@ enum class Days(
     WEDNESDAY("Wednesday", 4),
     THURSDAY("Thursday", 5),
     FRIDAY("Friday", 6),
-    SATURDAY("Saturday", 7),
+    SATURDAY("Saturday", 7);
 
 }
 
@@ -29,5 +29,15 @@ enum class Months(
     SEPTEMBER("September", 8),
     OCTOBER("October", 9),
     NOVEMBER("November", 10),
-    DECEMBER("December", 11),
+    DECEMBER("December", 11);
+
+    // Returns-> Number on success and null on failure
+    fun getValueOfMonth(monthInStringFormat: String): Int?{
+        for(mon in Months.values()){
+            if(mon.month == monthInStringFormat){
+                return mon.value
+            }
+        }
+        return null
+    }
 }

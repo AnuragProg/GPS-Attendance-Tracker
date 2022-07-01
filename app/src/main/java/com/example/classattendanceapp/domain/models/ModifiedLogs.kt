@@ -5,6 +5,8 @@ data class ModifiedLogs(
     val _id: Int,
     val subjectId: Int,
     val subjectName: String,
+    val hour: Int,
+    val minute: Int,
     val date: Int,
     val day: String,
     val month: String,
