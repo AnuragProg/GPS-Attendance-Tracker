@@ -80,9 +80,7 @@ fun TimeTableScreen(
     LaunchedEffect(Unit){
         classAttendanceViewModel.getTimeTableAdvanced().collectLatest { timetables ->
             timetableList.clear()
-            var i = 0
             timetables.keys.forEach{
-                Log.d("debugging" , "${++i}th value is $it")
                 timetableList[it] = mutableListOf()
                 timetableList[it]?.addAll(timetables[it]!!)
             }
@@ -139,7 +137,7 @@ fun TimeTableScreen(
                                 showSelectDayDropDownMenu = true
                             }
                         ) {
-                            Text(dayInDialog.ifBlank { stringResource(R.string.select_subject) })
+                            Text(dayInDialog.ifBlank { stringResource(R.string.select_day) })
                             Box(
                                 modifier = Modifier.fillMaxWidth(),
                                 contentAlignment = Alignment.CenterEnd
@@ -322,7 +320,19 @@ fun TimeTableScreen(
                                                 contentAlignment = Alignment.Center
                                             ){
                                                 Text(
-                                                    "${timetable.hour}:${timetable.minute}"
+                                                    "${
+                                                        if(timetable.hour<10){
+                                                            "0${timetable.hour}"   
+                                                        }else{
+                                                            timetable.hour
+                                                        }
+                                                    }:${
+                                                        if(timetable.minute<10){
+                                                            "0${timetable.minute}"
+                                                        }else{
+                                                            timetable.minute
+                                                        }
+                                                    }"
                                                 )
                                             }
                                         }

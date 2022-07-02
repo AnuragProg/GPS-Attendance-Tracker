@@ -13,8 +13,8 @@
     <string name="add_log">Add Log</string>
     <string name="add_new_subject">Add New Subject</string>
     <string name="subject_name">Subject Name</string>
-    <string name="initial_presents">Initial Presents</string>
-    <string name="initial_absents">Initial Absents</string>
+    <string name="presents">Presents</string>
+    <string name="absents">Absents</string>
     <string name="add">Add</string>
     <string name="no_subjects">No Subjects</string>
     <string name="edit">Edit</string>

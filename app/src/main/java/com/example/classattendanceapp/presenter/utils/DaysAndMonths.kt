@@ -11,7 +11,6 @@ enum class Days(
     THURSDAY("Thursday", 5),
     FRIDAY("Friday", 6),
     SATURDAY("Saturday", 7);
-
 }
 
 enum class Months(

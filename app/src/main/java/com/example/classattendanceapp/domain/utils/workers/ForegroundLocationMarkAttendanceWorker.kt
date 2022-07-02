@@ -79,19 +79,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
 
         Log.d("worker", "retrieved data are subjectName -> $subjectName | timeTableId -> $timeTableId" +
                 " | hour -> $hour | minute -> $minute")
-        Log.d("worker", "beginning NetworkCheck")
-
-
-//        if (NetworkCheck.isInternetAvailable(context)) {} else {
-//            Log.d("worker", "NetworkCheck unsuccessful")
-//            Log.d("worker", "Executing Normal Notification sequence")
-//            createNotificationChannelAndShowNotification(timeTableId, subjectName, hour, minute , context)
-//        }
-
-
-
-
-        Log.d("worker", "NetworkCheck successful")
 
         val userSpecifiedLocation = combine(
             dataStore.data.map { pref ->
@@ -161,7 +148,9 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             subjectId,
                             subjectName,
                             Calendar.getInstance().time,
-                            true
+                            true,
+                            latitude = currentLocation.latitude,
+                            longitude = currentLocation.longitude
                         )
                     )
                     Log.d("worker", "Creating Present marked notification")
@@ -189,7 +178,9 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             subjectId,
                             subjectName,
                             Calendar.getInstance().time,
-                            false
+                            false,
+                            latitude = currentLocation.latitude,
+                            longitude = currentLocation.longitude
                         )
                     )
                     Log.d("worker", "Creating Absent marked notification")

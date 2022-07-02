@@ -97,7 +97,7 @@ fun SubjectsScreen(
                             initialPresent = it
                         },
                         label = {
-                            Text(stringResource(R.string.initial_presents))
+                            Text(stringResource(R.string.presents))
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
@@ -111,7 +111,7 @@ fun SubjectsScreen(
                             initialAbsent = it
                         },
                         label = {
-                                      Text(stringResource(R.string.initial_absents))
+                                      Text(stringResource(R.string.absents))
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
