@@ -1,8 +1,10 @@
 package com.example.classattendanceapp.domain.utils.workers
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -66,6 +68,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         val foregroundNotificationInfo = ForegroundInfo(foregroundNotificaitionId, foregroundNotification)
         setForeground(foregroundNotificationInfo)
 
+
         Log.d("worker", "starting doWork and retrieving data from inputData")
         val subjectId = inputData.getInt(SUBJECTID, -1)
         val subjectName = inputData.getString(SUBJECTNAME)
@@ -79,6 +82,35 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
 
         Log.d("worker", "retrieved data are subjectName -> $subjectName | timeTableId -> $timeTableId" +
                 " | hour -> $hour | minute -> $minute")
+
+        if(
+            context.checkSelfPermission(
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_DENIED
+        ){
+            Log.d("worker", "Don't have fine location permission so sending normal notification")
+            createNotificationChannelAndShowNotification(
+                timeTableId, subjectName, hour, minute, context
+            )
+            return Result.success()
+        }
+        if(
+            Build.VERSION.SDK_INT >= 29
+        ){
+            Log.d("worker", "Checking for background location permission")
+            if(
+                context.checkSelfPermission(
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                ) == PackageManager.PERMISSION_DENIED
+            ){
+                Log.d("worker", "Don't have background location permission so sending normal notification")
+
+                createNotificationChannelAndShowNotification(
+                    timeTableId, subjectName, hour, minute, context
+                )
+                return Result.success()
+            }
+        }
 
         val userSpecifiedLocation = combine(
             dataStore.data.map { pref ->
