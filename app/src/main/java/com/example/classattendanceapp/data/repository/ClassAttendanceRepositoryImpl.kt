@@ -47,6 +47,10 @@ class ClassAttendanceRepositoryImpl(
         dao.deleteTimeTable(id)
     }
 
+    override suspend fun deleteTimeTableWithSubjectId(subjectId: Int) {
+        dao.deleteTimeTableWithSubjectId(subjectId)
+    }
+
     override suspend fun deleteLogsWithSubject(subjectName: String) {
         dao.deleteLogsWithSubject(subjectName)
     }
@@ -63,10 +67,13 @@ class ClassAttendanceRepositoryImpl(
         return dao.getTimeTable()
     }
 
-    override suspend fun getTimeTableWithId(id: Int): TimeTable{
+    override suspend fun getTimeTableWithId(id: Int): TimeTable?{
         return dao.getTimeTableWithId(id)
     }
 
+    override fun getTimeTableWithSubjectId(subjectId: Int): Flow<List<TimeTable>> {
+        return dao.getTimeTableWithSubjectId(subjectId)
+    }
 
 
     override suspend fun writeOrUpdateCoordinateInDataStore(key: Preferences.Key<Double>, value: Double) {
@@ -91,11 +98,11 @@ class ClassAttendanceRepositoryImpl(
         return dao.getAllSubjects()
     }
 
-    override suspend fun getSubjectWithId(id: Int): Subject {
+    override suspend fun getSubjectWithId(id: Int): Subject? {
         return dao.getSubjectWithId(id)
     }
 
-    override suspend fun getLogsWithId(id: Int): Logs {
+    override suspend fun getLogsWithId(id: Int): Logs? {
         return dao.getLogsWithId(id)
     }
 

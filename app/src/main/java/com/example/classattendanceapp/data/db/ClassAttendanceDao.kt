@@ -34,6 +34,9 @@ interface ClassAttendanceDao {
     @Query("delete from timetable where _id = :id")
     suspend fun deleteTimeTable(id: Int)
 
+    @Query("delete from timetable where subjectId = :subjectId")
+    suspend fun deleteTimeTableWithSubjectId(subjectId: Int)
+
     @Query("delete from logs where subjectName = :subjectName")
     suspend fun deleteLogsWithSubject(subjectName: String)
 
@@ -42,11 +45,11 @@ interface ClassAttendanceDao {
 
     @Transaction
     @Query("select * from subject where _id = :id")
-    suspend fun getSubjectWithId(id: Int): Subject
+    suspend fun getSubjectWithId(id: Int): Subject?
 
     @Transaction
     @Query("select * from logs where _id = :id")
-    suspend fun getLogsWithId(id: Int): Logs
+    suspend fun getLogsWithId(id: Int): Logs?
 
     @Transaction
     @Query("select * from logs")
@@ -58,7 +61,11 @@ interface ClassAttendanceDao {
 
     @Transaction
     @Query("select * from timetable where _id = :id")
-    suspend fun getTimeTableWithId(id: Int): TimeTable
+    suspend fun getTimeTableWithId(id: Int): TimeTable?
+
+    @Transaction
+    @Query("select * from timetable where subjectId = :subjectId")
+    fun getTimeTableWithSubjectId(subjectId: Int): Flow<List<TimeTable>>
 
     @Transaction
     @Query("select * from subject")

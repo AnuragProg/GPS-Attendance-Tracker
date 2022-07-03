@@ -25,6 +25,8 @@ interface ClassAttendanceRepository {
 
     suspend fun deleteTimeTable(id: Int)
 
+    suspend fun deleteTimeTableWithSubjectId(subjectId: Int)
+
     suspend fun deleteLogsWithSubject(subjectName: String)
 
     suspend fun deleteLogsWithSubjectId(subjectId: Int)
@@ -35,9 +37,9 @@ interface ClassAttendanceRepository {
 
     fun getAllSubjects(): Flow<List<Subject>>
 
-    suspend fun getSubjectWithId(id: Int): Subject
+    suspend fun getSubjectWithId(id: Int): Subject?
 
-    suspend fun getLogsWithId(id: Int): Logs
+    suspend fun getLogsWithId(id: Int): Logs?
 
     fun getLogOfSubject(subjectName: String): Flow<List<Logs>>
 
@@ -45,7 +47,9 @@ interface ClassAttendanceRepository {
 
     fun getTimeTableOfDay(day: Int): Flow<List<TimeTable>>
 
-    suspend fun getTimeTableWithId(id: Int): TimeTable
+    suspend fun getTimeTableWithId(id: Int): TimeTable?
+
+    fun getTimeTableWithSubjectId(subjectId: Int): Flow<List<TimeTable>>
 
     suspend fun writeOrUpdateCoordinateInDataStore(key: Preferences.Key<Double>, value: Double)
 

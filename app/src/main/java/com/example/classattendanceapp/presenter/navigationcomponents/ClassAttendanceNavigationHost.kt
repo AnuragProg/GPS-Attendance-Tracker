@@ -15,12 +15,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.classattendanceapp.R
 import com.example.classattendanceapp.presenter.screens.logsscreen.LogsScreen
 import com.example.classattendanceapp.presenter.screens.subjectsscreen.SubjectsScreen
 import com.example.classattendanceapp.presenter.screens.timetablescreen.TimeTableScreen
@@ -111,11 +113,11 @@ fun ClassAttendanceNavigationHost(){
                     Column(
                         modifier = Modifier.padding(10.dp)
                     ){
-                        Text("Without following permissions some features of app will not function properly: ")
+                        Text(stringResource(R.string.feature_permission_not_granted_warning_message))
                         for(nonGrantedPermission in nonGrantedPermissionList){
                             TextButton(
                                 onClick = {
-                                    Toast.makeText(context, "Grant App Permanent Location Access", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, context.getString(R.string.grant_app_permanent_location_access), Toast.LENGTH_LONG).show()
                                     val settingsIntent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                                     settingsIntent.data = Uri.parse("package:" + context.packageName)
                                     context.startActivity(settingsIntent)

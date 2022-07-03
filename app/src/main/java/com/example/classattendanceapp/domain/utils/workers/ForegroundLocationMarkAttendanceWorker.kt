@@ -20,13 +20,11 @@ import com.example.classattendanceapp.data.db.ClassAttendanceDatabase
 import com.example.classattendanceapp.data.models.Logs
 import com.example.classattendanceapp.data.models.TimeTable
 import com.example.classattendanceapp.domain.utils.alarms.ClassAlarmManager
-import com.example.classattendanceapp.domain.utils.internetcheck.NetworkCheck
 import com.example.classattendanceapp.domain.utils.location.ClassLocationManager
 import com.example.classattendanceapp.domain.utils.maths.CoordinateCalculations
 import com.example.classattendanceapp.domain.utils.notifications.NotificationHandler
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -90,7 +88,12 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         ){
             Log.d("worker", "Don't have fine location permission so sending normal notification")
             createNotificationChannelAndShowNotification(
-                timeTableId, subjectName, hour, minute, context
+                timeTableId,
+                subjectId,
+                subjectName,
+                hour,
+                minute,
+                context
             )
             return Result.success()
         }
@@ -106,7 +109,12 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 Log.d("worker", "Don't have background location permission so sending normal notification")
 
                 createNotificationChannelAndShowNotification(
-                    timeTableId, subjectName, hour, minute, context
+                    timeTableId,
+                    subjectId,
+                    subjectName,
+                    hour,
+                    minute,
+                    context
                 )
                 return Result.success()
             }
@@ -130,6 +138,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
             Log.d("worker", "No coordinates stored by user so showing normal notification")
             createNotificationChannelAndShowNotification(
                 timeTableId,
+                subjectId,
                 subjectName,
                 hour,
                 minute,
@@ -142,6 +151,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
             if(currentLocation==null) {
                 createNotificationChannelAndShowNotification(
                     timeTableId,
+                    subjectId,
                     subjectName,
                     hour,
                     minute,
@@ -170,7 +180,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 if (distance <= userSpecifiedLocation.third!!) {
                     Log.d("worker", "Marking present in database")
                     val subjectWithId = classAttendanceDao.getSubjectWithId(subjectId)
-                    subjectWithId.daysPresent++
+                    subjectWithId!!.daysPresent++
                     classAttendanceDao.insertSubject(
                         subjectWithId
                     )
@@ -186,7 +196,9 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                         )
                     )
                     Log.d("worker", "Creating Present marked notification")
-                    createNotificationChannelAndShowNotification(timeTableId,
+                    createNotificationChannelAndShowNotification(
+                        timeTableId,
+                        subjectId,
                         subjectName,
                         hour,
                         minute,
@@ -196,11 +208,12 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             "%.6f",
                             currentLocation.longitude) + "\nDistance = " + String.format(
                             "%.6f",
-                            distance))
+                            distance)
+                    )
                 } else {
                     Log.d("worker", "Marking absent in database")
                     val subjectWithId = classAttendanceDao.getSubjectWithId(subjectId)
-                    subjectWithId.daysAbsent++
+                    subjectWithId!!.daysAbsent++
                     classAttendanceDao.insertSubject(
                         subjectWithId
                     )
@@ -216,7 +229,9 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                         )
                     )
                     Log.d("worker", "Creating Absent marked notification")
-                    createNotificationChannelAndShowNotification(timeTableId,
+                    createNotificationChannelAndShowNotification(
+                        timeTableId,
+                        subjectId,
                         subjectName,
                         hour,
                         minute,
@@ -226,7 +241,8 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             "%.6f",
                             currentLocation.longitude) + "\nDistance = " + String.format(
                             "%.6f",
-                            distance))
+                            distance)
+                    )
                 }
             }
         }
@@ -264,6 +280,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
 
     private fun createNotificationChannelAndShowNotification(
         timeTableId: Int,
+        subjectId: Int,
         subjectName: String?,
         hour: Int,
         minute: Int,
@@ -278,6 +295,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         NotificationHandler.createAndShowNotification(
             context,
             timeTableId,
+            subjectId,
             subjectName,
             hour,
             minute,

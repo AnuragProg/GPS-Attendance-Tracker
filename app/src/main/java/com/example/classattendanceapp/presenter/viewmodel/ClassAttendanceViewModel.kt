@@ -207,8 +207,13 @@ class ClassAttendanceViewModel @Inject constructor(
         }
     }
 
+    fun getTimeTableWithSubjectId(subjectId: Int): Flow<List<TimeTable>>{
+        return classAttendanceUseCase.getTimeTableWithSubjectIdUseCase(subjectId)
+    }
+
     suspend fun insertLogs(logs: Logs){
         val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(logs.subjectId)
+            ?: return
         if(logs.wasPresent){
             subjectWithId.daysPresent++
         }else{
@@ -243,8 +248,9 @@ class ClassAttendanceViewModel @Inject constructor(
     }
 
     suspend fun deleteLogs(id: Int){
-        val logWithId = classAttendanceUseCase.getLogsWithIdUseCase(id)
-        val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(logWithId.subjectId)
+        val logWithId = classAttendanceUseCase.getLogsWithIdUseCase(id) ?: return
+
+        val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(logWithId.subjectId) ?: return
         if(logWithId.wasPresent){
             subjectWithId.daysPresent--
         }else{
@@ -256,14 +262,20 @@ class ClassAttendanceViewModel @Inject constructor(
         classAttendanceUseCase.deleteLogsUseCase(id)
     }
 
-    suspend fun deleteSubject(id: Int){
+    suspend fun deleteSubject(id: Int, context: Context){
+        val timeTableWithSubjectId = classAttendanceUseCase.getTimeTableWithSubjectIdUseCase(id).first()
+        for(timeTable in timeTableWithSubjectId){
+            deleteTimeTable(
+                timeTable._id,
+                context
+            )
+        }
         classAttendanceUseCase.deleteLogsWithSubjectIdUseCase(id)
         classAttendanceUseCase.deleteSubjectUseCase(id)
     }
 
     suspend fun deleteTimeTable(id: Int, context: Context){
-        val tempTimeTable = classAttendanceUseCase.getTimeTableWithIdUseCase(id)
-        Log.d("tempTimeTable", "tempTimeTable is $tempTimeTable")
+        val tempTimeTable = classAttendanceUseCase.getTimeTableWithIdUseCase(id) ?: return
         classAttendanceUseCase.deleteTimeTableUseCase(id)
         ClassAlarmManager.cancelAlarm(
             context = context,

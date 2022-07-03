@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,6 +36,7 @@ fun SubjectsScreen(
     classAttendanceViewModel: ClassAttendanceViewModel
 ){
 
+    val context = LocalContext.current
 
     val subjectsList = classAttendanceViewModel.subjectsList.collectAsState()
 
@@ -240,7 +242,10 @@ fun SubjectsScreen(
                             DropdownMenuItem(
                                 onClick = {
                                     coroutineScope.launch{
-                                        classAttendanceViewModel.deleteSubject(it._id)
+                                        classAttendanceViewModel.deleteSubject(
+                                            it._id,
+                                            context
+                                        )
                                     }
                                     showOverFlowMenu = false
                                 }

@@ -22,5 +22,7 @@
     <string name="subject">Subject</string>
     <string name="select_day">Select Day</string>
     <string name="select_time">Select Time</string>
-    <string name="nothing_here">Nothing Here...</string>
+    <string name="nothing_here">Nothing Here…</string>
+    <string name="grant_app_permanent_location_access">Grant App Permanent Location Access</string>
+    <string name="feature_permission_not_granted_warning_message">Without following permissions some features of app will not function properly: </string>
 </resources>
