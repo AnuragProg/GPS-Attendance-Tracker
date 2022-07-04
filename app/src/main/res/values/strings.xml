@@ -25,4 +25,6 @@
     <string name="nothing_here">Nothing Here…</string>
     <string name="grant_app_permanent_location_access">Grant App Permanent Location Access</string>
     <string name="feature_permission_not_granted_warning_message">Without following permissions some features of app will not function properly: </string>
+    <string name="mark_your_attendance">Mark your attendance!</string>
+    <string name="marked_your_attendance">Marked your attendance!</string>
 </resources>

@@ -176,18 +176,22 @@ class ClassAttendanceViewModel @Inject constructor(
         return classAttendanceUseCase.getSubjectsUseCase().map {
             val tempSubjectList = mutableListOf<ModifiedSubjects>()
             it.forEach{
-                val percentage = if((it.daysPresent+it.daysAbsent)!=0.toLong()){
-                    (it.daysPresent.toDouble()/(it.daysPresent+it.daysAbsent).toDouble())*100
+                val totalPresents = it.daysPresent + it.daysPresentOfLogs
+                val totalAbsents = it.daysAbsent + it.daysAbsentOfLogs
+                val percentage = if(totalPresents + totalAbsents == 0.toLong()){
+                    0.toDouble()
                 }else{
-                    0.00
+                    totalPresents.toDouble()/(totalPresents + totalAbsents)
                 }
                 tempSubjectList.add(
                     ModifiedSubjects(
-                        it._id,
-                        it.subjectName,
-                        percentage,
-                        it.daysPresent,
-                        it.daysAbsent
+                        _id = it._id,
+                        subjectName = it.subjectName,
+                        attendancePercentage = percentage,
+                        daysPresent = it.daysPresent,
+                        daysAbsent = it.daysAbsent,
+                        daysPresentOfLogs = it.daysPresentOfLogs,
+                        daysAbsentOfLogs = it.daysAbsentOfLogs
                     )
                 )
             }
@@ -215,9 +219,9 @@ class ClassAttendanceViewModel @Inject constructor(
         val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(logs.subjectId)
             ?: return
         if(logs.wasPresent){
-            subjectWithId.daysPresent++
+            subjectWithId.daysPresentOfLogs++
         }else{
-            subjectWithId.daysAbsent++
+            subjectWithId.daysAbsentOfLogs++
         }
         classAttendanceUseCase.insertSubjectUseCase(subjectWithId)
         classAttendanceUseCase.insertLogsUseCase(logs)
@@ -226,10 +230,10 @@ class ClassAttendanceViewModel @Inject constructor(
     suspend fun insertSubject(subject: Subject){
         classAttendanceUseCase.insertSubjectUseCase(
             Subject(
-                subject._id,
-                subject.subjectName.trim(),
-                subject.daysPresent,
-                subject.daysAbsent
+                _id = subject._id,
+                subjectName = subject.subjectName.trim(),
+                daysPresent = subject.daysPresent,
+                daysAbsent = subject.daysAbsent
             )
         )
     }
@@ -252,9 +256,9 @@ class ClassAttendanceViewModel @Inject constructor(
 
         val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(logWithId.subjectId) ?: return
         if(logWithId.wasPresent){
-            subjectWithId.daysPresent--
+            subjectWithId.daysPresentOfLogs--
         }else{
-            subjectWithId.daysAbsent--
+            subjectWithId.daysAbsentOfLogs--
         }
         classAttendanceUseCase.insertSubjectUseCase(
             subjectWithId

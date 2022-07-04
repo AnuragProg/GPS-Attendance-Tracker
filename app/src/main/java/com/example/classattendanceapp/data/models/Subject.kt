@@ -8,6 +8,8 @@ data class Subject(
     @PrimaryKey(autoGenerate = true)
     val _id: Int,
     val subjectName: String,
+    var daysPresentOfLogs: Long = 0,
+    var daysAbsentOfLogs: Long = 0,
     var daysPresent: Long,
     var daysAbsent: Long
 )

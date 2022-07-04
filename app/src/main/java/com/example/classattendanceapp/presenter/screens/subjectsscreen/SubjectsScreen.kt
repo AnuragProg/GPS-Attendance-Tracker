@@ -136,19 +136,19 @@ fun SubjectsScreen(
                                     if(editingSubject!=null){
                                         classAttendanceViewModel.updateSubject(
                                             Subject(
-                                                editingSubject!!,
-                                                subjectNameTextField,
-                                                initialPresent.toLong(),
-                                                initialAbsent.toLong()
+                                                _id = editingSubject!!,
+                                                subjectName = subjectNameTextField,
+                                                daysPresent = initialPresent.toLong(),
+                                                daysAbsent = initialAbsent.toLong()
                                             )
                                         )
                                     }else{
                                         classAttendanceViewModel.insertSubject(
                                             Subject(
-                                                0,
-                                                subjectNameTextField,
-                                                initialPresent.toLong(),
-                                                initialAbsent.toLong()
+                                                _id = 0,
+                                                subjectName = subjectNameTextField,
+                                                daysPresent = initialPresent.toLong(),
+                                                daysAbsent = initialAbsent.toLong()
                                             )
                                         )
                                     }

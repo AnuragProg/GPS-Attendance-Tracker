@@ -94,8 +94,8 @@ fun TimeTableScreen(
             onDismissRequest = {
                 classAttendanceViewModel.changeFloatingButtonClickedState(false)
                 dayInDialog = ""
-                selectedTime[0] = 0 // hour
-                selectedTime[1] = 0 // minute
+                selectedTime[0] = null // hour
+                selectedTime[1] = null // minute
             },
             text = {
                 Column{

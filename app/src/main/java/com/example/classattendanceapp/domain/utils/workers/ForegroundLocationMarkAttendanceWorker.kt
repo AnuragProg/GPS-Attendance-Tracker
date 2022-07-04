@@ -180,7 +180,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 if (distance <= userSpecifiedLocation.third!!) {
                     Log.d("worker", "Marking present in database")
                     val subjectWithId = classAttendanceDao.getSubjectWithId(subjectId)
-                    subjectWithId!!.daysPresent++
+                    subjectWithId!!.daysPresentOfLogs++
                     classAttendanceDao.insertSubject(
                         subjectWithId
                     )
@@ -213,7 +213,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 } else {
                     Log.d("worker", "Marking absent in database")
                     val subjectWithId = classAttendanceDao.getSubjectWithId(subjectId)
-                    subjectWithId!!.daysAbsent++
+                    subjectWithId!!.daysAbsentOfLogs++
                     classAttendanceDao.insertSubject(
                         subjectWithId
                     )

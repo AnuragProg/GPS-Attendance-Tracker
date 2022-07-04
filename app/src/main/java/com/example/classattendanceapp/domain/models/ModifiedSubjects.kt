@@ -5,5 +5,7 @@ data class ModifiedSubjects(
     val subjectName: String,
     val attendancePercentage: Double,
     var daysPresent: Long,
-    var daysAbsent: Long
+    var daysAbsent: Long,
+    var daysPresentOfLogs: Long,
+    var daysAbsentOfLogs: Long,
 )

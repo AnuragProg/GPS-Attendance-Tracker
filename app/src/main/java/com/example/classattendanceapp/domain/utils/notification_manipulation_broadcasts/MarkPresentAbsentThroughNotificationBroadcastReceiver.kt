@@ -13,10 +13,12 @@ import com.example.classattendanceapp.domain.utils.workers.MarkPresentAbsentThro
 class MarkPresentAbsentThroughNotificationBroadcastReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if(context!=null && intent!=null){
+            Log.d("bundle", "bundle contains ${intent.extras}")
             val attendance = intent.getBooleanExtra("attendance", false)
             val subjectId = intent.getIntExtra("subjectId", -1)
             val notificationId = intent.getIntExtra("notificationPush", -1)
-            if(notificationId!=0 && subjectId!=-1){
+            if(notificationId!=-1 && subjectId!=-1){
+                Log.d("bundle", "Got attendance = $attendance , subjectId = $subjectId, notificationId = $notificationId")
                 NotificationManagerCompat.from(context).cancel(notificationId)
                 val markPresentAbsentThroughNotificationWorkerData = workDataOf(
                     "subjectId" to subjectId,

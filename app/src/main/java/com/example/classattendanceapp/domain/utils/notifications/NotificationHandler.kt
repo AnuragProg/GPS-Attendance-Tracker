@@ -36,19 +36,17 @@ object NotificationHandler {
     }
 
     fun createAndShowNotification(
-        context: Context,
-        timeTableId: Int,
-        subjectId: Int,
-        subjectName: String,
-        hour: Int,
-        minute: Int,
+        context: Context, // to create intent and pendingIntent
+        timeTableId: Int, // for requestCode of pendingIntent to be unique
+        subjectId: Int, // for extracting subject from db and manipulate its data on action button click
+        subjectName: String, // for showing in notification (information purpose)
+        hour: Int, // show time in notification
+        minute: Int, // show time in notification
         message: String?, // present or absent
-        notificationType: NotificationTypes? = null
     ){
         val intent = Intent(context, MainActivity::class.java).apply{
             putExtra("subject_id", timeTableId)
         }
-
 
         val pendingIntent = PendingIntent.getActivity(context, OPENMAINACTIVITYREQUESTCODE, intent, PendingIntent.FLAG_IMMUTABLE)
 
@@ -61,7 +59,7 @@ object NotificationHandler {
             action = "com.example.classattendanceapp.domain.utils.notification_manipulation_broadcasts.MarkPresentAbsentThroughNotificationBroadcastReceiver"
             putExtra("attendance", true)
             putExtra("notificationPush", timeTableId)
-            putExtra("subjectId", subjectId.toString())
+            putExtra("subjectId", subjectId)
         }
 
         val markPresentPendingIntent = PendingIntent.getBroadcast(context, -20, markPresentIntent, Intent.FILL_IN_DATA)
@@ -70,16 +68,14 @@ object NotificationHandler {
             action = "com.example.classattendanceapp.domain.utils.notification_manipulation_broadcasts.MarkPresentAbsentThroughNotificationBroadcastReceiver"
             putExtra("attendance", false)
             putExtra("notificationPush", timeTableId)
-            putExtra("subjectId", subjectId.toString())
+            putExtra("subjectId", subjectId)
         }
         val markAbsentPendingIntent = PendingIntent.getBroadcast(context, -30, markAbsentIntent, Intent.FILL_IN_DATA)
-
-        Log.d("mark","SubjectId in presentIntent is ${ markPresentIntent.getStringExtra("subjectId") }")
 
         val notification = if(message!=null){
             NotificationCompat.Builder(context, CHANNELID)
                 .setSmallIcon(R.drawable.ic_launcher_background)
-                .setContentTitle("Marked your attendance!")
+                .setContentTitle(context.getString(R.string.marked_your_attendance))
                 .setContentText(contentMessage)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -92,7 +88,7 @@ object NotificationHandler {
         }else{
             NotificationCompat.Builder(context, CHANNELID)
                 .setSmallIcon(R.drawable.ic_launcher_background)
-                .setContentTitle("Mark your attendance!")
+                .setContentTitle(context.getString(R.string.mark_your_attendance))
                 .setContentText(contentMessage)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
