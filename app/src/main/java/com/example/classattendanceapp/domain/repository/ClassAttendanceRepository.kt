@@ -13,9 +13,9 @@ interface ClassAttendanceRepository {
 
     suspend fun updateLog(log: Logs)
 
-    suspend fun insertSubject(subject: Subject)
+    suspend fun insertSubject(subject: Subject): Long
 
-    suspend fun insertLogs(logs: Logs)
+    suspend fun insertLogs(logs: Logs): Long
 
     suspend fun insertTimeTable(timeTable: TimeTable): Long
 

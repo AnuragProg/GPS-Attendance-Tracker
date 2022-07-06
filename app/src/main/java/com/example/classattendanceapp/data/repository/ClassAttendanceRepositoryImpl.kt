@@ -23,12 +23,12 @@ class ClassAttendanceRepositoryImpl(
         dao.updateLog(log)
     }
 
-    override suspend fun insertSubject(subject: Subject) {
-        dao.insertSubject(subject)
+    override suspend fun insertSubject(subject: Subject): Long {
+        return dao.insertSubject(subject)
     }
 
-    override suspend fun insertLogs(logs: Logs) {
-        dao.insertLogs(logs)
+    override suspend fun insertLogs(logs: Logs): Long {
+        return dao.insertLogs(logs)
     }
 
     override suspend fun insertTimeTable(timeTable: TimeTable): Long {

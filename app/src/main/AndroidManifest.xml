@@ -58,6 +58,15 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
+
+        <receiver android:name=".domain.utils.notification_manipulation_broadcasts.InvertPreviouslyMarkedAttendanceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.classattendanceapp.domain.utils.notification_manipulation_broadcasts.InvertPreviouslyMarkedAttendanceBroadcastReceiver"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

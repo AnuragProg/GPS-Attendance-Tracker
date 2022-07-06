@@ -12,7 +12,7 @@ data class Logs(
     val subjectId: Int,
     val subjectName: String,    //TEC201
     val timestamp: Date,             //15360000
-    val wasPresent: Boolean,     //true -> present or false -> absent
+    var wasPresent: Boolean,     //true -> present or false -> absent
     val latitude: Double? = null,
     val longitude: Double? = null
 )

@@ -181,7 +181,7 @@ class ClassAttendanceViewModel @Inject constructor(
                 val percentage = if(totalPresents + totalAbsents == 0.toLong()){
                     0.toDouble()
                 }else{
-                    totalPresents.toDouble()/(totalPresents + totalAbsents)
+                    (totalPresents.toDouble()/(totalPresents + totalAbsents))*100
                 }
                 tempSubjectList.add(
                     ModifiedSubjects(
@@ -215,20 +215,25 @@ class ClassAttendanceViewModel @Inject constructor(
         return classAttendanceUseCase.getTimeTableWithSubjectIdUseCase(subjectId)
     }
 
-    suspend fun insertLogs(logs: Logs){
+    suspend fun insertLogs(logs: Logs): Long{
         val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(logs.subjectId)
-            ?: return
-        if(logs.wasPresent){
-            subjectWithId.daysPresentOfLogs++
-        }else{
-            subjectWithId.daysAbsentOfLogs++
+
+        val subject = subjectWithId?.let{
+            if (logs.wasPresent) {
+                it.daysPresentOfLogs++
+            } else {
+                it.daysAbsentOfLogs++
+            }
+            it
         }
-        classAttendanceUseCase.insertSubjectUseCase(subjectWithId)
-        classAttendanceUseCase.insertLogsUseCase(logs)
+        subject?.let{
+            classAttendanceUseCase.insertSubjectUseCase(subject)
+        }
+        return classAttendanceUseCase.insertLogsUseCase(logs)
     }
 
-    suspend fun insertSubject(subject: Subject){
-        classAttendanceUseCase.insertSubjectUseCase(
+    suspend fun insertSubject(subject: Subject): Long{
+        return classAttendanceUseCase.insertSubjectUseCase(
             Subject(
                 _id = subject._id,
                 subjectName = subject.subjectName.trim(),
@@ -242,13 +247,14 @@ class ClassAttendanceViewModel @Inject constructor(
         timeTable: TimeTable,
         context: Context,
 
-    ){
+    ): Long{
         val id = classAttendanceUseCase.insertTimeTableUseCase(timeTable)
         ClassAlarmManager.registerAlarm(
             context = context,
             timeTableId = id.toInt(),
             timeTable = timeTable
         )
+        return id
     }
 
     suspend fun deleteLogs(id: Int){

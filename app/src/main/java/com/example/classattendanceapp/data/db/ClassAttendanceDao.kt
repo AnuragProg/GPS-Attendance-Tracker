@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.Flow
 interface ClassAttendanceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSubject(subject: Subject)
+    suspend fun insertSubject(subject: Subject): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLogs(logs: Logs)
+    suspend fun insertLogs(logs: Logs): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTimeTable(timeTable: TimeTable): Long

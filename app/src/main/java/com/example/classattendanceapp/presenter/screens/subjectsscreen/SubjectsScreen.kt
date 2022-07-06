@@ -1,6 +1,7 @@
 package com.example.classattendanceapp.presenter.screens.subjectsscreen
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -217,15 +218,19 @@ fun SubjectsScreen(
             ){
                 items(subjectsList.value){
                     var showOverFlowMenu by remember{ mutableStateOf(false) }
+                    var showAdditionalCardDetails by remember{ mutableStateOf(false) }
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(100.dp)
+//                            .height(100.dp)
                             .padding(10.dp)
                             .animateItemPlacement()
                             .combinedClickable(
                                 onClick = {
-                                    Log.d("debugging", "clicked once")
+                                    showAdditionalCardDetails = !showAdditionalCardDetails
+                                    Log.d("debugging",
+                                        "showing additional carddetails = $showAdditionalCardDetails")
+
                                 },
                                 onLongClick = {
                                     Log.d("debugging", "Clicked for long")
@@ -265,58 +270,93 @@ fun SubjectsScreen(
                                 Text(stringResource(R.string.edit))
                             }
                         }
-                        Box(
+
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp)
-                                ,
-                            contentAlignment = Alignment.CenterStart
+                            ,
                         ){
-                            Text(
-                                modifier = Modifier.width(200.dp),
-                                text = it.subjectName,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1
-                            )
                             Box(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentAlignment = Alignment.CenterEnd
+                                contentAlignment = Alignment.CenterStart
                             ){
-
+                                Text(
+                                    modifier = Modifier.width(200.dp),
+                                    text = it.subjectName,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1
+                                )
                                 Box(
-                                    modifier = Modifier.size(60.dp),
-                                    contentAlignment = Alignment.Center
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.CenterEnd
                                 ){
-                                    var startAnimation by remember{mutableStateOf(false)}
-                                    val target = animateFloatAsState(
-                                        targetValue = if(startAnimation) it.attendancePercentage.toFloat() else 0f,
-                                        animationSpec = tween(
-                                            durationMillis = 1000,
-                                            delayMillis = 50
-                                        )
-                                    )
 
-                                    val arcColor = animateColorAsState(
-                                        targetValue = if(target.value < 75f) Color.Red else Color.Green
-                                    )
-                                    Canvas(modifier = Modifier.size(60.dp)){
-                                        drawArc(
-                                            color = arcColor.value,
-                                            startAngle = 270f,
-                                            sweepAngle = 360 * target.value/100,
-                                            useCenter = false,
-                                            size = this.size,
-                                            style = Stroke(15f, cap = StrokeCap.Round)
+                                    Box(
+                                        modifier = Modifier.size(60.dp),
+                                        contentAlignment = Alignment.Center
+                                    ){
+                                        var startAnimation by remember{mutableStateOf(false)}
+                                        val target = animateFloatAsState(
+                                            targetValue = if(startAnimation) it.attendancePercentage.toFloat() else 0f,
+                                            animationSpec = tween(
+                                                durationMillis = 1000,
+                                                delayMillis = 50
+                                            )
                                         )
+
+                                        val arcColor = animateColorAsState(
+                                            targetValue = if(target.value < 75f) Color.Red else Color.Green
+                                        )
+                                        Canvas(modifier = Modifier.size(60.dp)){
+                                            drawArc(
+                                                color = arcColor.value,
+                                                startAngle = 270f,
+                                                sweepAngle = 360 * target.value/100,
+                                                useCenter = false,
+                                                size = this.size,
+                                                style = Stroke(15f, cap = StrokeCap.Round)
+                                            )
+                                        }
+                                        Text("${String.format("%.2f", target.value)}%")
+
+                                        LaunchedEffect(key1 = Unit){
+                                            startAnimation = true
+                                        }
                                     }
-                                    Text("${String.format("%.2f", target.value)}%")
-
-                                    LaunchedEffect(key1 = Unit){
-                                        startAnimation = true
+                                }
+                            }
+                            AnimatedVisibility(
+                                visible = showAdditionalCardDetails
+                            ) {
+                                Box(
+                                ){
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.Start,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Text("Days Present :")
+                                        Text("Days Present Through Logs :")
+                                        Text("Days Absent :")
+                                        Text("Days Absent Through Logs :")
+                                    }
+                                }
+                                Box(
+                                ){
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.End,
+                                        verticalArrangement = Arrangement.Center
+                                    ){
+                                        Text("${it.daysPresent}")
+                                        Text("${ it.daysPresentOfLogs }")
+                                        Text("${it.daysAbsent}")
+                                        Text("${it.daysAbsentOfLogs}")
                                     }
                                 }
                             }
                         }
+
                     }
                 }
             }

@@ -88,12 +88,12 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         ){
             Log.d("worker", "Don't have fine location permission so sending normal notification")
             createNotificationChannelAndShowNotification(
-                timeTableId,
-                subjectId,
-                subjectName,
-                hour,
-                minute,
-                context
+                timeTableId = timeTableId,
+                subjectId = subjectId,
+                subjectName = subjectName,
+                hour =hour,
+                minute = minute,
+                context = context
             )
             return Result.success()
         }
@@ -109,12 +109,12 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 Log.d("worker", "Don't have background location permission so sending normal notification")
 
                 createNotificationChannelAndShowNotification(
-                    timeTableId,
-                    subjectId,
-                    subjectName,
-                    hour,
-                    minute,
-                    context
+                    timeTableId = timeTableId,
+                    subjectId = subjectId,
+                    subjectName = subjectName,
+                    hour = hour,
+                    minute = minute,
+                    context = context
                 )
                 return Result.success()
             }
@@ -137,12 +137,12 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         if(userSpecifiedLocation.first==null || userSpecifiedLocation.second==null || userSpecifiedLocation.third==null){
             Log.d("worker", "No coordinates stored by user so showing normal notification")
             createNotificationChannelAndShowNotification(
-                timeTableId,
-                subjectId,
-                subjectName,
-                hour,
-                minute,
-                context
+                timeTableId = timeTableId,
+                subjectId = subjectId,
+                subjectName = subjectName,
+                hour = hour,
+                minute = minute,
+                context = context
             )
             return Result.success()
         }else{
@@ -150,12 +150,12 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
             val currentLocation = ClassLocationManager.getLocation(context).single()
             if(currentLocation==null) {
                 createNotificationChannelAndShowNotification(
-                    timeTableId,
-                    subjectId,
-                    subjectName,
-                    hour,
-                    minute,
-                    context
+                    timeTableId = timeTableId,
+                    subjectId = subjectId,
+                    subjectName = subjectName,
+                    hour = hour,
+                    minute = minute,
+                    context = context
                 )
             }
             else{
@@ -184,7 +184,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                     classAttendanceDao.insertSubject(
                         subjectWithId
                     )
-                    classAttendanceDao.insertLogs(
+                    val logsId = classAttendanceDao.insertLogs(
                         Logs(
                             0,
                             subjectId,
@@ -197,13 +197,15 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                     )
                     Log.d("worker", "Creating Present marked notification")
                     createNotificationChannelAndShowNotification(
-                        timeTableId,
-                        subjectId,
-                        subjectName,
-                        hour,
-                        minute,
-                        context,
-                        "Present \nLatitude = " + String.format("%.6f",
+                        timeTableId = timeTableId,
+                        logsId = logsId.toInt(),
+                        markedPresentOrAbsent = true,
+                        subjectId = subjectId,
+                        subjectName = subjectName,
+                        hour = hour,
+                        minute = minute,
+                        context = context,
+                        message = "Present \nLatitude = " + String.format("%.6f",
                             currentLocation.latitude) + "\nLongitude = " + String.format(
                             "%.6f",
                             currentLocation.longitude) + "\nDistance = " + String.format(
@@ -217,7 +219,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                     classAttendanceDao.insertSubject(
                         subjectWithId
                     )
-                    classAttendanceDao.insertLogs(
+                    val logsId = classAttendanceDao.insertLogs(
                         Logs(
                             0,
                             subjectId,
@@ -230,13 +232,15 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                     )
                     Log.d("worker", "Creating Absent marked notification")
                     createNotificationChannelAndShowNotification(
-                        timeTableId,
-                        subjectId,
-                        subjectName,
-                        hour,
-                        minute,
-                        context,
-                        "Absent \nLatitude = " + String.format("%.6f",
+                        logsId = logsId.toInt(),
+                        markedPresentOrAbsent = false,
+                        timeTableId = timeTableId,
+                        subjectId = subjectId,
+                        subjectName = subjectName,
+                        hour = hour,
+                        minute = minute,
+                        context = context,
+                        message = "Absent \nLatitude = " + String.format("%.6f",
                             currentLocation.latitude) + "\nLongitude = " + String.format(
                             "%.6f",
                             currentLocation.longitude) + "\nDistance = " + String.format(
@@ -281,6 +285,8 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
     private fun createNotificationChannelAndShowNotification(
         timeTableId: Int,
         subjectId: Int,
+        logsId: Int?=null,
+        markedPresentOrAbsent: Boolean?=null,
         subjectName: String?,
         hour: Int,
         minute: Int,
@@ -293,13 +299,15 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         Log.d("worker", "Successfully have details $timeTableId $subjectName $hour $minute")
         NotificationHandler.createNotificationChannel(context)
         NotificationHandler.createAndShowNotification(
-            context,
-            timeTableId,
-            subjectId,
-            subjectName,
-            hour,
-            minute,
-            message
+            context = context,
+            logsId = logsId,
+            markedPresentOrAbsent = markedPresentOrAbsent,
+            timeTableId = timeTableId,
+            subjectId = subjectId,
+            subjectName = subjectName,
+            hour = hour,
+            minute = minute,
+            message = message
         )
     }
 }

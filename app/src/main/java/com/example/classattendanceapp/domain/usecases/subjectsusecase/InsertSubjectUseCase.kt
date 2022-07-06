@@ -7,7 +7,7 @@ class InsertSubjectUseCase(
     private val classAttendanceRepository: ClassAttendanceRepository
 ) {
 
-    suspend operator fun invoke(subject: Subject){
-        classAttendanceRepository.insertSubject(subject = subject)
+    suspend operator fun invoke(subject: Subject): Long{
+        return classAttendanceRepository.insertSubject(subject = subject)
     }
 }

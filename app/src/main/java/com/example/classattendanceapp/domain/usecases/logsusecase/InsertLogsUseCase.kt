@@ -7,7 +7,7 @@ class InsertLogsUseCase(
     private val classAttendanceRepository: ClassAttendanceRepository
 ) {
 
-    suspend operator fun invoke(logs: Logs){
-        classAttendanceRepository.insertLogs(logs = logs)
+    suspend operator fun invoke(logs: Logs): Long{
+        return classAttendanceRepository.insertLogs(logs = logs)
     }
 }
