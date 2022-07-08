@@ -22,11 +22,24 @@ class InvertPreviouslyMarkedAttendanceWorker @AssistedInject constructor(
         Log.d("invert_attendance", "logsId = $logsId in worker")
         val retrievedLog = classAttendanceDao.getLogsWithId(logsId)
         if(retrievedLog!=null){
-            retrievedLog.wasPresent = !retrievedLog.wasPresent
-            classAttendanceDao.updateLog(
-                retrievedLog
-            )
-            Log.d("invert_attendance", "updation of log done")
+            val retrievedSubject = classAttendanceDao.getSubjectWithId(retrievedLog.subjectId)
+            if(retrievedSubject!=null){
+                retrievedLog.wasPresent = !retrievedLog.wasPresent
+                if(retrievedLog.wasPresent){
+                    retrievedSubject.daysAbsentOfLogs--
+                    retrievedSubject.daysPresentOfLogs++
+                }else{
+                    retrievedSubject.daysAbsentOfLogs++
+                    retrievedSubject.daysPresentOfLogs--
+                }
+                classAttendanceDao.updateSubject(
+                    retrievedSubject
+                )
+                classAttendanceDao.updateLog(
+                    retrievedLog
+                )
+                Log.d("invert_attendance", "updation of log done")
+            }
         }else{
             Log.d("invert_attendance", "retrievedLog was empty")
         }

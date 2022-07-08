@@ -1,5 +1,6 @@
 package com.example.classattendanceapp.domain.models
 
+
 // only to be used for providing to ui layer
 data class ModifiedLogs(
     val _id: Int,
@@ -12,5 +13,7 @@ data class ModifiedLogs(
     val month: String,
     val monthNumber: Int,
     val year: Int,
-    val wasPresent: Boolean
+    val wasPresent: Boolean,
+    val latitude: Double?,
+    val longitude: Double?
 )

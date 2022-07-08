@@ -47,6 +47,13 @@ class ClassAttendanceViewModel @Inject constructor(
         }
     }
 
+    private var _startAttendanceArcAnimation = MutableStateFlow(false)
+    val startAttendanceArcAnimation : StateFlow<Boolean> get() = _startAttendanceArcAnimation
+
+    fun startAttendanceArcAnimationInitiate(){
+        _startAttendanceArcAnimation.value = true
+    }
+
     private var _currentHour = MutableStateFlow(0)
     val currentHour : StateFlow<Int> get() = _currentHour
 
@@ -158,7 +165,9 @@ class ClassAttendanceViewModel @Inject constructor(
                     month = DateToSimpleFormat.getMonthStringFromNumber(it.timestamp),
                     monthNumber = DateToSimpleFormat.getConventionalMonthNumber(it.timestamp),
                     year = DateToSimpleFormat.getYear(it.timestamp),
-                    wasPresent = it.wasPresent
+                    wasPresent = it.wasPresent,
+                    latitude = it.latitude,
+                    longitude = it.longitude
                 )
                 Log.d("datetime", "Date is ${DateToSimpleFormat.getDay(it.timestamp)}")
                 Log.d("datetime", "day is ${DateToSimpleFormat.getDayOfTheWeek(it.timestamp)}")
@@ -262,9 +271,9 @@ class ClassAttendanceViewModel @Inject constructor(
 
         val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(logWithId.subjectId) ?: return
         if(logWithId.wasPresent){
-            subjectWithId.daysPresentOfLogs--
+            if(subjectWithId.daysPresentOfLogs>0){ subjectWithId.daysPresentOfLogs-- }
         }else{
-            subjectWithId.daysAbsentOfLogs--
+            if(subjectWithId.daysAbsentOfLogs>0){ subjectWithId.daysAbsentOfLogs-- }
         }
         classAttendanceUseCase.insertSubjectUseCase(
             subjectWithId

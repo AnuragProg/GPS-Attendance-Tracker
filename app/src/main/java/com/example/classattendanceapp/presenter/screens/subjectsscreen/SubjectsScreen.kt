@@ -58,6 +58,7 @@ fun SubjectsScreen(
         mutableStateOf("0")
     }
 
+    val startAttedanceArcAnimation = classAttendanceViewModel.startAttendanceArcAnimation.collectAsState()
     /*
     number -> subject Id to updated that subject
     null -> if(null)not updating else updating
@@ -65,6 +66,8 @@ fun SubjectsScreen(
     var editingSubject by remember{
         mutableStateOf<Int?>(null)
     }
+
+
 
 
     // Alert Dialog -> To add new subject
@@ -222,7 +225,6 @@ fun SubjectsScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-//                            .height(100.dp)
                             .padding(10.dp)
                             .animateItemPlacement()
                             .combinedClickable(
@@ -295,9 +297,8 @@ fun SubjectsScreen(
                                         modifier = Modifier.size(60.dp),
                                         contentAlignment = Alignment.Center
                                     ){
-                                        var startAnimation by remember{mutableStateOf(false)}
                                         val target = animateFloatAsState(
-                                            targetValue = if(startAnimation) it.attendancePercentage.toFloat() else 0f,
+                                            targetValue = if(startAttedanceArcAnimation.value) it.attendancePercentage.toFloat() else 0f,
                                             animationSpec = tween(
                                                 durationMillis = 1000,
                                                 delayMillis = 50
@@ -318,9 +319,10 @@ fun SubjectsScreen(
                                             )
                                         }
                                         Text("${String.format("%.2f", target.value)}%")
-
-                                        LaunchedEffect(key1 = Unit){
-                                            startAnimation = true
+                                    }
+                                    LaunchedEffect(Unit){
+                                        if(!startAttedanceArcAnimation.value){
+                                            classAttendanceViewModel.startAttendanceArcAnimationInitiate()
                                         }
                                     }
                                 }
@@ -336,9 +338,25 @@ fun SubjectsScreen(
                                         verticalArrangement = Arrangement.Center
                                     ) {
                                         Text("Days Present :")
+                                        Spacer(modifier = Modifier.height(10.dp))
+
                                         Text("Days Present Through Logs :")
+                                        Spacer(modifier = Modifier.height(10.dp))
+
                                         Text("Days Absent :")
+                                        Spacer(modifier = Modifier.height(10.dp))
+
                                         Text("Days Absent Through Logs :")
+                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                        Text("Total Presents :")
+                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                        Text("Total Absents :")
+                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                        Text("Total Days :")
+
                                     }
                                 }
                                 Box(
@@ -349,14 +367,40 @@ fun SubjectsScreen(
                                         verticalArrangement = Arrangement.Center
                                     ){
                                         Text("${it.daysPresent}")
+                                        Spacer(modifier = Modifier.height(10.dp))
+
                                         Text("${ it.daysPresentOfLogs }")
+                                        Spacer(modifier = Modifier.height(10.dp))
+
                                         Text("${it.daysAbsent}")
+                                        Spacer(modifier = Modifier.height(10.dp))
+
                                         Text("${it.daysAbsentOfLogs}")
+                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                        Text(
+                                            "${
+                                                it.daysPresent + it.daysPresentOfLogs
+                                            }"
+                                        )
+                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                        Text(
+                                            "${
+                                                it.daysAbsent + it.daysAbsentOfLogs
+                                            }"
+                                        )
+                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                        Text(
+                                            "${
+                                                it.daysPresent + it.daysPresentOfLogs + it.daysAbsent + it.daysAbsentOfLogs
+                                            }"
+                                        )
                                     }
                                 }
                             }
                         }
-
                     }
                 }
             }
