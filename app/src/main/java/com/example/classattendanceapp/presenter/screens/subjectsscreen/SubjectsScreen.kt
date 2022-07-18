@@ -318,7 +318,7 @@ fun SubjectsScreen(
                                                 style = Stroke(15f, cap = StrokeCap.Round)
                                             )
                                         }
-                                        Text("${String.format("%.2f", target.value)}%")
+                                        Text("${String.format("%.1f", target.value)}%")
                                     }
                                     LaunchedEffect(Unit){
                                         if(!startAttedanceArcAnimation.value){
@@ -359,8 +359,7 @@ fun SubjectsScreen(
 
                                     }
                                 }
-                                Box(
-                                ){
+                                Box{
                                     Column(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalAlignment = Alignment.End,

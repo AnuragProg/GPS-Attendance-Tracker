@@ -24,6 +24,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.presenter.screens.logsscreen.LogsScreen
+import com.example.classattendanceapp.presenter.screens.settingsscreen.SettingsScreen
 import com.example.classattendanceapp.presenter.screens.subjectsscreen.SubjectsScreen
 import com.example.classattendanceapp.presenter.screens.timetablescreen.TimeTableScreen
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
@@ -77,6 +78,7 @@ fun ClassAttendanceNavigationHost(){
         },
         floatingActionButton = {
             FloatingActionButton(
+                modifier = Modifier.size(50.dp),
                 onClick = {
                     classAttendanceViewModel.changeFloatingButtonClickedState(true)
                 },
@@ -87,7 +89,9 @@ fun ClassAttendanceNavigationHost(){
                     contentDescription = null
                 )
             }
-        }
+        },
+        isFloatingActionButtonDocked = true,
+        floatingActionButtonPosition = FabPosition.Center
     ) {
         Column(){
             PermissionHandler ({ nonGrantedPermission ->
@@ -105,7 +109,8 @@ fun ClassAttendanceNavigationHost(){
             )
             if (nonGrantedPermissionList.isNotEmpty()) {
                 Card(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(10.dp),
                     elevation = 5.dp,
                     border = BorderStroke(2.dp, Color.Black)
@@ -165,6 +170,10 @@ fun ClassAttendanceNavigationHost(){
                         visibility = true
                     }
                     TimeTableScreen(classAttendanceViewModel)
+                }
+                
+                composable(Screens.SETTINGSSCREEN.route){
+                    SettingsScreen(classAttendanceViewModel)
                 }
             }
         }

@@ -79,6 +79,8 @@ object ClassLocationManager {
 
         if(!hasGps && !hasNetwork){
             Log.d("worker", "Don't have gps and network -> emitting null")
+            locationManager.removeUpdates(gpsListener)
+            locationManager.removeUpdates(networkListener)
             emit(null)
         }else if(hasGps && hasNetwork){
             Log.d("worker", "Have both gps and network")
@@ -103,6 +105,8 @@ object ClassLocationManager {
 
                     Log.d("worker", "Location with higher accuracy is $highestAccuracyLocation")
                     Log.d("worker", "Emitting this location")
+                    locationManager.removeUpdates(gpsListener)
+                    locationManager.removeUpdates(networkListener)
                     emit(highestAccuracyLocation)
                 }
             }catch(timeout: TimeoutCancellationException){
@@ -113,6 +117,8 @@ object ClassLocationManager {
                         val gpsLocation = locationByGps.first{
                             it!=null
                         }
+                        locationManager.removeUpdates(gpsListener)
+                        locationManager.removeUpdates(networkListener)
                         emit(gpsLocation)
                     }
                 }catch (timeout: TimeoutCancellationException){
@@ -123,6 +129,8 @@ object ClassLocationManager {
                         val networkLocation = locationByNetwork.first{
                             it!=null
                         }
+                        locationManager.removeUpdates(gpsListener)
+                        locationManager.removeUpdates(networkListener)
                         emit(networkLocation)
                     }
                 }
@@ -134,10 +142,14 @@ object ClassLocationManager {
                     val gpsLocation = locationByGps.first {
                         it != null
                     }
+                    locationManager.removeUpdates(gpsListener)
+                    locationManager.removeUpdates(networkListener)
                     emit(gpsLocation)
                 }
             }catch(timeout: TimeoutCancellationException){
                 Log.d("worker", "Timeout Exception raised emitting null")
+                locationManager.removeUpdates(gpsListener)
+                locationManager.removeUpdates(networkListener)
 
                 emit(null)
             }
@@ -148,11 +160,14 @@ object ClassLocationManager {
                     val networkLocation = locationByNetwork.first {
                         it != null
                     }
+                    locationManager.removeUpdates(gpsListener)
+                    locationManager.removeUpdates(networkListener)
                     emit(networkLocation)
                 }
             }catch(timeout: TimeoutCancellationException){
                 Log.d("worker", "Timeout Exception raised emitting null")
-
+                locationManager.removeUpdates(gpsListener)
+                locationManager.removeUpdates(networkListener)
                 emit(null)
             }
         }

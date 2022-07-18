@@ -26,11 +26,11 @@ class InvertPreviouslyMarkedAttendanceWorker @AssistedInject constructor(
             if(retrievedSubject!=null){
                 retrievedLog.wasPresent = !retrievedLog.wasPresent
                 if(retrievedLog.wasPresent){
-                    retrievedSubject.daysAbsentOfLogs--
+                    if(retrievedSubject.daysAbsentOfLogs>0){ retrievedSubject.daysAbsentOfLogs-- }
                     retrievedSubject.daysPresentOfLogs++
                 }else{
                     retrievedSubject.daysAbsentOfLogs++
-                    retrievedSubject.daysPresentOfLogs--
+                    if(retrievedSubject.daysPresentOfLogs>0){ retrievedSubject.daysPresentOfLogs-- }
                 }
                 classAttendanceDao.updateSubject(
                     retrievedSubject
@@ -41,9 +41,8 @@ class InvertPreviouslyMarkedAttendanceWorker @AssistedInject constructor(
                 Log.d("invert_attendance", "updation of log done")
             }
         }else{
-            Log.d("invert_attendance", "retrievedLog was empty")
+            Log.d("invert_attendance", "retrievedLog was empty or retrievedSubject was empty")
         }
         return Result.success()
     }
-
 }

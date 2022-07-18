@@ -447,7 +447,7 @@ fun LogsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    modifier = Modifier.width(80.dp),
+                                    modifier = if(showAdditionalCardDetails) Modifier.fillMaxWidth() else Modifier.width(80.dp),
                                     text = logsList.value[currentIndex].subjectName,
                                     overflow = if (!showAdditionalCardDetails) {
                                         TextOverflow.Ellipsis
@@ -538,11 +538,17 @@ fun LogsScreen(
                                         )
                                         Spacer(modifier = Modifier.height(10.dp))
                                         Text(
-                                            "${logsList.value[currentIndex].latitude ?: "Unknown"}"
+                                            logsList.value[currentIndex].latitude?.let{
+                                                String.format("%.5f",
+                                                    logsList.value[currentIndex].latitude)
+                                            }?: "Unknown"
                                         )
                                         Spacer(modifier = Modifier.height(10.dp))
                                         Text(
-                                            "${logsList.value[currentIndex].longitude ?: "Unknown"}"
+                                            logsList.value[currentIndex].longitude?.let{
+                                                String.format("%.5f",
+                                                    logsList.value[currentIndex].longitude)
+                                            } ?: "Unknown"
                                         )
                                     }
                                 }
