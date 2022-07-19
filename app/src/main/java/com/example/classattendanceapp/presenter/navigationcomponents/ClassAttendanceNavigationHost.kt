@@ -3,17 +3,22 @@ package com.example.classattendanceapp.presenter.navigationcomponents
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.view.animation.RotateAnimation
 import android.widget.Toast
+import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Indication
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.VectorProperty
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -21,6 +26,7 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.presenter.screens.logsscreen.LogsScreen
@@ -28,9 +34,11 @@ import com.example.classattendanceapp.presenter.screens.settingsscreen.SettingsS
 import com.example.classattendanceapp.presenter.screens.subjectsscreen.SubjectsScreen
 import com.example.classattendanceapp.presenter.screens.timetablescreen.TimeTableScreen
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ClassAttendanceNavigationHost(){
 
@@ -43,6 +51,22 @@ fun ClassAttendanceNavigationHost(){
 
     val nonGrantedPermissionList = remember{
         mutableStateListOf<String>()
+    }
+    var currentFloatingActionButtonIcon by remember{
+        mutableStateOf(Icons.Filled.Add)
+    }
+
+    LaunchedEffect(Unit){
+        navController.currentBackStackEntryFlow.collectLatest{
+            currentFloatingActionButtonIcon = when(it.destination.route){
+                Screens.SETTINGSSCREEN.route ->{
+                    Icons.Filled.Save
+                }
+                else -> {
+                    Icons.Filled.Add
+                }
+            }
+        }
     }
 
     fun navigate(
@@ -78,22 +102,54 @@ fun ClassAttendanceNavigationHost(){
         },
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier.size(50.dp)
+                    ,
                 onClick = {
                     classAttendanceViewModel.changeFloatingButtonClickedState(true)
-                },
-
+                }
             ) {
-                Icon(
-                    Icons.Filled.Add,
-                    contentDescription = null
-                )
+                AnimatedContent(
+                    targetState = currentFloatingActionButtonIcon,
+                    transitionSpec = {
+                        when(currentFloatingActionButtonIcon) {
+                            Icons.Filled.Save -> {
+                                slideInVertically(
+                                    initialOffsetY = {
+                                        it/2
+                                    }
+                                ) + fadeIn() with slideOutVertically(
+                                    targetOffsetY = {
+                                        -it/2
+                                    }
+                                ) + fadeOut()
+
+                            }
+                            else -> {
+                                slideInVertically(
+                                    initialOffsetY = {
+                                        -it/2
+                                    }
+                                ) + fadeIn() with slideOutVertically(
+                                    targetOffsetY = {
+                                        it/2
+                                    }
+                                ) + fadeOut()
+
+                            }
+                        }
+                    }
+                ){ icon ->
+                    Icon(
+                        icon,
+                        contentDescription = null
+                    )
+                }
             }
         },
         isFloatingActionButtonDocked = true,
         floatingActionButtonPosition = FabPosition.Center
     ) {
-        Column(){
+        Column{
             PermissionHandler ({ nonGrantedPermission ->
                 if (!nonGrantedPermissionList.contains(nonGrantedPermission)) {
                     Log.d("permissions", "adding $nonGrantedPermission to list")

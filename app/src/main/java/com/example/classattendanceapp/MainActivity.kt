@@ -7,7 +7,9 @@ import com.example.classattendanceapp.presenter.navigationcomponents.ClassAttend
 import com.example.classattendanceapp.ui.theme.ClassAttendanceAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
-
+/*
+Official name -> G-PAT General Purpose Attendance Tracker
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 

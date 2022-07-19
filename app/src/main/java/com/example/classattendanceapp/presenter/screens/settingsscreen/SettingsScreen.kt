@@ -1,14 +1,19 @@
 package com.example.classattendanceapp.presenter.screens.settingsscreen
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import android.util.Log
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import com.example.classattendanceapp.R
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 
 
@@ -17,6 +22,8 @@ fun SettingsScreen(
     classAttendanceViewModel: ClassAttendanceViewModel
 ){
 
+    val context = LocalContext.current
+    
     var latitude by remember{
         mutableStateOf<String?>(null)
     }
@@ -38,17 +45,27 @@ fun SettingsScreen(
 
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ){
         Text("Current Coordinates:")
         Text(
-            currentLatitudeInDataStore.value?.let{ String.format(".5f", currentLatitudeInDataStore.value) } ?: "None"
+            "Latitude: " + (currentLatitudeInDataStore.value?.let {
+                String.format("%.5f",
+                    currentLatitudeInDataStore.value)
+            } ?: "None")
         )
         Text(
-            currentLongitudeInDataStore.value?.let{ String.format(".5f", currentLongitudeInDataStore.value) } ?: "None"
+            "Longitude: "+ (currentLongitudeInDataStore.value?.let{
+                String.format("%.5f",
+                    currentLongitudeInDataStore.value)
+            } ?: "None")
         )
         Text(
-            currentRangeInDataStore.value?.let{ String.format(".5f", currentRangeInDataStore.value) } ?: "None"
+            "Range: " + (currentRangeInDataStore.value?.let{
+                String.format("%.5f",
+                    currentRangeInDataStore.value)
+            } ?: "None")
         )
         OutlinedTextField(
             value = latitude?: "",
@@ -80,5 +97,18 @@ fun SettingsScreen(
                 keyboardType = KeyboardType.Decimal
             )
         )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 30.dp),
+            contentAlignment = Alignment.CenterEnd
+        ){
+            TextButton(
+                onClick = {
+                    classAttendanceViewModel.deleteCoordinateInDataStore()
+                }) {
+                Text(stringResource(R.string.clear_fields))
+            }
+        }
     }
 }
