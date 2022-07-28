@@ -119,13 +119,13 @@ fun SettingsScreen(
                 onClick = {
                     coroutineScope.launch{
                         if (latitude == null || longitude == null || range == null) {
+                            Toast.makeText(context, "Don't leave any fields empty!", Toast.LENGTH_SHORT).show()
                             return@launch
                         }
                         try {
                             val latitudeInDoubleFormat = latitude!!.toDouble()
                             val longitudeInDoubleFormat = longitude!!.toDouble()
                             val rangeInDoubleFormat = range!!.toDouble()
-
                             classAttendanceViewModel.writeOrUpdateCoordinateInDataStore(
                                 latitudeInDoubleFormat,
                                 longitudeInDoubleFormat,
@@ -140,8 +140,6 @@ fun SettingsScreen(
                             range = ""
                         }
                     }
-
-
                 }) {
                 Text(stringResource(R.string.save))
             }
@@ -151,7 +149,6 @@ fun SettingsScreen(
                 }) {
                 Text(stringResource(R.string.clear_fields))
             }
-
         }
     }
 }

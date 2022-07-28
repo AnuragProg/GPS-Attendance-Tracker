@@ -24,6 +24,7 @@ import androidx.core.graphics.rotationMatrix
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.presenter.screens.logsscreen.LogsScreen
@@ -41,6 +42,7 @@ fun ClassAttendanceNavigationHost(){
 
     val context = LocalContext.current
     val navController = rememberNavController()
+    val currentBackStackEntry = navController.currentBackStackEntryAsState()
     val classAttendanceViewModel = hiltViewModel<ClassAttendanceViewModel>()
     var visibility by remember{ mutableStateOf(false) }
     var goneToAnotherScreen by remember{ mutableStateOf(false) }
@@ -102,7 +104,11 @@ fun ClassAttendanceNavigationHost(){
             FloatingActionButton(
                 modifier = Modifier.size(50.dp),
                 onClick = {
-                    classAttendanceViewModel.changeFloatingButtonClickedState(true)
+                    if(
+                        currentBackStackEntry.value?.destination?.route != Screens.SETTINGSSCREEN.route
+                    ){
+                        classAttendanceViewModel.changeFloatingButtonClickedState(true)
+                    }
                 }
             ) {
                 AnimatedContent(

@@ -2,7 +2,12 @@ package com.example.classattendanceapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
+
+val PrimaryColor = Color(0xFFe91e63)
+val PrimaryLightColor = Color(0xFFff6090)
+val PrimaryDarkColor = Color(0xFFb0003a)
+val PrimaryTextColor = Color(0xFF000000)
+val SecondaryColor = Color(0xFFf48fb1)
+val SecondaryLightColor = Color(0xFFffc1e3)
+val SecondaryDarkColor = Color(0xFFbf5f82)
+val SecondaryTextColor = Color(0xFF000000)

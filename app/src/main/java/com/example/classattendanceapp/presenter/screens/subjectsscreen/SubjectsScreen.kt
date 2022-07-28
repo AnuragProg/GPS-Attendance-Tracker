@@ -58,7 +58,7 @@ fun SubjectsScreen(
         mutableStateOf("0")
     }
 
-    val startAttedanceArcAnimation = classAttendanceViewModel.startAttendanceArcAnimation.collectAsState()
+    val startAttendanceArcAnimation = classAttendanceViewModel.startAttendanceArcAnimation.collectAsState()
     /*
     number -> subject Id to updated that subject
     null -> if(null)not updating else updating
@@ -185,7 +185,6 @@ fun SubjectsScreen(
     }
     
     if(subjectsList.value.isEmpty() && isInitialSubjectDataRetrievalDone.value){
-        Log.d("subjects", "Showing no subjects icon")
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -209,7 +208,6 @@ fun SubjectsScreen(
             CircularProgressIndicator()
         }
     }else{
-        Log.d("subjects", "Showing subjects list")
         // Original Ui
         Box(
             modifier = Modifier.fillMaxSize()
@@ -230,12 +228,8 @@ fun SubjectsScreen(
                             .combinedClickable(
                                 onClick = {
                                     showAdditionalCardDetails = !showAdditionalCardDetails
-                                    Log.d("debugging",
-                                        "showing additional carddetails = $showAdditionalCardDetails")
-
                                 },
                                 onLongClick = {
-                                    Log.d("debugging", "Clicked for long")
                                     showOverFlowMenu = true
                                 }
                             )
@@ -298,7 +292,7 @@ fun SubjectsScreen(
                                         contentAlignment = Alignment.Center
                                     ){
                                         val target = animateFloatAsState(
-                                            targetValue = if(startAttedanceArcAnimation.value) it.attendancePercentage.toFloat() else 0f,
+                                            targetValue = if(startAttendanceArcAnimation.value) it.attendancePercentage.toFloat() else 0f,
                                             animationSpec = tween(
                                                 durationMillis = 1000,
                                                 delayMillis = 50
@@ -321,7 +315,7 @@ fun SubjectsScreen(
                                         Text("${String.format("%.1f", target.value)}%")
                                     }
                                     LaunchedEffect(Unit){
-                                        if(!startAttedanceArcAnimation.value){
+                                        if(!startAttendanceArcAnimation.value){
                                             classAttendanceViewModel.startAttendanceArcAnimationInitiate()
                                         }
                                     }

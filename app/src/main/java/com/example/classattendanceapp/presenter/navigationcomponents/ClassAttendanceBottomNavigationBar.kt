@@ -45,12 +45,12 @@ fun ClassAttendanceBottomNavigationBar(
                     modifier = Modifier
                         .width(90.dp),
                     color = if(currentBackStackEntry.value?.destination?.route == screen.route){
-                        Color(0xff9a67ea)
+                        MaterialTheme.colors.secondaryVariant
                     }else{
                         Color.Transparent
                     },
                     shape = RoundedCornerShape(
-                        50
+                        40
                     )
                 ){
                     BottomNavigationItem(
