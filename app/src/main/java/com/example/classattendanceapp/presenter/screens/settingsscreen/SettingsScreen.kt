@@ -1,6 +1,6 @@
 package com.example.classattendanceapp.presenter.screens.settingsscreen
 
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
@@ -15,6 +15,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -23,7 +25,7 @@ fun SettingsScreen(
 ){
 
     val context = LocalContext.current
-    
+
     var latitude by remember{
         mutableStateOf<String?>(null)
     }
@@ -33,14 +35,24 @@ fun SettingsScreen(
     var range by remember{
         mutableStateOf<String?>(null)
     }
-    val currentLatitudeInDataStore = classAttendanceViewModel.currentLatitudeInDataStore.collectAsState()
-    val currentLongitudeInDataStore = classAttendanceViewModel.currentLongitudeInDataStore.collectAsState()
-    val currentRangeInDataStore = classAttendanceViewModel.currentRangeInDataStore.collectAsState()
+    var currentLatitudeInDataStore by remember{
+        mutableStateOf<Double?>(null)
+    }
+    var currentLongitudeInDataStore by remember{
+        mutableStateOf<Double?>(null)
+    }
+    var currentRangeInDataStore by remember{
+        mutableStateOf<Double?>(null)
+    }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit){
-        classAttendanceViewModel.getCoordinateInDataStore(
-            this
-        )
+        classAttendanceViewModel.getCoordinateInDataStore().collectLatest{ latitudeLongitudeRange ->
+            currentLatitudeInDataStore = latitudeLongitudeRange.first
+            currentLongitudeInDataStore = latitudeLongitudeRange.second
+            currentRangeInDataStore = latitudeLongitudeRange.third
+
+        }
     }
 
     Column(
@@ -50,28 +62,28 @@ fun SettingsScreen(
     ){
         Text("Current Coordinates:")
         Text(
-            "Latitude: " + (currentLatitudeInDataStore.value?.let {
+            "Latitude: " + (currentLatitudeInDataStore?.let {
                 String.format("%.5f",
-                    currentLatitudeInDataStore.value)
+                    currentLatitudeInDataStore)
             } ?: "None")
         )
         Text(
-            "Longitude: "+ (currentLongitudeInDataStore.value?.let{
+            "Longitude: "+ (currentLongitudeInDataStore?.let{
                 String.format("%.5f",
-                    currentLongitudeInDataStore.value)
+                    currentLongitudeInDataStore)
             } ?: "None")
         )
         Text(
-            "Range: " + (currentRangeInDataStore.value?.let{
+            "Range: " + (currentRangeInDataStore?.let{
                 String.format("%.5f",
-                    currentRangeInDataStore.value)
+                    currentRangeInDataStore)
             } ?: "None")
         )
         OutlinedTextField(
             value = latitude?: "",
             onValueChange = { latitude = it },
             label = {
-                Text("Latitude")
+                Text(stringResource(R.string.latitude))
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal
@@ -81,7 +93,7 @@ fun SettingsScreen(
             value = longitude ?: "",
             onValueChange = { longitude = it },
             label = {
-                Text("Longitude")
+                Text(stringResource(R.string.longitude))
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal
@@ -91,24 +103,55 @@ fun SettingsScreen(
             value = range ?: "",
             onValueChange = { range = it },
             label = {
-                Text("Range")
+                Text(stringResource(R.string.range))
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal
             )
         )
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(end = 30.dp),
-            contentAlignment = Alignment.CenterEnd
+                .padding(20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ){
+            TextButton(
+                onClick = {
+                    coroutineScope.launch{
+                        if (latitude == null || longitude == null || range == null) {
+                            return@launch
+                        }
+                        try {
+                            val latitudeInDoubleFormat = latitude!!.toDouble()
+                            val longitudeInDoubleFormat = longitude!!.toDouble()
+                            val rangeInDoubleFormat = range!!.toDouble()
+
+                            classAttendanceViewModel.writeOrUpdateCoordinateInDataStore(
+                                latitudeInDoubleFormat,
+                                longitudeInDoubleFormat,
+                                rangeInDoubleFormat
+                            )
+
+                        } catch (e: NumberFormatException) {
+                            Toast.makeText(context, "Please Fill Fields Properly", Toast.LENGTH_SHORT).show()
+                        }finally{
+                            latitude = ""
+                            longitude = ""
+                            range = ""
+                        }
+                    }
+
+
+                }) {
+                Text(stringResource(R.string.save))
+            }
             TextButton(
                 onClick = {
                     classAttendanceViewModel.deleteCoordinateInDataStore()
                 }) {
                 Text(stringResource(R.string.clear_fields))
             }
+
         }
     }
 }

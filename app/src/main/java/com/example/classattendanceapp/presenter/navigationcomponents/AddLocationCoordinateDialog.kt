@@ -55,23 +55,13 @@ fun AddLocationCoordinateDialog(
 
 
     LaunchedEffect(Unit){
-        classAttendanceViewModel.getCoordinateInDataStore(this)
-    }
-
-    LaunchedEffect(Unit){
-        combine(
-            classAttendanceViewModel.currentLatitudeInDataStore,
-            classAttendanceViewModel.currentLongitudeInDataStore,
-            classAttendanceViewModel.currentRangeInDataStore
-        ){ lat, lon, range->
-            Triple(lat, lon, range)
-        }.collectLatest { coordinates ->
-            Log.d("coordinates", "Collected coordinates are $coordinates")
-            currentLatitudeInDataStore = coordinates.first
-            currentLongitudeInDataStore = coordinates.second
-            currentRangeInDataStore = coordinates.third
+        classAttendanceViewModel.getCoordinateInDataStore().collectLatest{ latitudeLongitudeRange ->
+            currentLatitudeInDataStore = latitudeLongitudeRange.first
+            currentLongitudeInDataStore = latitudeLongitudeRange.second
+            currentRangeInDataStore = latitudeLongitudeRange.third
         }
     }
+
 
     if(showAddLocationCoordinateDialog.value){
         AlertDialog(

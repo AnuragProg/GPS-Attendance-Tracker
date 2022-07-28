@@ -28,4 +28,8 @@
     <string name="mark_your_attendance">Mark your attendance!</string>
     <string name="marked_your_attendance">Marked your attendance!</string>
     <string name="clear_fields">Clear Fields</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="range">Range</string>
+    <string name="save">Save</string>
 </resources>

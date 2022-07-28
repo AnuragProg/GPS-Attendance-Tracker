@@ -1,9 +1,5 @@
 package com.example.classattendanceapp.presenter.navigationcomponents
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -27,15 +23,17 @@ fun ClassAttendanceTopBar(
             Text(context.getString(R.string.app_name))
         },
         actions = {
-            IconButton(onClick = {
-                classAttendanceViewModel.changeOverFlowMenuState(true)
-            }) {
-                Icon(
-                    Icons.Filled.MoreVert,
-                    contentDescription = null
-                )
-            }
-            OverflowMenu(classAttendanceViewModel = classAttendanceViewModel)
+            /*
+            Commented to add future items to the overflow menu
+             */
+//            IconButton(onClick = {
+//                classAttendanceViewModel.changeOverFlowMenuState(true)
+//            }) {
+//                Icon(
+//                    Icons.Filled.MoreVert,
+//                    contentDescription = null
+//                )
+//            }
         }
     )
 }

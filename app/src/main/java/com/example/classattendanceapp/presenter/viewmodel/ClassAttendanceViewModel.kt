@@ -12,6 +12,7 @@ import com.example.classattendanceapp.domain.models.ModifiedLogs
 import com.example.classattendanceapp.domain.models.ModifiedSubjects
 import com.example.classattendanceapp.domain.usecases.usecase.ClassAttendanceUseCase
 import com.example.classattendanceapp.domain.utils.alarms.ClassAlarmManager
+import com.example.classattendanceapp.presenter.navigationcomponents.Screens
 import com.example.classattendanceapp.presenter.utils.DateToSimpleFormat
 import com.example.classattendanceapp.presenter.utils.Days
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,6 +28,7 @@ class ClassAttendanceViewModel @Inject constructor(
 ): ViewModel() {
 
     init{
+        Log.d("navigation", "Viewmodel created")
         viewModelScope.launch {
             Log.d("viewmodel", "Subjects retrieval started in viewmodel")
             getSubjectsAdvanced().collectLatest { retrievedSubjectsList ->
@@ -134,12 +136,18 @@ class ClassAttendanceViewModel @Inject constructor(
         _showAddLocationCoordinateDialog.value = state
     }
 
+    /*
+    Currently no items in overflow menu so it is of no use for now
+     */
     private var _showOverFlowMenu = MutableStateFlow(false)
     val showOverFlowMenu : StateFlow<Boolean> get() = _showOverFlowMenu
 
     fun changeOverFlowMenuState(state: Boolean){
         _showOverFlowMenu.value = state
     }
+    /*
+    Currently no items in overflow menu so it is of no use for now
+     */
 
     suspend fun updateSubject(subject: Subject){
         classAttendanceUseCase.updateSubjectUseCase(subject)
@@ -302,38 +310,16 @@ class ClassAttendanceViewModel @Inject constructor(
         )
     }
 
-    private var _currentLatitudeInDataStore = MutableStateFlow<Double?>(null)
-    private var _currentLongitudeInDataStore = MutableStateFlow<Double?>(null)
-    private var _currentRangeInDataStore = MutableStateFlow<Double?>(null)
-
-    val currentLatitudeInDataStore : StateFlow<Double?> get() = _currentLatitudeInDataStore
-    val currentLongitudeInDataStore: StateFlow<Double?> get() = _currentLongitudeInDataStore
-    val currentRangeInDataStore : StateFlow<Double?> get() = _currentRangeInDataStore
-
-    private fun changeUserLatitude(latitude: Double?){
-        _currentLatitudeInDataStore.value = latitude
-    }
-    private fun changeUserLongitude(longitude: Double?){
-        _currentLongitudeInDataStore.value = longitude
-    }
-    private fun changeUserRange(range: Double?){
-        _currentRangeInDataStore.value = range
-    }
-
-    fun getCoordinateInDataStore(
-        coroutineScope: CoroutineScope
-    ){
-        coroutineScope.launch{
-            val latitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(latitudeDataStoreKey)
-            val longitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(longitudeDataStoreKey)
-            val rangeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(rangeDataStoreKey)
-            combine(latitudeDataStoreFlow,longitudeDataStoreFlow,rangeDataStoreFlow){ latitude, longitude, range ->
-                Triple(latitude, longitude, range)
-            }.collectLatest { coordinates ->
-                changeUserLatitude(coordinates.first)
-                changeUserLongitude(coordinates.second)
-                changeUserRange(coordinates.third)
-            }
+    suspend fun getCoordinateInDataStore(): Flow<Triple<Double?,Double?,Double?>>{
+        val latitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(latitudeDataStoreKey)
+        val longitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(longitudeDataStoreKey)
+        val rangeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(rangeDataStoreKey)
+        return combine(
+            latitudeDataStoreFlow,
+            longitudeDataStoreFlow,
+            rangeDataStoreFlow
+        ){ latitude, longitude, range ->
+            Triple(latitude, longitude, range)
         }
     }
 
@@ -347,6 +333,7 @@ class ClassAttendanceViewModel @Inject constructor(
         viewModelScope.launch{
             classAttendanceUseCase.deleteCoordinateInDataStoreUseCase(latitudeDataStoreKey)
             classAttendanceUseCase.deleteCoordinateInDataStoreUseCase(longitudeDataStoreKey)
+            classAttendanceUseCase.deleteCoordinateInDataStoreUseCase(rangeDataStoreKey)
         }
     }
 

@@ -3,30 +3,27 @@ package com.example.classattendanceapp.presenter.navigationcomponents
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import android.view.animation.RotateAnimation
 import android.widget.Toast
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Indication
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.VectorProperty
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
+import androidx.core.graphics.rotationMatrix
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.presenter.screens.logsscreen.LogsScreen
@@ -56,6 +53,18 @@ fun ClassAttendanceNavigationHost(){
         mutableStateOf(Icons.Filled.Add)
     }
 
+    fun navigate(
+        route: String
+    ){
+        coroutineScope.launch{
+            visibility = false
+            navController.navigate(route){
+                popUpTo(route)
+            }
+            goneToAnotherScreen = !goneToAnotherScreen
+        }
+    }
+
     LaunchedEffect(Unit){
         navController.currentBackStackEntryFlow.collectLatest{
             currentFloatingActionButtonIcon = when(it.destination.route){
@@ -69,17 +78,6 @@ fun ClassAttendanceNavigationHost(){
         }
     }
 
-    fun navigate(
-        route: String
-    ){
-        coroutineScope.launch{
-            visibility = false
-            navController.navigate(route){
-                popUpTo(route)
-            }
-            goneToAnotherScreen = !goneToAnotherScreen
-        }
-    }
 
 
     AddLocationCoordinateDialog(
@@ -102,8 +100,7 @@ fun ClassAttendanceNavigationHost(){
         },
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier.size(50.dp)
-                    ,
+                modifier = Modifier.size(50.dp),
                 onClick = {
                     classAttendanceViewModel.changeFloatingButtonClickedState(true)
                 }
@@ -113,34 +110,17 @@ fun ClassAttendanceNavigationHost(){
                     transitionSpec = {
                         when(currentFloatingActionButtonIcon) {
                             Icons.Filled.Save -> {
-                                slideInVertically(
-                                    initialOffsetY = {
-                                        it/2
-                                    }
-                                ) + fadeIn() with slideOutVertically(
-                                    targetOffsetY = {
-                                        -it/2
-                                    }
-                                ) + fadeOut()
-
+                                fadeIn() with  fadeOut()
                             }
                             else -> {
-                                slideInVertically(
-                                    initialOffsetY = {
-                                        -it/2
-                                    }
-                                ) + fadeIn() with slideOutVertically(
-                                    targetOffsetY = {
-                                        it/2
-                                    }
-                                ) + fadeOut()
-
+                                fadeIn() with  fadeOut()
                             }
                         }
+
                     }
                 ){ icon ->
                     Icon(
-                        icon,
+                        imageVector = icon,
                         contentDescription = null
                     )
                 }
@@ -199,13 +179,13 @@ fun ClassAttendanceNavigationHost(){
                 startDestination = Screens.SUBJECTSSCREEN.route,
             ) {
 
+
                 composable(Screens.LOGSSCREEN.route) {
 
                     LaunchedEffect(goneToAnotherScreen) {
                         visibility = true
                     }
                     LogsScreen(classAttendanceViewModel)
-
                 }
 
                 composable(Screens.SUBJECTSSCREEN.route) {
