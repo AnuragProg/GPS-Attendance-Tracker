@@ -1,6 +1,7 @@
 package com.example.classattendanceapp.presenter.screens.subjectsscreen
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -29,6 +30,7 @@ import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -138,23 +140,36 @@ fun SubjectsScreen(
                             onClick = {
                                 coroutineScope.launch{
                                     if(editingSubject!=null){
-                                        classAttendanceViewModel.updateSubject(
-                                            Subject(
-                                                _id = editingSubject!!,
-                                                subjectName = subjectNameTextField,
-                                                daysPresent = initialPresent.toLong(),
-                                                daysAbsent = initialAbsent.toLong()
+                                        try{
+                                            val daysPresent = initialPresent.toLong()
+                                            val daysAbsent = initialAbsent.toLong()
+                                            classAttendanceViewModel.updateSubject(
+                                                Subject(
+                                                    _id = editingSubject!!,
+                                                    subjectName = subjectNameTextField,
+                                                    daysPresent = daysPresent,
+                                                    daysAbsent = daysAbsent
+                                                )
                                             )
-                                        )
+                                        }catch(e: NumberFormatException){
+                                            Toast.makeText(context, "Please enter integer's only!", Toast.LENGTH_SHORT).show()
+                                        }
                                     }else{
-                                        classAttendanceViewModel.insertSubject(
-                                            Subject(
-                                                _id = 0,
-                                                subjectName = subjectNameTextField,
-                                                daysPresent = initialPresent.toLong(),
-                                                daysAbsent = initialAbsent.toLong()
+                                        try{
+                                            val daysPresent = initialPresent.toLong()
+                                            val daysAbsent = initialAbsent.toLong()
+                                            classAttendanceViewModel.insertSubject(
+                                                Subject(
+                                                    _id = 0,
+                                                    subjectName = subjectNameTextField,
+                                                    daysPresent = daysPresent,
+                                                    daysAbsent = daysAbsent
+                                                )
                                             )
-                                        )
+                                        }catch(e: NumberFormatException){
+                                            Toast.makeText(context, "Please enter integer's only!", Toast.LENGTH_SHORT).show()
+                                        }
+
                                     }
                                     subjectNameTextField = ""
                                     initialPresent = 0.toString()

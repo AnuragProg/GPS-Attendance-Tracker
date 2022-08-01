@@ -4,19 +4,11 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import com.example.classattendanceapp.data.models.TimeTable
 import java.util.*
 
 object ClassAlarmManager {
-
-    private const val TIMETABLEID = "timetable_id"
-    private const val SUBJECTNAME = "subject_name"
-    private const val HOUR = "hour"
-    private const val MINUTE = "minute"
-    private const val SUBJECTID = "subject_id"
-    private const val DAYOFTHEWEEK = "day_of_the_week"
 
     fun registerAlarm(
         context: Context,
@@ -28,12 +20,12 @@ object ClassAlarmManager {
         val intent = Intent(context, ClassAlarmBroadcastReceiver::class.java).apply{
             action = "com.example.classattendanceapp.domain.utils.alarms.ClassAlarmBroadcastReceiver"
             Log.d("action", action!! + " \n For Registering Alarm")
-            putExtra(TIMETABLEID, timeTableId)
-            putExtra(SUBJECTID, timeTable.subjectId)
-            putExtra(SUBJECTNAME, timeTable.subjectName)
-            putExtra(HOUR, timeTable.hour)
-            putExtra(MINUTE, timeTable.minute)
-            putExtra(DAYOFTHEWEEK, timeTable.dayOfTheWeek)
+            putExtra(AlarmKeys.TIMETABLE_ID.key, timeTableId)
+            putExtra(AlarmKeys.SUBJECT_ID.key, timeTable.subjectId)
+            putExtra(AlarmKeys.SUBJECT_NAME.key, timeTable.subjectName)
+            putExtra(AlarmKeys.HOUR.key, timeTable.hour)
+            putExtra(AlarmKeys.MINUTE.key, timeTable.minute)
+            putExtra(AlarmKeys.DAYOFTHEWEEK.key, timeTable.dayOfTheWeek)
         }
 
         val calendar = Calendar.getInstance()

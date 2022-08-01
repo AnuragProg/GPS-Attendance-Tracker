@@ -15,21 +15,17 @@ import kotlinx.coroutines.withTimeout
 
 object ClassLocationManager {
 
-    private lateinit var locationManager: LocationManager
-
-    private fun getLocationManager(context: Context) {
-        locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    }
-
-
 
     @SuppressLint("MissingPermission")
     fun getLocation(context: Context) = flow {
-        getLocationManager(context)
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
         val hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         val hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
         val locationByGps = MutableStateFlow<Location?>(null)
         val locationByNetwork = MutableStateFlow<Location?>(null)
+
         val gpsListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 locationByGps.value = location
@@ -54,8 +50,11 @@ object ClassLocationManager {
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
         }
 
-        Log.d("worker", "The gps is $hasGps")
+
         if (hasGps) {
+            /*
+               If device has GPS then requesting coordinates from GPS
+            */
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
                 5000,
@@ -64,8 +63,10 @@ object ClassLocationManager {
                 Looper.getMainLooper()
             )
         }
-        Log.d("worker", "The network is $hasNetwork")
         if (hasNetwork) {
+            /*
+                If device has Network then requesting coordinates from Network
+            */
             locationManager.requestLocationUpdates(
                 LocationManager.NETWORK_PROVIDER,
                 5000,
@@ -75,17 +76,27 @@ object ClassLocationManager {
             )
         }
 
-        Log.d("worker", "Starting combine locationCoroutine")
 
         if(!hasGps && !hasNetwork){
-            Log.d("worker", "Don't have gps and network -> emitting null")
+            /*
+            * If there is neither GPS nor NETWORK, sending null to the caller
+            * */
             locationManager.removeUpdates(gpsListener)
             locationManager.removeUpdates(networkListener)
             emit(null)
         }else if(hasGps && hasNetwork){
-            Log.d("worker", "Have both gps and network")
+            /*
+            * If Device has both GPS and NETWORK,
+            * We are setting Listener for both GPS and NETWORK, We will choose the highest accuracy location from results
+            * */
             try{
                 withTimeout(5000) {
+                    /*
+                    * Setting a Timeout of 5sec, if no coordinates is received,
+                    * Then setting a Timeout of 5sec for GPS, if no coordinates is received,
+                    * Then setting a Timeout of 5sec for NETWORK, if no coordinates is received,
+                    * Sending null to the caller
+                    * */
                     val gpsAndNetworkCombinedLocation = combine(
                         locationByGps, locationByNetwork
                     ) { gps, network ->
@@ -93,8 +104,6 @@ object ClassLocationManager {
                     }.first {
                         it.first != null && it.second != null
                     }
-                    Log.d("worker",
-                        "retrieved location from both gps and network = $gpsAndNetworkCombinedLocation")
                     val highestAccuracyLocation = if (
                         gpsAndNetworkCombinedLocation.first!!.accuracy >= gpsAndNetworkCombinedLocation.second!!.accuracy
                     ) {
@@ -103,17 +112,16 @@ object ClassLocationManager {
                         gpsAndNetworkCombinedLocation.second!!
                     }
 
-                    Log.d("worker", "Location with higher accuracy is $highestAccuracyLocation")
-                    Log.d("worker", "Emitting this location")
                     locationManager.removeUpdates(gpsListener)
                     locationManager.removeUpdates(networkListener)
                     emit(highestAccuracyLocation)
                 }
             }catch(timeout: TimeoutCancellationException){
-                Log.d("worker", "Timeout Exception raised")
                 try{
-                    Log.d("worker", "Trying to get gps location instead")
                     withTimeout(5000){
+                        /*
+                        * Listening for GPS Location
+                        * */
                         val gpsLocation = locationByGps.first{
                             it!=null
                         }
@@ -122,23 +130,39 @@ object ClassLocationManager {
                         emit(gpsLocation)
                     }
                 }catch (timeout: TimeoutCancellationException){
-                    Log.d("worker", "Timeout Exception raised")
-                    withTimeout(5000){
-                        Log.d("worker", "Trying to get network location instead")
-
-                        val networkLocation = locationByNetwork.first{
-                            it!=null
+                    try{
+                        withTimeout(5000) {
+                            /*
+                            * Listening for NETWORK Location
+                            * */
+                            val networkLocation = locationByNetwork.first {
+                                it != null
+                            }
+                            locationManager.removeUpdates(gpsListener)
+                            locationManager.removeUpdates(networkListener)
+                            emit(networkLocation)
                         }
+                    }catch(e: TimeoutCancellationException){
+                        /*
+                        * After failing to get location from both GPS and NETWORK within allocated time
+                        * sending null to caller
+                        * */
                         locationManager.removeUpdates(gpsListener)
                         locationManager.removeUpdates(networkListener)
-                        emit(networkLocation)
+                        emit(null)
                     }
                 }
             }
         }else if(hasGps){
+            /*
+            * If Device has only GPS,
+            * We are setting Listener for GPS
+            * */
             try{
                 withTimeout(5000){
-                    Log.d("worker", "Has Gps so emitting first non null location from gps")
+                    /*
+                    * Listening for GPS Location
+                    * */
                     val gpsLocation = locationByGps.first {
                         it != null
                     }
@@ -147,16 +171,25 @@ object ClassLocationManager {
                     emit(gpsLocation)
                 }
             }catch(timeout: TimeoutCancellationException){
-                Log.d("worker", "Timeout Exception raised emitting null")
+                /*
+                * Failed to get GPS Location,
+                * sending null to caller
+                * */
                 locationManager.removeUpdates(gpsListener)
                 locationManager.removeUpdates(networkListener)
 
                 emit(null)
             }
         }else{
+            /*
+            * If Device has only NETWORK,
+            * We are setting Listener for NETWORK
+            * */
             try{
                 withTimeout(5000){
-                    Log.d("worker", "Has Network so emitting first non null location from network")
+                    /*
+                    * Listening for NETWORK Location
+                    * */
                     val networkLocation = locationByNetwork.first {
                         it != null
                     }
@@ -165,7 +198,10 @@ object ClassLocationManager {
                     emit(networkLocation)
                 }
             }catch(timeout: TimeoutCancellationException){
-                Log.d("worker", "Timeout Exception raised emitting null")
+                /*
+                * Failed to get NETWORK Location, within allocated time
+                * sending null to caller
+                * */
                 locationManager.removeUpdates(gpsListener)
                 locationManager.removeUpdates(networkListener)
                 emit(null)

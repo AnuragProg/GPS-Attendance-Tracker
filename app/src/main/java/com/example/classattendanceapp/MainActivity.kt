@@ -1,6 +1,7 @@
 package com.example.classattendanceapp
 
 import android.os.Bundle
+import android.os.PersistableBundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
@@ -24,10 +25,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        this.moveTaskToBack(true)
-    }
 }
 
 

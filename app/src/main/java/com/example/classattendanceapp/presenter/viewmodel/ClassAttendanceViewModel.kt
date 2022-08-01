@@ -12,11 +12,9 @@ import com.example.classattendanceapp.domain.models.ModifiedLogs
 import com.example.classattendanceapp.domain.models.ModifiedSubjects
 import com.example.classattendanceapp.domain.usecases.usecase.ClassAttendanceUseCase
 import com.example.classattendanceapp.domain.utils.alarms.ClassAlarmManager
-import com.example.classattendanceapp.presenter.navigationcomponents.Screens
 import com.example.classattendanceapp.presenter.utils.DateToSimpleFormat
 import com.example.classattendanceapp.presenter.utils.Days
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*

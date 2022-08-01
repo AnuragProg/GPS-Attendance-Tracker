@@ -1,4 +1,4 @@
-package com.example.classattendanceapp.domain.utils.workers
+package com.example.classattendanceapp.domain.utils.alarms
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -19,7 +19,6 @@ import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.db.ClassAttendanceDatabase
 import com.example.classattendanceapp.data.models.Logs
 import com.example.classattendanceapp.data.models.TimeTable
-import com.example.classattendanceapp.domain.utils.alarms.ClassAlarmManager
 import com.example.classattendanceapp.domain.utils.location.ClassLocationManager
 import com.example.classattendanceapp.domain.utils.maths.CoordinateCalculations
 import com.example.classattendanceapp.domain.utils.notifications.NotificationHandler
@@ -38,13 +37,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
     @Assisted workerParameters: WorkerParameters,
     private val dataStore: DataStore<Preferences>
 ) : CoroutineWorker(context, workerParameters){
-
-    private val TIMETABLEID = "timetable_id"
-    private val SUBJECTNAME = "subject_name"
-    private val HOUR = "hour"
-    private val MINUTE = "minute"
-    private val SUBJECTID = "subject_id"
-    private val DAYOFTHEWEEK = "day_of_the_week"
 
     private val longitudeDataStoreKey = doublePreferencesKey("userLongitude")
     private val latitudeDataStoreKey = doublePreferencesKey("userLatitude")
@@ -68,12 +60,12 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
 
 
         Log.d("worker", "starting doWork and retrieving data from inputData")
-        val subjectId = inputData.getInt(SUBJECTID, -1)
-        val subjectName = inputData.getString(SUBJECTNAME)
-        val timeTableId = inputData.getInt(TIMETABLEID, -1)
-        val hour = inputData.getInt(HOUR, -1)
-        val minute = inputData.getInt(MINUTE, -1)
-        val day_of_the_week = inputData.getInt(DAYOFTHEWEEK, -1)
+        val subjectId = inputData.getInt(AlarmKeys.SUBJECT_ID.key, -1)
+        val subjectName = inputData.getString(AlarmKeys.SUBJECT_NAME.key)
+        val timeTableId = inputData.getInt(AlarmKeys.TIMETABLE_ID.key, -1)
+        val hour = inputData.getInt(AlarmKeys.HOUR.key, -1)
+        val minute = inputData.getInt(AlarmKeys.MINUTE.key, -1)
+        val day_of_the_week = inputData.getInt(AlarmKeys.DAYOFTHEWEEK.key, -1)
         if(timeTableId == -1 || subjectId == -1 || subjectName == null || hour == -1 || minute == -1 || day_of_the_week == -1){
             return Result.retry()
         }

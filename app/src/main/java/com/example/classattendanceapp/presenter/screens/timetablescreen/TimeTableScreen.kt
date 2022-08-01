@@ -272,7 +272,6 @@ fun TimeTableScreen(
                             .fillMaxWidth()
                             .padding(10.dp)
                             .animateItemPlacement(),
-                        elevation = 5.dp,
                         border = BorderStroke(2.dp, Color.Black)
                     ){
                         Column(

@@ -432,8 +432,7 @@ fun LogsScreen(
                                 onLongClick = {
                                     showOverFlowMenu = true
                                 }
-                            ),
-                        elevation = 10.dp
+                            )
                     ) {
                         Column(
                             modifier = Modifier.fillMaxWidth()

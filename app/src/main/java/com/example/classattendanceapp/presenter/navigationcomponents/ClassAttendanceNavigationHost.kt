@@ -1,11 +1,12 @@
 package com.example.classattendanceapp.presenter.navigationcomponents
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -14,13 +15,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.rotationMatrix
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -40,11 +38,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun ClassAttendanceNavigationHost(){
 
-    val context = LocalContext.current
+    val context = LocalContext.current as Activity
     val navController = rememberNavController()
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
     val classAttendanceViewModel = hiltViewModel<ClassAttendanceViewModel>()
-    var visibility by remember{ mutableStateOf(false) }
     var goneToAnotherScreen by remember{ mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
@@ -59,7 +56,6 @@ fun ClassAttendanceNavigationHost(){
         route: String
     ){
         coroutineScope.launch{
-            visibility = false
             navController.navigate(route){
                 popUpTo(route)
             }
@@ -187,34 +183,32 @@ fun ClassAttendanceNavigationHost(){
 
 
                 composable(Screens.LOGSSCREEN.route) {
-
-                    LaunchedEffect(goneToAnotherScreen) {
-                        visibility = true
+                    BackHandler(enabled = true) {
+                        context.moveTaskToBack(true)
                     }
                     LogsScreen(classAttendanceViewModel)
                 }
 
                 composable(Screens.SUBJECTSSCREEN.route) {
 
-                    LaunchedEffect(goneToAnotherScreen) {
-                        /* This Launched Effect is implemented here because
-                        This is the Starting screen so the visibility needs to be true
-                        after some time to cause animation
-                        ( Any screen that is going to be hosting the launch should implement this )
-                        */
-                        visibility = true
+                    BackHandler(enabled=true) {
+                        context.moveTaskToBack(true)
                     }
                     SubjectsScreen(classAttendanceViewModel)
                 }
 
                 composable(Screens.TIMETABLESCREEN.route) {
-                    LaunchedEffect(goneToAnotherScreen) {
-                        visibility = true
+                    BackHandler(enabled=true) {
+                        context.moveTaskToBack(true)
                     }
                     TimeTableScreen(classAttendanceViewModel)
                 }
                 
                 composable(Screens.SETTINGSSCREEN.route){
+                    BackHandler(enabled=true) {
+                        context.moveTaskToBack(true)
+
+                    }
                     SettingsScreen(classAttendanceViewModel)
                 }
             }

@@ -1,4 +1,4 @@
-package com.example.classattendanceapp.domain.utils.workers
+package com.example.classattendanceapp.domain.utils.notifications.invertpreviouslymarkedattendance
 
 import android.content.Context
 import android.util.Log
@@ -6,6 +6,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.classattendanceapp.data.db.ClassAttendanceDao
+import com.example.classattendanceapp.domain.utils.notifications.NotificationKeys
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -18,9 +19,10 @@ class InvertPreviouslyMarkedAttendanceWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workerParams){
 
     override suspend fun doWork(): Result {
-        val logsId = inputData.getInt("logs_id", -1)
-        Log.d("invert_attendance", "logsId = $logsId in worker")
+
+        val logsId = inputData.getInt(NotificationKeys.LOGS_ID.key, -1)
         val retrievedLog = classAttendanceDao.getLogsWithId(logsId)
+
         if(retrievedLog!=null){
             val retrievedSubject = classAttendanceDao.getSubjectWithId(retrievedLog.subjectId)
             if(retrievedSubject!=null){
@@ -38,10 +40,7 @@ class InvertPreviouslyMarkedAttendanceWorker @AssistedInject constructor(
                 classAttendanceDao.updateLog(
                     retrievedLog
                 )
-                Log.d("invert_attendance", "updation of log done")
             }
-        }else{
-            Log.d("invert_attendance", "retrievedLog was empty or retrievedSubject was empty")
         }
         return Result.success()
     }

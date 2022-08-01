@@ -50,7 +50,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
-        <receiver android:name=".domain.utils.notification_manipulation_broadcasts.MarkPresentAbsentThroughNotificationBroadcastReceiver"
+        <receiver android:name=".domain.utils.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver"
             android:exported="true"
             android:enabled="true">
             <intent-filter>
@@ -59,7 +59,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".domain.utils.notification_manipulation_broadcasts.InvertPreviouslyMarkedAttendanceBroadcastReceiver"
+        <receiver android:name=".domain.utils.notifications.invertpreviouslymarkedattendance.InvertPreviouslyMarkedAttendanceBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
