@@ -7,12 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.classattendanceapp.MainActivity
 import com.example.classattendanceapp.R
-import com.example.classattendanceapp.data.models.TimeTable
 import com.example.classattendanceapp.domain.utils.notifications.invertpreviouslymarkedattendance.InvertPreviouslyMarkedAttendanceBroadcastReceiver
 import com.example.classattendanceapp.domain.utils.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver
 import com.example.classattendanceapp.domain.utils.reservedPendingIntentRequestCodes.ReservedPendingIntentRequestCodes
