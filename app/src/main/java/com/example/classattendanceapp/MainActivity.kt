@@ -10,7 +10,7 @@ import com.example.classattendanceapp.ui.theme.ClassAttendanceAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 /*
-Official name -> G-PAT General Purpose Attendance Tracker
+Official name -> GPS Attendance Tracker
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -24,7 +24,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 }
 
 

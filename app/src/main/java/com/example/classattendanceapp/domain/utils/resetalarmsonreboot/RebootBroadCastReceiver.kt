@@ -13,7 +13,6 @@ class RebootBroadCastReceiver: BroadcastReceiver() {
         if(context==null || intent==null){
             return
         }
-        Log.d("reboot", "Reboot BroadCast received")
         val reregisterAlarmWorkRequest = OneTimeWorkRequestBuilder<ForegroundReregisteringAlarmWorker>()
             .build()
         WorkManager.getInstance(context)

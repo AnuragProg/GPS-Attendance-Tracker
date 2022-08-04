@@ -24,7 +24,6 @@ class ForegroundReregisteringAlarmWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         val timeTableList = classAttendanceDao.getTimeTable().first()
         for(timeTable in timeTableList){
-            Log.d("reboot", "Register alarm for $timeTable")
             ClassAlarmManager.registerAlarm(
                 context,
                 timeTable._id,

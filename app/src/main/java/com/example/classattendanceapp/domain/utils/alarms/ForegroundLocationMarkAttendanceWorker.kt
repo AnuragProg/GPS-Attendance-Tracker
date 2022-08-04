@@ -59,7 +59,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         setForeground(foregroundNotificationInfo)
 
 
-        Log.d("worker", "starting doWork and retrieving data from inputData")
         val subjectId = inputData.getInt(AlarmKeys.SUBJECT_ID.key, -1)
         val subjectName = inputData.getString(AlarmKeys.SUBJECT_NAME.key)
         val timeTableId = inputData.getInt(AlarmKeys.TIMETABLE_ID.key, -1)
@@ -70,15 +69,11 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
             return Result.retry()
         }
 
-        Log.d("worker", "retrieved data are subjectName -> $subjectName | timeTableId -> $timeTableId" +
-                " | hour -> $hour | minute -> $minute")
-
         if(
             context.checkSelfPermission(
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_DENIED
         ){
-            Log.d("worker", "Don't have fine location permission so sending normal notification")
             createNotificationChannelAndShowNotification(
                 timeTableId = timeTableId,
                 subjectId = subjectId,
@@ -92,14 +87,11 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         if(
             Build.VERSION.SDK_INT >= 29
         ){
-            Log.d("worker", "Checking for background location permission")
             if(
                 context.checkSelfPermission(
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ) == PackageManager.PERMISSION_DENIED
             ){
-                Log.d("worker", "Don't have background location permission so sending normal notification")
-
                 createNotificationChannelAndShowNotification(
                     timeTableId = timeTableId,
                     subjectId = subjectId,
@@ -122,12 +114,10 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         ) { lat, lon, range ->
             Triple(lat, lon, range)
         }.first()
-        Log.d("worker", "Received userSpecifiedLocation from datastore")
 
         // Getting Institute Location from datastore
         // if no userSpecifiedLocation found in datastore
         if(userSpecifiedLocation.first==null || userSpecifiedLocation.second==null || userSpecifiedLocation.third==null){
-            Log.d("worker", "No coordinates stored by user so showing normal notification")
             createNotificationChannelAndShowNotification(
                 timeTableId = timeTableId,
                 subjectId = subjectId,
@@ -138,7 +128,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
             )
             return Result.success()
         }else{
-            Log.d("worker", "Retrieving single location")
             val currentLocation = ClassLocationManager.getLocation(context).single()
             if(currentLocation==null) {
                 createNotificationChannelAndShowNotification(
@@ -151,16 +140,10 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 )
             }
             else{
-                Log.d("worker",
-                    "location StateFlow has been updated with location -> $currentLocation")
                 // Dao instance to mark either Absent or Present
                 val classAttendanceDao =
                     ClassAttendanceDatabase.getInstance(context).classAttendanceDao
 
-                Log.d("worker",
-                    "current -> latitude : ${currentLocation.latitude} | longitude : ${currentLocation.longitude}")
-                Log.d("worker",
-                    "user -> latitude : ${userSpecifiedLocation.first} | longitude : ${userSpecifiedLocation.second}")
 
                 val distance = CoordinateCalculations.distanceBetweenPointsInM(
                     lat1 = currentLocation.latitude,
@@ -168,9 +151,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                     lat2 = userSpecifiedLocation.first!!,
                     long2 = userSpecifiedLocation.second!!,
                 )
-                Log.d("worker", "Calculated Distance is $distance meters")
                 if (distance <= userSpecifiedLocation.third!!) {
-                    Log.d("worker", "Marking present in database")
                     val subjectWithId = classAttendanceDao.getSubjectWithId(subjectId)
                     subjectWithId!!.daysPresentOfLogs++
                     classAttendanceDao.insertSubject(
@@ -187,7 +168,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             longitude = currentLocation.longitude
                         )
                     )
-                    Log.d("worker", "Creating Present marked notification")
                     createNotificationChannelAndShowNotification(
                         timeTableId = timeTableId,
                         logsId = logsId.toInt(),
@@ -205,7 +185,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             distance)
                     )
                 } else {
-                    Log.d("worker", "Marking absent in database")
                     val subjectWithId = classAttendanceDao.getSubjectWithId(subjectId)
                     subjectWithId!!.daysAbsentOfLogs++
                     classAttendanceDao.insertSubject(
@@ -222,7 +201,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             longitude = currentLocation.longitude
                         )
                     )
-                    Log.d("worker", "Creating Absent marked notification")
                     createNotificationChannelAndShowNotification(
                         logsId = logsId.toInt(),
                         markedPresentOrAbsent = false,
@@ -242,7 +220,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 }
             }
         }
-        Log.d("worker", "Reregistering exact Alarm of same time interval")
         ClassAlarmManager.registerAlarm(
             context,
             timeTableId,
@@ -288,7 +265,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         if (timeTableId == -1 || hour == -1 || minute == -1 || subjectName == null) {
             return
         }
-        Log.d("worker", "Successfully have details $timeTableId $subjectName $hour $minute")
         NotificationHandler.createNotificationChannel(context)
         NotificationHandler.createAndShowNotification(
             context = context,

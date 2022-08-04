@@ -26,9 +26,7 @@ class ClassAttendanceViewModel @Inject constructor(
 ): ViewModel() {
 
     init{
-        Log.d("navigation", "Viewmodel created")
         viewModelScope.launch {
-            Log.d("viewmodel", "Subjects retrieval started in viewmodel")
             getSubjectsAdvanced().collectLatest { retrievedSubjectsList ->
                 if(!_isInitialSubjectDataRetrievalDone.value){
                     _isInitialSubjectDataRetrievalDone.value = true
@@ -37,7 +35,6 @@ class ClassAttendanceViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            Log.d("viewmodel", "Logs retrieval started in viewmodel")
             getAllLogsAdvanced().collectLatest { retrievedLogsList ->
                 if(!_isInitialLogDataRetrievalDone.value){
                     _isInitialLogDataRetrievalDone.value = true
@@ -175,12 +172,6 @@ class ClassAttendanceViewModel @Inject constructor(
                     latitude = it.latitude,
                     longitude = it.longitude
                 )
-                Log.d("datetime", "Date is ${DateToSimpleFormat.getDay(it.timestamp)}")
-                Log.d("datetime", "day is ${DateToSimpleFormat.getDayOfTheWeek(it.timestamp)}")
-                Log.d("datetime", "month is ${DateToSimpleFormat.getMonthStringFromNumber(it.timestamp)}")
-                Log.d("datetime", "monthNumber is ${DateToSimpleFormat.getMonthNumber(it.timestamp)}")
-                Log.d("datetime", "Year is ${DateToSimpleFormat.getYear(it.timestamp)}")
-
                 tempLogList.add(tempLog)
             }
             tempLogList

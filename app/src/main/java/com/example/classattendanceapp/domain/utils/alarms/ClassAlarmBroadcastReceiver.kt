@@ -9,7 +9,6 @@ import androidx.work.*
 class ClassAlarmBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?){
-        Log.d("broadcast","Broadcast received")
         if(intent != null && context != null) {
             val timeTableId = intent.getIntExtra(AlarmKeys.TIMETABLE_ID.key, -1)
             val subjectId = intent.getIntExtra(AlarmKeys.SUBJECT_ID.key, -1)

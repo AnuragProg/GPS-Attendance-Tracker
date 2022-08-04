@@ -19,7 +19,6 @@ object ClassAlarmManager {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, ClassAlarmBroadcastReceiver::class.java).apply{
             action = "com.example.classattendanceapp.domain.utils.alarms.ClassAlarmBroadcastReceiver"
-            Log.d("action", action!! + " \n For Registering Alarm")
             putExtra(AlarmKeys.TIMETABLE_ID.key, timeTableId)
             putExtra(AlarmKeys.SUBJECT_ID.key, timeTable.subjectId)
             putExtra(AlarmKeys.SUBJECT_NAME.key, timeTable.subjectName)

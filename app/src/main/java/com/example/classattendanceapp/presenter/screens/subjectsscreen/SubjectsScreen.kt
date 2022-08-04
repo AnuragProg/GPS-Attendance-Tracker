@@ -1,6 +1,5 @@
 package com.example.classattendanceapp.presenter.screens.subjectsscreen
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -30,7 +29,6 @@ import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
 
 
 @OptIn(ExperimentalFoundationApi::class)

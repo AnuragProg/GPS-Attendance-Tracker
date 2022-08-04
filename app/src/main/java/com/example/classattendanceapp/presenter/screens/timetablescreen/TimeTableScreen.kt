@@ -1,6 +1,5 @@
 package com.example.classattendanceapp.presenter.screens.timetablescreen
 
-import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -197,7 +196,6 @@ fun TimeTableScreen(
                             timepicker(
                                 is24HourClock = true
                             ){
-                                Log.d("debugging", "Time is ${selectedTime[0]}:${selectedTime[1]}")
                                 selectedTime[0] = it.hour
                                 selectedTime[1] = it.minute
                             }
