@@ -86,7 +86,10 @@ fun ClassAttendanceNavigationHost(){
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            ClassAttendanceTopBar(classAttendanceViewModel)
+            ClassAttendanceTopBar(
+                classAttendanceViewModel,
+                navController
+            )
         },
         bottomBar = {
             ClassAttendanceBottomNavigationBar(
@@ -134,12 +137,10 @@ fun ClassAttendanceNavigationHost(){
         Column{
             PermissionHandler ({ nonGrantedPermission ->
                 if (!nonGrantedPermissionList.contains(nonGrantedPermission)) {
-                    Log.d("permissions", "adding $nonGrantedPermission to list")
                     nonGrantedPermissionList.add(nonGrantedPermission)
                 }
             },
                 { grantedPermission ->
-                    Log.d("permissions", "removing $grantedPermission from list")
                     if(nonGrantedPermissionList.contains(grantedPermission)){
                         nonGrantedPermissionList.remove(grantedPermission)
                     }
@@ -207,7 +208,6 @@ fun ClassAttendanceNavigationHost(){
                 composable(Screens.SETTINGSSCREEN.route){
                     BackHandler(enabled=true) {
                         context.moveTaskToBack(true)
-
                     }
                     SettingsScreen(classAttendanceViewModel)
                 }

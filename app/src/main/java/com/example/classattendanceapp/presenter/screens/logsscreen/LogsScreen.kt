@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.classattendanceapp.R
+import com.example.classattendanceapp.domain.models.ModifiedLogs
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.launch
 
@@ -29,9 +30,13 @@ fun LogsScreen(
 ){
     val logsList = classAttendanceViewModel.logsList.collectAsState()
 
+
+
     val isInitialLogDataRetrievalDone = classAttendanceViewModel.isInitialLogDataRetrievalDone.collectAsState()
 
     val showAddLogsAlertDialog = classAttendanceViewModel.floatingButtonClicked.collectAsState()
+
+    val searchBarText = classAttendanceViewModel.searchBarText.collectAsState()
 
     var subjectIdInAlertDialog by remember{
         mutableStateOf<Int?>(null)
@@ -101,10 +106,19 @@ fun LogsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 reverseLayout = true,
             ){
-                items(logsList.value.size){
+                items(
+                    logsList.value.filter{
+                        if(searchBarText.value.isNotBlank()){
+                            searchBarText.value.lowercase() in it.subjectName.lowercase()
+                        }else{
+                            true
+                        }
+                    }.size
+                ){
                     val currentIndex = logsList.value.size - 1 - it
                     var showOverFlowMenu by remember{ mutableStateOf(false) }
                     var showAdditionalCardDetails by remember{ mutableStateOf(false) }
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()

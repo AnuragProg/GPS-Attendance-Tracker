@@ -44,6 +44,13 @@ class ClassAttendanceViewModel @Inject constructor(
         }
     }
 
+    private var _searchBarText = MutableStateFlow("")
+    val searchBarText: StateFlow<String> get() = _searchBarText
+
+    fun changeSearchBarText(text: String){
+        _searchBarText.value = text
+    }
+
     private var _startAttendanceArcAnimation = MutableStateFlow(false)
     val startAttendanceArcAnimation : StateFlow<Boolean> get() = _startAttendanceArcAnimation
 

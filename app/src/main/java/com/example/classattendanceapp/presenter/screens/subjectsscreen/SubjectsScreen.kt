@@ -1,3 +1,5 @@
+@file:Suppress("OPT_IN_IS_NOT_ENABLED")
+
 package com.example.classattendanceapp.presenter.screens.subjectsscreen
 
 import android.widget.Toast
@@ -40,6 +42,8 @@ fun SubjectsScreen(
     val context = LocalContext.current
 
     val subjectsList = classAttendanceViewModel.subjectsList.collectAsState()
+
+    val searchBarText = classAttendanceViewModel.searchBarText.collectAsState()
 
     val isInitialSubjectDataRetrievalDone = classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
 
@@ -230,7 +234,15 @@ fun SubjectsScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                items(subjectsList.value){
+                items(
+                    subjectsList.value.filter{
+                        if(searchBarText.value.isNotBlank()){
+                            searchBarText.value.lowercase() in it.subjectName.lowercase()
+                        }else{
+                            true
+                        }
+                    }
+                ){
                     var showOverFlowMenu by remember{ mutableStateOf(false) }
                     var showAdditionalCardDetails by remember{ mutableStateOf(false) }
                     Card(
@@ -337,8 +349,7 @@ fun SubjectsScreen(
                             AnimatedVisibility(
                                 visible = showAdditionalCardDetails
                             ) {
-                                Box(
-                                ){
+                                Box{
                                     Column(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalAlignment = Alignment.Start,
