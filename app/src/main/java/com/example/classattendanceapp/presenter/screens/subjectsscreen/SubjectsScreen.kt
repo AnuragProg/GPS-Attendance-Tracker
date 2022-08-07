@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,6 +64,13 @@ fun SubjectsScreen(
         mutableStateOf("0")
     }
 
+    var latitude by remember{
+        mutableStateOf("")
+    }
+    var longitude by remember{
+        mutableStateOf("")
+    }
+
     val startAttendanceArcAnimation = classAttendanceViewModel.startAttendanceArcAnimation.collectAsState()
     /*
     number -> subject Id to updated that subject
@@ -83,6 +92,8 @@ fun SubjectsScreen(
                 initialPresent = 0.toString()
                 initialAbsent = 0.toString()
                 editingSubject = null
+                latitude = ""
+                longitude = ""
             },
             text = {
                 Column{
@@ -96,38 +107,155 @@ fun SubjectsScreen(
                         value = subjectNameTextField,
                         onValueChange = { subjectNameTextField = it },
                         label = {
-                            Text(stringResource(R.string.subject_name))
+                            Text(stringResource(R.string.subject_name) + " (Required)")
                         },
-                        singleLine = true
-                    )
+                        maxLines = 1,
+
+                        )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(
-                        value = initialPresent,
-                        onValueChange = {
-                            initialPresent = it
-                        },
-                        label = {
-                            Text(stringResource(R.string.presents))
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
-                        ),
-                        singleLine = true
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ){
+                        Box{
+                            OutlinedTextField(
+                                modifier = Modifier.defaultMinSize(minWidth = 40.dp),
+                                value = initialPresent,
+                                onValueChange = {
+                                    initialPresent = it
+                                },
+                                label = {
+                                    Text(stringResource(R.string.presents))
+                                },
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number
+                                ),
+                                maxLines = 1
+                            )
+                            Box(
+                                modifier = Modifier.matchParentSize()
+                            ){
+                                Column(
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .padding(end = 5.dp, top = 2.dp),
+                                    horizontalAlignment = Alignment.End,
+                                    verticalArrangement = Arrangement.Center
+                                ){
+                                    Icon(
+                                        modifier = Modifier.clickable{
+                                            try{
+                                                initialPresent = (initialPresent.toLong() + 1).toString()
+                                            }catch(e: NumberFormatException){
+
+                                            }
+                                        },
+                                        imageVector = Icons.Filled.ArrowDropUp,
+                                        contentDescription = null
+                                    )
+                                    Icon(
+                                        modifier = Modifier.clickable{
+                                            try{
+                                                if(initialPresent.toLong() > 0){
+                                                    initialPresent = (initialPresent.toLong() -1).toString()
+                                                }
+                                            }catch(e: NumberFormatException){
+
+                                            }
+                                        },
+                                        imageVector = Icons.Filled.ArrowDropDown,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+
+                        }
+                        Box{
+                            OutlinedTextField(
+                                modifier = Modifier.defaultMinSize(minWidth = 40.dp),
+                                value = initialAbsent,
+                                onValueChange = {
+                                    initialAbsent = it
+                                },
+                                label = {
+                                    Text(stringResource(R.string.absents))
+                                },
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number
+                                ),
+                                maxLines = 1,
+                            )
+                            Box(
+                                modifier = Modifier.matchParentSize()
+                            ){
+                                Column(
+                                    modifier = Modifier.matchParentSize()
+                                        .padding(end=5.dp,top=2.dp),
+                                    horizontalAlignment = Alignment.End,
+                                    verticalArrangement = Arrangement.Center
+                                ){
+                                    Icon(
+                                        modifier = Modifier.clickable{
+                                            try{
+                                                initialPresent = (initialPresent.toLong() + 1).toString()
+                                            }catch(e: NumberFormatException){
+
+                                            }
+                                        },
+                                        imageVector = Icons.Filled.ArrowDropUp,
+                                        contentDescription = null
+                                    )
+                                    Icon(
+                                        modifier = Modifier.clickable{
+                                            try{
+                                                if(initialPresent.toLong() > 0){
+                                                    initialPresent = (initialPresent.toLong() -1).toString()
+                                                }
+                                            }catch(e: NumberFormatException){
+
+                                            }
+                                        },
+                                        imageVector = Icons.Filled.ArrowDropDown,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+                        }
+                    }
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(
-                        value = initialAbsent,
-                        onValueChange = {
-                            initialAbsent = it
-                        },
-                        label = {
-                                      Text(stringResource(R.string.absents))
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
-                        ),
-                        singleLine = true
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ){
+                        OutlinedTextField(
+                            modifier = Modifier.defaultMinSize(minWidth = 40.dp),
+                            value = latitude,
+                            onValueChange = {
+                                latitude = it
+                            },
+                            label = {
+                                Text(stringResource(R.string.latitude))
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Decimal
+                            ),
+                            maxLines = 1
+                        )
+                        OutlinedTextField(
+                            modifier = Modifier.defaultMinSize(minWidth = 40.dp),
+                            value = longitude,
+                            onValueChange = {
+                                longitude = it
+                            },
+                            label = {
+                                Text(stringResource(R.string.longitude))
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Decimal
+                            ),
+                            maxLines = 1
+                        )
+                    }
                 }
             },
             buttons = {
@@ -141,44 +269,69 @@ fun SubjectsScreen(
                         TextButton(
                             onClick = {
                                 coroutineScope.launch{
+                                    if(subjectNameTextField.isBlank()){
+                                        Toast.makeText(context, "Subject Name can't be empty!", Toast.LENGTH_SHORT).show()
+                                        return@launch
+                                    }
                                     if(editingSubject!=null){
                                         try{
-                                            val daysPresent = initialPresent.toLong()
-                                            val daysAbsent = initialAbsent.toLong()
+                                            val daysPresent = if(initialPresent.isBlank()) 0 else initialPresent.toLong()
+                                            val daysAbsent = if(initialAbsent.isBlank()) 0 else initialAbsent.toLong()
+                                            val lat = latitude.toDouble()
+                                            val lon = longitude.toDouble()
                                             classAttendanceViewModel.updateSubject(
                                                 Subject(
                                                     _id = editingSubject!!,
                                                     subjectName = subjectNameTextField,
                                                     daysPresent = daysPresent,
-                                                    daysAbsent = daysAbsent
+                                                    daysAbsent = daysAbsent,
+                                                    latitude = lat,
+                                                    longitude = lon
                                                 )
                                             )
+                                            classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
+
+                                            subjectNameTextField = ""
+                                            initialPresent = 0.toString()
+                                            initialAbsent = 0.toString()
+                                            editingSubject = null
+                                            latitude = ""
+                                            longitude = ""
+
                                         }catch(e: NumberFormatException){
-                                            Toast.makeText(context, "Please enter integer's only!", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "Please enter valid information!", Toast.LENGTH_SHORT).show()
                                         }
                                     }else{
                                         try{
-                                            val daysPresent = initialPresent.toLong()
-                                            val daysAbsent = initialAbsent.toLong()
+                                            val daysPresent = if(initialPresent.isBlank()) 0 else initialPresent.toLong()
+                                            val daysAbsent = if(initialAbsent.isBlank()) 0 else initialAbsent.toLong()
+                                            val lat = latitude.toDouble()
+                                            val lon = longitude.toDouble()
                                             classAttendanceViewModel.insertSubject(
                                                 Subject(
                                                     _id = 0,
                                                     subjectName = subjectNameTextField,
                                                     daysPresent = daysPresent,
-                                                    daysAbsent = daysAbsent
+                                                    daysAbsent = daysAbsent,
+                                                    latitude = lat,
+                                                    longitude = lon
                                                 )
                                             )
+                                            classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
+
+                                            subjectNameTextField = ""
+                                            initialPresent = 0.toString()
+                                            initialAbsent = 0.toString()
+                                            editingSubject = null
+                                            latitude = ""
+                                            longitude = ""
+
                                         }catch(e: NumberFormatException){
                                             Toast.makeText(context, "Please enter integer's only!", Toast.LENGTH_SHORT).show()
                                         }
 
                                     }
-                                    subjectNameTextField = ""
-                                    initialPresent = 0.toString()
-                                    initialAbsent = 0.toString()
-                                    editingSubject = null
                                 }
-                                classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                             }
                         ) {
                             Text(stringResource(R.string.add))
@@ -191,6 +344,8 @@ fun SubjectsScreen(
                                 initialPresent = 0.toString()
                                 initialAbsent = 0.toString()
                                 editingSubject = null
+                                latitude = ""
+                                longitude = ""
                             }
                         ) {
                             Text(stringResource(R.string.cancel))
@@ -214,7 +369,8 @@ fun SubjectsScreen(
             )
             Text(
                 modifier = Modifier.padding(5.dp),
-                text = stringResource(R.string.no_subjects)
+                text = stringResource(R.string.no_subjects),
+                color = Color.White
             )
         }
     } else if(subjectsList.value.isEmpty() && !isInitialSubjectDataRetrievalDone.value){
@@ -285,6 +441,8 @@ fun SubjectsScreen(
                                     initialPresent = it.daysPresent.toString()
                                     initialAbsent = it.daysAbsent.toString()
                                     editingSubject = it._id
+                                    latitude = it.latitude.toString()
+                                    longitude = it.longitude.toString()
                                     classAttendanceViewModel.changeFloatingButtonClickedState(true)
                                 }
                             ) {

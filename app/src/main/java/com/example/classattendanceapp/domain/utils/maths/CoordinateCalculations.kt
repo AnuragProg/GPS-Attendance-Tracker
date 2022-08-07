@@ -8,6 +8,10 @@ object CoordinateCalculations {
         return degree*PI/180
     }
 
+
+    /*
+    Haversine Formula
+     */
     fun distanceBetweenPointsInKm(
         long1: Double,
         long2: Double,

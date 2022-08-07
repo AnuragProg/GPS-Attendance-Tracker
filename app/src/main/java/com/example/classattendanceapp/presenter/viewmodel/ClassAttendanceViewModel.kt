@@ -1,7 +1,6 @@
 package com.example.classattendanceapp.presenter.viewmodel
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -138,18 +137,8 @@ class ClassAttendanceViewModel @Inject constructor(
         _showAddLocationCoordinateDialog.value = state
     }
 
-    /*
-    Currently no items in overflow menu so it is of no use for now
-     */
-    private var _showOverFlowMenu = MutableStateFlow(false)
-    val showOverFlowMenu : StateFlow<Boolean> get() = _showOverFlowMenu
 
-    fun changeOverFlowMenuState(state: Boolean){
-        _showOverFlowMenu.value = state
-    }
-    /*
-    Currently no items in overflow menu so it is of no use for now
-     */
+
 
     suspend fun updateSubject(subject: Subject){
         classAttendanceUseCase.updateSubjectUseCase(subject)
@@ -162,22 +151,22 @@ class ClassAttendanceViewModel @Inject constructor(
     private fun getAllLogsAdvanced() :Flow<List<ModifiedLogs>>{
         return classAttendanceUseCase.getAllLogsUseCase().map{
             val tempLogList = mutableListOf<ModifiedLogs>()
-            it.forEach {
+            it.forEach { log ->
 
                 val tempLog = ModifiedLogs(
-                    _id = it._id,
-                    subjectName = it.subjectName,
-                    subjectId = it.subjectId,
-                    hour = DateToSimpleFormat.getHours(it.timestamp),
-                    minute = DateToSimpleFormat.getMinutes(it.timestamp),
-                    date = DateToSimpleFormat.getDay(it.timestamp),
-                    day = DateToSimpleFormat.getDayOfTheWeek(it.timestamp),
-                    month = DateToSimpleFormat.getMonthStringFromNumber(it.timestamp),
-                    monthNumber = DateToSimpleFormat.getConventionalMonthNumber(it.timestamp),
-                    year = DateToSimpleFormat.getYear(it.timestamp),
-                    wasPresent = it.wasPresent,
-                    latitude = it.latitude,
-                    longitude = it.longitude
+                    _id = log._id,
+                    subjectName = log.subjectName,
+                    subjectId = log.subjectId,
+                    hour = DateToSimpleFormat.getHours(log.timestamp),
+                    minute = DateToSimpleFormat.getMinutes(log.timestamp),
+                    date = DateToSimpleFormat.getDay(log.timestamp),
+                    day = DateToSimpleFormat.getDayOfTheWeek(log.timestamp),
+                    month = DateToSimpleFormat.getMonthStringFromNumber(log.timestamp),
+                    monthNumber = DateToSimpleFormat.getConventionalMonthNumber(log.timestamp),
+                    year = DateToSimpleFormat.getYear(log.timestamp),
+                    wasPresent = log.wasPresent,
+                    latitude = log.latitude,
+                    longitude = log.longitude
                 )
                 tempLogList.add(tempLog)
             }
@@ -185,7 +174,7 @@ class ClassAttendanceViewModel @Inject constructor(
         }
     }
 
-    fun getSubjectsAdvanced() : Flow<List<ModifiedSubjects>>{
+    private fun getSubjectsAdvanced() : Flow<List<ModifiedSubjects>>{
         return classAttendanceUseCase.getSubjectsUseCase().map {
             val tempSubjectList = mutableListOf<ModifiedSubjects>()
             it.forEach{
@@ -204,7 +193,9 @@ class ClassAttendanceViewModel @Inject constructor(
                         daysPresent = it.daysPresent,
                         daysAbsent = it.daysAbsent,
                         daysPresentOfLogs = it.daysPresentOfLogs,
-                        daysAbsentOfLogs = it.daysAbsentOfLogs
+                        daysAbsentOfLogs = it.daysAbsentOfLogs,
+                        latitude = it.latitude,
+                        longitude = it.longitude
                     )
                 )
             }
@@ -222,10 +213,6 @@ class ClassAttendanceViewModel @Inject constructor(
             }
             resultant
         }
-    }
-
-    fun getTimeTableWithSubjectId(subjectId: Int): Flow<List<TimeTable>>{
-        return classAttendanceUseCase.getTimeTableWithSubjectIdUseCase(subjectId)
     }
 
     suspend fun insertLogs(logs: Logs): Long{
@@ -251,7 +238,9 @@ class ClassAttendanceViewModel @Inject constructor(
                 _id = subject._id,
                 subjectName = subject.subjectName.trim(),
                 daysPresent = subject.daysPresent,
-                daysAbsent = subject.daysAbsent
+                daysAbsent = subject.daysAbsent,
+                latitude = subject.latitude,
+                longitude = subject.longitude
             )
         )
     }

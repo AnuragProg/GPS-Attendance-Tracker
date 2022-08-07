@@ -12,6 +12,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,8 +30,6 @@ fun LogsScreen(
     classAttendanceViewModel: ClassAttendanceViewModel
 ){
     val logsList = classAttendanceViewModel.logsList.collectAsState()
-
-
 
     val isInitialLogDataRetrievalDone = classAttendanceViewModel.isInitialLogDataRetrievalDone.collectAsState()
 
@@ -66,7 +65,6 @@ fun LogsScreen(
             classAttendanceViewModel = classAttendanceViewModel,
             initialSubjectNameInAlertDialog = subjectNameInAlertDialog,
             initialSubjectIdInAlertDialog = subjectIdInAlertDialog,
-            initialPresentOrAbsentInAlertDialog = presentOrAbsentInAlertDialog,
             initialEditingLog = editingLog
         )
     }
@@ -85,7 +83,8 @@ fun LogsScreen(
             )
             Text(
                 modifier = Modifier.padding(5.dp),
-                text = stringResource(R.string.no_logs)
+                text = stringResource(R.string.no_logs),
+                color = Color.White
             )
         }
     } else if(logsList.value.isEmpty() && !isInitialLogDataRetrievalDone.value){

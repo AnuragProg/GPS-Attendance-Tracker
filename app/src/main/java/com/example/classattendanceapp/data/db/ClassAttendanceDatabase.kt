@@ -16,7 +16,7 @@ import kotlinx.coroutines.internal.synchronized
     entities = [
         Logs::class,
         Subject::class,
-        TimeTable::class
+        TimeTable::class,
     ],
     version = 1
 )

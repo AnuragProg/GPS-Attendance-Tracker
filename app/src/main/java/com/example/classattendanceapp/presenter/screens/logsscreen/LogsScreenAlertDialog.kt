@@ -2,6 +2,7 @@ package com.example.classattendanceapp.presenter.screens.logsscreen
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -32,7 +33,6 @@ fun LogsScreenAlertDialog(
     classAttendanceViewModel: ClassAttendanceViewModel,
     initialSubjectNameInAlertDialog: String? = null,
     initialSubjectIdInAlertDialog: Int? = null,
-    initialPresentOrAbsentInAlertDialog: String? = null,
     initialEditingLog: Int? = null
 ){
     val coroutineScope = rememberCoroutineScope()
@@ -50,10 +50,6 @@ fun LogsScreenAlertDialog(
         mutableStateOf(false)
     }
 
-    var showPresentOrAbsentAlertDialog by remember{
-        mutableStateOf(false)
-    }
-
     var subjectIdInAlertDialog by remember{
         mutableStateOf(initialSubjectIdInAlertDialog)
     }
@@ -62,10 +58,9 @@ fun LogsScreenAlertDialog(
         mutableStateOf(initialSubjectNameInAlertDialog)
     }
 
-    var presentOrAbsentInAlertDialog by remember{
-        mutableStateOf(initialPresentOrAbsentInAlertDialog)
+    var isPresent by remember{
+        mutableStateOf(true)
     }
-
 
     // null -> no editing to be done
     // id of log -> editing to be done of log with given id
@@ -115,7 +110,6 @@ fun LogsScreenAlertDialog(
     AlertDialog(
         onDismissRequest = {
             classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-            presentOrAbsentInAlertDialog = null
             subjectIdInAlertDialog = null
             subjectNameInAlertDialog = null
             editingLog = null
@@ -124,10 +118,10 @@ fun LogsScreenAlertDialog(
             Column{
                 Text(
                     text = stringResource(R.string.add_log),
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
-                Spacer(modifier = Modifier.height(5.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedButton(
                     onClick = {
@@ -180,84 +174,77 @@ fun LogsScreenAlertDialog(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                OutlinedButton(
-                    onClick = {
-                        showPresentOrAbsentAlertDialog = true
-                    }
-                ) {
-                    Row(
-                        modifier = Modifier,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Text(presentOrAbsentInAlertDialog ?: stringResource(R.string.present_absent))
-                        IconButton(
+                Row(
+                    horizontalArrangement = Arrangement.SpaceAround
+                ){
+                    Row{
+                        RadioButton(
+                            selected = isPresent,
                             onClick = {
-                                showPresentOrAbsentAlertDialog = true
+                                isPresent = true
                             }
-                        ) {
-                            Icon(
-                                Icons.Filled.ArrowDropDown,
-                                contentDescription = "Open present or absent menu"
-                            )
-                        }
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text(
+                            modifier = Modifier.align(
+                                Alignment.CenterVertically
+                            ),
+                            text = stringResource(R.string.present)
+                        )
                     }
-                    DropdownMenu(
-                        expanded = showPresentOrAbsentAlertDialog,
-                        onDismissRequest = {
-                            showPresentOrAbsentAlertDialog = false
+                    Row{
+                        RadioButton(
+                            selected = !isPresent,
+                            onClick = {
+                                isPresent = false
+                            }
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text(
+                            modifier = Modifier.align(Alignment.CenterVertically),
+                            text = stringResource(R.string.absent)
+                        )
+                    }
+                }
+
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceAround
+                ){
+                    OutlinedButton(
+                        onClick = {
+                            datePickerDialogState.value.show()
                         }
                     ) {
-                        listOf(
-                            stringResource(R.string.present),
-                            stringResource(R.string.absent)
-                        ).forEach{
-                            DropdownMenuItem(
-                                onClick = {
-                                    presentOrAbsentInAlertDialog = it
-                                    showPresentOrAbsentAlertDialog = false
-                                }
-                            ) {
-                                Text(it)
-                            }
+                        Text(
+                            "${DateToSimpleFormat.getMonthStringFromNumber(selectedMonth.value)} ${selectedDay.value}, ${selectedYear.value}"
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    OutlinedButton(
+                        onClick = {
+                            timePickerDialogState.show()
                         }
+                    ) {
+                        Text(
+                            "${
+                                if (selectedHour.value < 10) {
+                                    "0${selectedHour.value}"
+                                } else {
+                                    selectedHour.value
+                                }
+                            }:${
+                                if (selectedMinute.value < 10) {
+                                    "0${selectedMinute.value}"
+                                } else {
+                                    selectedMinute.value
+                                }
+                            }")
                     }
                 }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                OutlinedButton(
-                    onClick = {
-                        datePickerDialogState.value.show()
-                    }
-                ) {
-                    Text(
-                        "${DateToSimpleFormat.getMonthStringFromNumber(selectedMonth.value)} ${selectedDay.value}, ${selectedYear.value}"
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                OutlinedButton(
-                    onClick = {
-                        timePickerDialogState.show()
-                    }
-                ) {
-                    Text(
-                        "${
-                            if(selectedHour.value<10){
-                                "0${selectedHour.value}"
-                            }else{
-                                selectedHour.value
-                            }}:${
-                            if(selectedMinute.value<10){
-                                "0${selectedMinute.value}"
-                            }else{
-                                selectedMinute.value
-                            }
-                        }")
-                }
-
                 MaterialDialog(
                     dialogState = timePickerDialogState,
                     buttons = {
@@ -303,8 +290,6 @@ fun LogsScreenAlertDialog(
                         coroutineScope.launch {
                             if(
                                 subjectNameInAlertDialog!=null
-                                &&
-                                presentOrAbsentInAlertDialog !=null
                             ){
                                 val logsTime = Calendar.getInstance()
                                 logsTime.set(selectedYear.value, selectedMonth.value, selectedDay.value, selectedHour.value, selectedMinute.value, 0)
@@ -315,9 +300,10 @@ fun LogsScreenAlertDialog(
                                             subjectIdInAlertDialog!!,
                                             subjectNameInAlertDialog!!,
                                             logsTime.time,
-                                            presentOrAbsentInAlertDialog == "Present"
+                                            isPresent
                                         )
                                     )
+
                                 }else{
                                     classAttendanceViewModel.updateLog(
                                         Logs(
@@ -325,16 +311,18 @@ fun LogsScreenAlertDialog(
                                             subjectIdInAlertDialog!!,
                                             subjectNameInAlertDialog!!,
                                             logsTime.time,
-                                            presentOrAbsentInAlertDialog == "Present"
+                                            isPresent
                                         )
                                     )
                                 }
+                                classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
+                                subjectIdInAlertDialog = null
+                                subjectNameInAlertDialog = null
+                                isPresent = true
+                                editingLog = null
+                            }else{
+                                Toast.makeText(context, "Subject Name cannot be empty!", Toast.LENGTH_SHORT).show()
                             }
-                            subjectIdInAlertDialog = null
-                            subjectNameInAlertDialog = null
-                            presentOrAbsentInAlertDialog = null
-                            editingLog = null
-                            classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                         }
                     }
                 ) {
@@ -347,7 +335,7 @@ fun LogsScreenAlertDialog(
                     onClick = {
                         subjectIdInAlertDialog = null
                         subjectNameInAlertDialog = null
-                        presentOrAbsentInAlertDialog = null
+                        isPresent = true
                         editingLog = null
                         classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                     }

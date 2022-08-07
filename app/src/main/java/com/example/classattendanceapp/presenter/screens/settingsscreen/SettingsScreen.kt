@@ -103,7 +103,7 @@ fun SettingsScreen(
             value = range ?: "",
             onValueChange = { range = it },
             label = {
-                Text(stringResource(R.string.range))
+                Text(stringResource(R.string.rangeInM))
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal

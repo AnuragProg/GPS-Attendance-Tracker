@@ -11,5 +11,7 @@ data class Subject(
     var daysPresentOfLogs: Long = 0,
     var daysAbsentOfLogs: Long = 0,
     var daysPresent: Long,
-    var daysAbsent: Long
+    var daysAbsent: Long,
+    val latitude: Double?,
+    val longitude: Double?
 )

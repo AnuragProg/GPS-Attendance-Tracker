@@ -8,4 +8,6 @@ data class ModifiedSubjects(
     var daysAbsent: Long,
     var daysPresentOfLogs: Long,
     var daysAbsentOfLogs: Long,
+    val latitude: Double?,
+    val longitude: Double?
 )
