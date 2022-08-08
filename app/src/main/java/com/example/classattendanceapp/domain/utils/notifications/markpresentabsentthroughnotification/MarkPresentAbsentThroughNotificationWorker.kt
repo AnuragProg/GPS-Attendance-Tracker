@@ -7,6 +7,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.classattendanceapp.data.db.ClassAttendanceDao
 import com.example.classattendanceapp.data.models.Logs
+import com.example.classattendanceapp.domain.repository.ClassAttendanceRepository
 import com.example.classattendanceapp.domain.utils.notifications.NotificationKeys
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -16,7 +17,7 @@ import java.util.*
 class MarkPresentAbsentThroughNotificationWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters,
-    private val classAttendanceDao: ClassAttendanceDao
+    private val classAttendanceRepository: ClassAttendanceRepository
 ): CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -25,17 +26,14 @@ class MarkPresentAbsentThroughNotificationWorker @AssistedInject constructor(
         if(subjectId == -1){
             return Result.failure()
         }
-        val subject = classAttendanceDao.getSubjectWithId(subjectId)
+        val subject = classAttendanceRepository.getSubjectWithId(subjectId)
         if(subject!=null){
             if(attendance){
                 subject.daysPresentOfLogs++
             }else{
                 subject.daysAbsentOfLogs++
             }
-            classAttendanceDao.updateSubject(
-                subject
-            )
-            classAttendanceDao.insertLogs(
+            classAttendanceRepository.insertLogs(
                 Logs(
                     _id = 0,
                     subjectId = subject._id,
@@ -43,6 +41,9 @@ class MarkPresentAbsentThroughNotificationWorker @AssistedInject constructor(
                     timestamp = Calendar.getInstance().time,
                     wasPresent = attendance
                 )
+            )
+            classAttendanceRepository.updateSubject(
+                subject
             )
         }
         return Result.success()

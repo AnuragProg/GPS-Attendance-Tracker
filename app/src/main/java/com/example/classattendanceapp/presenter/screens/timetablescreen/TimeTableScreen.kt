@@ -6,6 +6,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -19,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.PopupProperties
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.models.TimeTable
 import com.example.classattendanceapp.domain.models.ModifiedSubjects
@@ -98,15 +101,24 @@ fun TimeTableScreen(
             },
             text = {
                 Column{
-                    Text(stringResource(R.string.add_to_timetable))
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Row{
-                        OutlinedButton(onClick = {
+                    Text(
+                        text = stringResource(R.string.add_to_timetable),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    Box{
+                        OutlinedButton(
+                            onClick = {
                             showAddTimeTableSubjectNameAlertDialog = true
-                        }) {
+                            }
+                        ) {
                             Text(subjectInAlertDialog?.subjectName ?: stringResource(R.string.subject))
                         }
                         DropdownMenu(
+                            modifier = Modifier.height(300.dp),
                             expanded = showAddTimeTableSubjectNameAlertDialog,
                             onDismissRequest = {
                                 showAddTimeTableSubjectNameAlertDialog = false
@@ -130,7 +142,7 @@ fun TimeTableScreen(
                             }
                         }
                     }
-                    Row{
+                    Box{
                         OutlinedButton(
                             onClick = {
                                 showSelectDayDropDownMenu = true
@@ -138,7 +150,7 @@ fun TimeTableScreen(
                         ) {
                             Text(dayInDialog.ifBlank { stringResource(R.string.select_day) })
                             Box(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.width(60.dp),
                                 contentAlignment = Alignment.CenterEnd
                             ){
                                 Icon(
@@ -148,6 +160,7 @@ fun TimeTableScreen(
                             }
                         }
                         DropdownMenu(
+                            modifier = Modifier.height(300.dp),
                             expanded = showSelectDayDropDownMenu,
                             onDismissRequest = {
                                 showSelectDayDropDownMenu = false

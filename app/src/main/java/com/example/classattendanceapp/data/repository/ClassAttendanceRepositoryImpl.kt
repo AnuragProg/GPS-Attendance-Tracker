@@ -8,12 +8,10 @@ import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.data.models.TimeTable
 import com.example.classattendanceapp.domain.repository.ClassAttendanceRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+
 
 class ClassAttendanceRepositoryImpl(
     private val dao: ClassAttendanceDao,
-    private val dataStore: DataStore<Preferences>
 ) : ClassAttendanceRepository{
     override suspend fun updateSubject(subject: Subject) {
         dao.updateSubject(subject)
@@ -73,25 +71,6 @@ class ClassAttendanceRepositoryImpl(
 
     override fun getTimeTableWithSubjectId(subjectId: Int): Flow<List<TimeTable>> {
         return dao.getTimeTableWithSubjectId(subjectId)
-    }
-
-
-    override suspend fun writeOrUpdateCoordinateInDataStore(key: Preferences.Key<Double>, value: Double) {
-        dataStore.edit{ pref ->
-            pref[key] = value
-        }
-    }
-
-    override suspend fun getCoordinateInDataStore(key: Preferences.Key<Double>): Flow<Double?> {
-        return dataStore.data.map { pref->
-            pref[key]
-        }
-    }
-
-    override suspend fun deleteCoordinateInDataStore(key: Preferences.Key<Double>) {
-        dataStore.edit{ pref ->
-            pref.remove(key)
-        }
     }
 
     override fun getAllSubjects(): Flow<List<Subject>> {

@@ -52,6 +52,10 @@ fun ClassAttendanceNavigationHost(){
         mutableStateOf(Icons.Filled.Add)
     }
 
+    var showFloatingActionButton by remember{
+        mutableStateOf(false)
+    }
+
     fun navigate(
         route: String
     ){
@@ -73,14 +77,13 @@ fun ClassAttendanceNavigationHost(){
                     Icons.Filled.Add
                 }
             }
+
+            showFloatingActionButton = when(it.destination.route){
+                Screens.SETTINGSSCREEN.route -> false
+                else -> true
+            }
         }
     }
-
-
-
-    AddLocationCoordinateDialog(
-        classAttendanceViewModel = classAttendanceViewModel
-    )
 
 
     Scaffold(
@@ -100,34 +103,41 @@ fun ClassAttendanceNavigationHost(){
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                modifier = Modifier.size(50.dp),
-                onClick = {
-                    if(
-                        currentBackStackEntry.value?.destination?.route != Screens.SETTINGSSCREEN.route
-                    ){
-                        classAttendanceViewModel.changeFloatingButtonClickedState(true)
-                    }
-                }
-            ) {
-                AnimatedContent(
-                    targetState = currentFloatingActionButtonIcon,
-                    transitionSpec = {
-                        when(currentFloatingActionButtonIcon) {
-                            Icons.Filled.Save -> {
-                                fadeIn() with  fadeOut()
-                            }
-                            else -> {
-                                fadeIn() with  fadeOut()
-                            }
-                        }
 
+            AnimatedVisibility(
+                visible = showFloatingActionButton,
+                enter = scaleIn(),
+                exit = scaleOut()
+            ){
+                FloatingActionButton(
+                    modifier = Modifier.size(50.dp),
+                    onClick = {
+                        if (
+                            currentBackStackEntry.value?.destination?.route != Screens.SETTINGSSCREEN.route
+                        ) {
+                            classAttendanceViewModel.changeFloatingButtonClickedState(true)
+                        }
                     }
-                ){ icon ->
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null
-                    )
+                ) {
+                    AnimatedContent(
+                        targetState = currentFloatingActionButtonIcon,
+                        transitionSpec = {
+                            when (currentFloatingActionButtonIcon) {
+                                Icons.Filled.Save -> {
+                                    fadeIn() with fadeOut()
+                                }
+                                else -> {
+                                    fadeIn() with fadeOut()
+                                }
+                            }
+
+                        }
+                    ) { icon ->
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null
+                        )
+                    }
                 }
             }
         },

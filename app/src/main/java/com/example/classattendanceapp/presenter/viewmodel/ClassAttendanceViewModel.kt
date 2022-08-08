@@ -138,6 +138,9 @@ class ClassAttendanceViewModel @Inject constructor(
     }
 
 
+    suspend fun getSubjectWithId(subjectId: Int):Subject?{
+        return classAttendanceUseCase.getSubjectWithIdWithUseCase(subjectId)
+    }
 
 
     suspend fun updateSubject(subject: Subject){
@@ -195,7 +198,8 @@ class ClassAttendanceViewModel @Inject constructor(
                         daysPresentOfLogs = it.daysPresentOfLogs,
                         daysAbsentOfLogs = it.daysAbsentOfLogs,
                         latitude = it.latitude,
-                        longitude = it.longitude
+                        longitude = it.longitude,
+                        range = it.range
                     )
                 )
             }
@@ -234,14 +238,7 @@ class ClassAttendanceViewModel @Inject constructor(
 
     suspend fun insertSubject(subject: Subject): Long{
         return classAttendanceUseCase.insertSubjectUseCase(
-            Subject(
-                _id = subject._id,
-                subjectName = subject.subjectName.trim(),
-                daysPresent = subject.daysPresent,
-                daysAbsent = subject.daysAbsent,
-                latitude = subject.latitude,
-                longitude = subject.longitude
-            )
+            subject
         )
     }
 
@@ -293,33 +290,6 @@ class ClassAttendanceViewModel @Inject constructor(
             context = context,
             timeTable = tempTimeTable
         )
-    }
-
-    suspend fun getCoordinateInDataStore(): Flow<Triple<Double?,Double?,Double?>>{
-        val latitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(latitudeDataStoreKey)
-        val longitudeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(longitudeDataStoreKey)
-        val rangeDataStoreFlow = classAttendanceUseCase.getCoordinateInDataStoreUseCase(rangeDataStoreKey)
-        return combine(
-            latitudeDataStoreFlow,
-            longitudeDataStoreFlow,
-            rangeDataStoreFlow
-        ){ latitude, longitude, range ->
-            Triple(latitude, longitude, range)
-        }
-    }
-
-    suspend fun writeOrUpdateCoordinateInDataStore(latitude: Double, longitude: Double, range: Double){
-        classAttendanceUseCase.writeOrUpdateCoordinateInDataStoreUseCase(latitudeDataStoreKey, latitude)
-        classAttendanceUseCase.writeOrUpdateCoordinateInDataStoreUseCase(longitudeDataStoreKey, longitude)
-        classAttendanceUseCase.writeOrUpdateCoordinateInDataStoreUseCase(rangeDataStoreKey, range)
-    }
-
-    fun deleteCoordinateInDataStore(){
-        viewModelScope.launch{
-            classAttendanceUseCase.deleteCoordinateInDataStoreUseCase(latitudeDataStoreKey)
-            classAttendanceUseCase.deleteCoordinateInDataStoreUseCase(longitudeDataStoreKey)
-            classAttendanceUseCase.deleteCoordinateInDataStoreUseCase(rangeDataStoreKey)
-        }
     }
 
     private fun getCurrentYear():Int{

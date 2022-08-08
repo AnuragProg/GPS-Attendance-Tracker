@@ -8,5 +8,5 @@ enum class AlarmKeys(
     SUBJECT_NAME("subject_name"),
     HOUR("hour"),
     MINUTE("minute"),
-    DAYOFTHEWEEK("day_of_the_week")
+    DAYOFTHEWEEK("day_of_the_week"),
 }

@@ -141,12 +141,13 @@ fun LogsScreenAlertDialog(
                         ) {
                             Icon(
                                 Icons.Filled.ArrowDropDown,
-                                contentDescription = "Open subjects"
+                                contentDescription = null
                             )
                         }
                     }
 
                     DropdownMenu(
+                        modifier = Modifier.height(300.dp),
                         expanded = showAddLogsSubjectNameAlertDialog,
                         onDismissRequest = {
                             showAddLogsSubjectNameAlertDialog = false
@@ -174,9 +175,7 @@ fun LogsScreenAlertDialog(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Row(
-                    horizontalArrangement = Arrangement.SpaceAround
-                ){
+                Row{
                     Row{
                         RadioButton(
                             selected = isPresent,
@@ -192,6 +191,7 @@ fun LogsScreenAlertDialog(
                             text = stringResource(R.string.present)
                         )
                     }
+                    Spacer(modifier = Modifier.width(10.dp))
                     Row{
                         RadioButton(
                             selected = !isPresent,

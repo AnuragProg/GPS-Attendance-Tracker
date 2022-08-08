@@ -8,6 +8,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.domain.models.ModifiedLogs
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
@@ -37,15 +40,15 @@ fun LogsScreen(
 
     val searchBarText = classAttendanceViewModel.searchBarText.collectAsState()
 
+    val lazyScrollState = rememberLazyListState(
+        initialFirstVisibleItemIndex = 0
+    )
+
     var subjectIdInAlertDialog by remember{
         mutableStateOf<Int?>(null)
     }
 
     var subjectNameInAlertDialog by remember{
-        mutableStateOf<String?>(null)
-    }
-
-    var presentOrAbsentInAlertDialog by remember{
         mutableStateOf<String?>(null)
     }
 
@@ -55,9 +58,16 @@ fun LogsScreen(
         mutableStateOf<Int?>(null)
     }
 
-
     val coroutineScope = rememberCoroutineScope()
 
+
+    LaunchedEffect(Unit){
+        classAttendanceViewModel.logsList.collectLatest{
+            if(it.isNotEmpty()){
+                lazyScrollState.scrollToItem(it.size-1)
+            }
+        }
+    }
 
     // Making Log Dialog Box
     if(showAddLogsAlertDialog.value){
@@ -103,7 +113,7 @@ fun LogsScreen(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                reverseLayout = true,
+                state = lazyScrollState
             ){
                 items(
                     logsList.value.filter{
@@ -112,9 +122,8 @@ fun LogsScreen(
                         }else{
                             true
                         }
-                    }.size
-                ){
-                    val currentIndex = logsList.value.size - 1 - it
+                    }
+                ){ currentLog ->
                     var showOverFlowMenu by remember{ mutableStateOf(false) }
                     var showAdditionalCardDetails by remember{ mutableStateOf(false) }
 
@@ -144,7 +153,7 @@ fun LogsScreen(
                             ) {
                                 Text(
                                     modifier = if(showAdditionalCardDetails) Modifier.fillMaxWidth() else Modifier.width(80.dp),
-                                    text = logsList.value[currentIndex].subjectName,
+                                    text = currentLog.subjectName,
                                     overflow = if (!showAdditionalCardDetails) {
                                         TextOverflow.Ellipsis
                                     } else {
@@ -161,10 +170,10 @@ fun LogsScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ){
                                         Text(
-                                            text = logsList.value[currentIndex].day + " | " + logsList.value[currentIndex].month + " " + logsList.value[currentIndex].date.toString() + "," + logsList.value[currentIndex].year.toString(),
+                                            text = currentLog.day + " | " + currentLog.month + " " + currentLog.date.toString() + "," + currentLog.year.toString(),
                                         )
                                         Text(
-                                            when (logsList.value[currentIndex].wasPresent) {
+                                            when (currentLog.wasPresent) {
                                                 true -> stringResource(R.string.present)
                                                 else -> stringResource(R.string.absent)
                                             }
@@ -208,42 +217,42 @@ fun LogsScreen(
                                         horizontalAlignment = Alignment.End
                                     ) {
                                         Text(
-                                            "${logsList.value[currentIndex].month} ${logsList.value[currentIndex].date}, ${logsList.value[currentIndex].year}"
+                                            "${currentLog.month} ${currentLog.date}, ${currentLog.year}"
                                         )
                                         Spacer(modifier = Modifier.height(10.dp))
                                         Text(
                                             "${
-                                                if (logsList.value[currentIndex].hour < 10) "0${logsList.value[currentIndex].hour}"
-                                                else logsList.value[currentIndex].hour
+                                                if (currentLog.hour < 10) "0${currentLog.hour}"
+                                                else currentLog.hour
                                             }:${
-                                                if (logsList.value[currentIndex].minute < 10) "0${logsList.value[currentIndex].minute}"
-                                                else logsList.value[currentIndex].minute
+                                                if (currentLog.minute < 10) "0${currentLog.minute}"
+                                                else currentLog.minute
                                             }"
                                         )
                                         Spacer(modifier = Modifier.height(10.dp))
                                         Text(
-                                            logsList.value[currentIndex].day
+                                            currentLog.day
                                         )
                                         Spacer(modifier = Modifier.height(10.dp))
 
                                         Text(
-                                            when (logsList.value[currentIndex].wasPresent) {
+                                            when (currentLog.wasPresent) {
                                                 true -> stringResource(R.string.present)
                                                 else -> stringResource(R.string.absent)
                                             }
                                         )
                                         Spacer(modifier = Modifier.height(10.dp))
                                         Text(
-                                            logsList.value[currentIndex].latitude?.let{
+                                            currentLog.latitude?.let{
                                                 String.format("%.5f",
-                                                    logsList.value[currentIndex].latitude)
+                                                    currentLog.latitude)
                                             }?: "Unknown"
                                         )
                                         Spacer(modifier = Modifier.height(10.dp))
                                         Text(
-                                            logsList.value[currentIndex].longitude?.let{
+                                            currentLog.longitude?.let{
                                                 String.format("%.5f",
-                                                    logsList.value[currentIndex].longitude)
+                                                    currentLog.longitude)
                                             } ?: "Unknown"
                                         )
                                     }
@@ -260,7 +269,7 @@ fun LogsScreen(
                                 DropdownMenuItem(
                                     onClick = {
                                         coroutineScope.launch {
-                                            classAttendanceViewModel.deleteLogs(logsList.value[currentIndex]._id)
+                                            classAttendanceViewModel.deleteLogs(currentLog._id)
                                         }
                                         showOverFlowMenu = false
                                     }
@@ -269,19 +278,17 @@ fun LogsScreen(
                                 }
                                 DropdownMenuItem(
                                     onClick = {
-                                        editingLog = logsList.value[currentIndex]._id
+                                        editingLog = currentLog._id
 
                                         subjectIdInAlertDialog =
-                                            logsList.value[currentIndex].subjectId
+                                            currentLog.subjectId
                                         subjectNameInAlertDialog =
-                                            logsList.value[currentIndex].subjectName
-                                        presentOrAbsentInAlertDialog =
-                                            if (logsList.value[currentIndex].wasPresent) "Present" else "Absent"
-                                        classAttendanceViewModel.changeCurrentYear(logsList.value[currentIndex].year)
-                                        classAttendanceViewModel.changeCurrentMonth(logsList.value[currentIndex].monthNumber)
-                                        classAttendanceViewModel.changeCurrentDay(logsList.value[currentIndex].date)
-                                        classAttendanceViewModel.changeCurrentHour(logsList.value[currentIndex].hour)
-                                        classAttendanceViewModel.changeCurrentMinute(logsList.value[currentIndex].minute)
+                                            currentLog.subjectName
+                                        classAttendanceViewModel.changeCurrentYear(currentLog.year)
+                                        classAttendanceViewModel.changeCurrentMonth(currentLog.monthNumber)
+                                        classAttendanceViewModel.changeCurrentDay(currentLog.date)
+                                        classAttendanceViewModel.changeCurrentHour(currentLog.hour)
+                                        classAttendanceViewModel.changeCurrentMinute(currentLog.minute)
 
                                         classAttendanceViewModel.changeFloatingButtonClickedState(
                                             state = true,

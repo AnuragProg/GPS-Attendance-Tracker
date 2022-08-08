@@ -38,8 +38,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SubjectsScreen(
-    classAttendanceViewModel: ClassAttendanceViewModel
-){
+    classAttendanceViewModel: ClassAttendanceViewModel,
+) {
 
     val context = LocalContext.current
 
@@ -47,44 +47,47 @@ fun SubjectsScreen(
 
     val searchBarText = classAttendanceViewModel.searchBarText.collectAsState()
 
-    val isInitialSubjectDataRetrievalDone = classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
+    val isInitialSubjectDataRetrievalDone =
+        classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
     val showAddSubjectDialog = classAttendanceViewModel.floatingButtonClicked.collectAsState()
 
-    var subjectNameTextField by remember{
+    var subjectNameTextField by remember {
         mutableStateOf("")
     }
 
-    var initialPresent by remember{
+    var initialPresent by remember {
         mutableStateOf("0")
     }
-    var initialAbsent by remember{
+    var initialAbsent by remember {
         mutableStateOf("0")
     }
 
-    var latitude by remember{
+    var latitude by remember {
         mutableStateOf("")
     }
-    var longitude by remember{
+    var longitude by remember {
+        mutableStateOf("")
+    }
+    var range by remember {
         mutableStateOf("")
     }
 
-    val startAttendanceArcAnimation = classAttendanceViewModel.startAttendanceArcAnimation.collectAsState()
+    val startAttendanceArcAnimation =
+        classAttendanceViewModel.startAttendanceArcAnimation.collectAsState()
     /*
     number -> subject Id to updated that subject
     null -> if(null)not updating else updating
      */
-    var editingSubject by remember{
+    var editingSubject by remember {
         mutableStateOf<Int?>(null)
     }
 
 
-
-
     // Alert Dialog -> To add new subject
-    if(showAddSubjectDialog.value){
+    if (showAddSubjectDialog.value) {
         AlertDialog(
             onDismissRequest = {
                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
@@ -94,15 +97,16 @@ fun SubjectsScreen(
                 editingSubject = null
                 latitude = ""
                 longitude = ""
+                range = ""
             },
             text = {
-                Column{
+                Column {
                     Text(
                         text = stringResource(R.string.add_new_subject),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
                     OutlinedTextField(
                         value = subjectNameTextField,
                         onValueChange = { subjectNameTextField = it },
@@ -110,14 +114,27 @@ fun SubjectsScreen(
                             Text(stringResource(R.string.subject_name) + " (Required)")
                         },
                         maxLines = 1,
-
-                        )
-                    Spacer(modifier = Modifier.height(10.dp))
+                        trailingIcon = {
+                            if(subjectNameTextField.isNotEmpty()){
+                                IconButton(
+                                    onClick = {
+                                        subjectNameTextField = ""
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Clear,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(5.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
-                    ){
-                        Box{
+                    ) {
+                        Box {
                             OutlinedTextField(
                                 modifier = Modifier.defaultMinSize(minWidth = 40.dp),
                                 value = initialPresent,
@@ -134,19 +151,20 @@ fun SubjectsScreen(
                             )
                             Box(
                                 modifier = Modifier.matchParentSize()
-                            ){
+                            ) {
                                 Column(
                                     modifier = Modifier
                                         .matchParentSize()
-                                        .padding(end = 5.dp, top = 2.dp),
+                                        .padding(top = 10.dp, end = 10.dp),
                                     horizontalAlignment = Alignment.End,
                                     verticalArrangement = Arrangement.Center
-                                ){
+                                ) {
                                     Icon(
-                                        modifier = Modifier.clickable{
-                                            try{
-                                                initialPresent = (initialPresent.toLong() + 1).toString()
-                                            }catch(e: NumberFormatException){
+                                        modifier = Modifier.clickable {
+                                            try {
+                                                initialPresent =
+                                                    (initialPresent.toLong() + 1).toString()
+                                            } catch (e: NumberFormatException) {
 
                                             }
                                         },
@@ -154,12 +172,13 @@ fun SubjectsScreen(
                                         contentDescription = null
                                     )
                                     Icon(
-                                        modifier = Modifier.clickable{
-                                            try{
-                                                if(initialPresent.toLong() > 0){
-                                                    initialPresent = (initialPresent.toLong() -1).toString()
+                                        modifier = Modifier.clickable {
+                                            try {
+                                                if (initialPresent.toLong() > 0) {
+                                                    initialPresent =
+                                                        (initialPresent.toLong() - 1).toString()
                                                 }
-                                            }catch(e: NumberFormatException){
+                                            } catch (e: NumberFormatException) {
 
                                             }
                                         },
@@ -170,7 +189,7 @@ fun SubjectsScreen(
                             }
 
                         }
-                        Box{
+                        Box {
                             OutlinedTextField(
                                 modifier = Modifier.defaultMinSize(minWidth = 40.dp),
                                 value = initialAbsent,
@@ -187,18 +206,20 @@ fun SubjectsScreen(
                             )
                             Box(
                                 modifier = Modifier.matchParentSize()
-                            ){
+                            ) {
                                 Column(
-                                    modifier = Modifier.matchParentSize()
-                                        .padding(end=5.dp,top=2.dp),
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .padding(end = 10.dp, top = 10.dp),
                                     horizontalAlignment = Alignment.End,
                                     verticalArrangement = Arrangement.Center
-                                ){
+                                ) {
                                     Icon(
-                                        modifier = Modifier.clickable{
-                                            try{
-                                                initialPresent = (initialPresent.toLong() + 1).toString()
-                                            }catch(e: NumberFormatException){
+                                        modifier = Modifier.clickable {
+                                            try {
+                                                initialAbsent =
+                                                    (initialAbsent.toLong() + 1).toString()
+                                            } catch (e: NumberFormatException) {
 
                                             }
                                         },
@@ -206,12 +227,13 @@ fun SubjectsScreen(
                                         contentDescription = null
                                     )
                                     Icon(
-                                        modifier = Modifier.clickable{
-                                            try{
-                                                if(initialPresent.toLong() > 0){
-                                                    initialPresent = (initialPresent.toLong() -1).toString()
+                                        modifier = Modifier.clickable {
+                                            try {
+                                                if (initialAbsent.toLong() > 0) {
+                                                    initialAbsent =
+                                                        (initialAbsent.toLong() - 1).toString()
                                                 }
-                                            }catch(e: NumberFormatException){
+                                            } catch (e: NumberFormatException) {
 
                                             }
                                         },
@@ -222,40 +244,105 @@ fun SubjectsScreen(
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
-                    ){
-                        OutlinedTextField(
-                            modifier = Modifier.defaultMinSize(minWidth = 40.dp),
-                            value = latitude,
-                            onValueChange = {
-                                latitude = it
-                            },
-                            label = {
-                                Text(stringResource(R.string.latitude))
-                            },
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Decimal
-                            ),
-                            maxLines = 1
-                        )
-                        OutlinedTextField(
-                            modifier = Modifier.defaultMinSize(minWidth = 40.dp),
-                            value = longitude,
-                            onValueChange = {
-                                longitude = it
-                            },
-                            label = {
-                                Text(stringResource(R.string.longitude))
-                            },
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Decimal
-                            ),
-                            maxLines = 1
-                        )
+                    ) {
+                        Box{
+                            OutlinedTextField(
+                                modifier = Modifier.defaultMinSize(minWidth = 50.dp),
+                                value = latitude,
+                                onValueChange = {
+                                    latitude = it
+                                },
+                                label = {
+                                    Text(stringResource(R.string.latitude))
+                                },
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Decimal
+                                ),
+                                maxLines = 1
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .padding(end = 8.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ){
+                                if(latitude.isNotEmpty()){
+                                    Icon(
+                                        modifier = Modifier.clickable {
+                                            latitude = ""
+                                        },
+                                        imageVector = Icons.Filled.Clear,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+
+                        }
+                        Box{
+                            OutlinedTextField(
+                                modifier = Modifier.defaultMinSize(minWidth = 50.dp),
+                                value = longitude,
+                                onValueChange = {
+                                    longitude = it
+                                },
+                                label = {
+                                    Text(stringResource(R.string.longitude))
+                                },
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Decimal
+                                ),
+                                maxLines = 1
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .padding(end = 8.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ){
+                                if(longitude.isNotEmpty()){
+                                    Icon(
+                                        modifier = Modifier.clickable {
+                                            longitude = ""
+                                        },
+                                        imageVector = Icons.Filled.Clear,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+                        }
                     }
+                    OutlinedTextField(
+
+                        value = range,
+                        onValueChange = {
+                            range = it
+                        },
+                        label = {
+                            Text(stringResource(R.string.rangeInM))
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal
+                        ),
+                        maxLines = 1,
+                        trailingIcon = {
+                            if(range.isNotEmpty()){
+                                IconButton(
+                                    onClick = {
+                                        range = ""
+                                    }
+                                ){
+                                    Icon(
+                                        imageVector = Icons.Filled.Clear,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+                        }
+                    )
                 }
             },
             buttons = {
@@ -264,72 +351,72 @@ fun SubjectsScreen(
                         .fillMaxWidth()
                         .padding(10.dp),
                     contentAlignment = Alignment.CenterEnd
-                ){
-                    Row{
+                ) {
+                    Row {
                         TextButton(
                             onClick = {
-                                coroutineScope.launch{
-                                    if(subjectNameTextField.isBlank()){
-                                        Toast.makeText(context, "Subject Name can't be empty!", Toast.LENGTH_SHORT).show()
+                                coroutineScope.launch {
+                                    if (subjectNameTextField.isBlank()) {
+                                        Toast.makeText(context,
+                                            "Subject Name can't be empty!",
+                                            Toast.LENGTH_SHORT).show()
                                         return@launch
                                     }
-                                    if(editingSubject!=null){
-                                        try{
-                                            val daysPresent = if(initialPresent.isBlank()) 0 else initialPresent.toLong()
-                                            val daysAbsent = if(initialAbsent.isBlank()) 0 else initialAbsent.toLong()
-                                            val lat = latitude.toDouble()
-                                            val lon = longitude.toDouble()
+                                    try {
+                                        val daysPresent =
+                                            if (initialPresent.isBlank()) 0 else initialPresent.toLong()
+                                        val daysAbsent =
+                                            if (initialAbsent.isBlank()) 0 else initialAbsent.toLong()
+                                        val lat = if(latitude.isBlank()) null else latitude.toDouble()
+                                        val lon = if(longitude.isBlank()) null else longitude.toDouble()
+                                        val ran = if(range.isBlank()) null else range.toDouble()
+
+
+                                        if (editingSubject != null) {
+                                            val subject = classAttendanceViewModel.getSubjectWithId(
+                                                editingSubject!!)!!
                                             classAttendanceViewModel.updateSubject(
                                                 Subject(
-                                                    _id = editingSubject!!,
+                                                    _id = subject._id,
                                                     subjectName = subjectNameTextField,
                                                     daysPresent = daysPresent,
                                                     daysAbsent = daysAbsent,
+                                                    daysPresentOfLogs = subject.daysPresentOfLogs,
+                                                    daysAbsentOfLogs = subject.daysAbsentOfLogs,
                                                     latitude = lat,
-                                                    longitude = lon
+                                                    longitude = lon,
+                                                    range = ran
                                                 )
                                             )
-                                            classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-
-                                            subjectNameTextField = ""
-                                            initialPresent = 0.toString()
-                                            initialAbsent = 0.toString()
-                                            editingSubject = null
-                                            latitude = ""
-                                            longitude = ""
-
-                                        }catch(e: NumberFormatException){
-                                            Toast.makeText(context, "Please enter valid information!", Toast.LENGTH_SHORT).show()
-                                        }
-                                    }else{
-                                        try{
-                                            val daysPresent = if(initialPresent.isBlank()) 0 else initialPresent.toLong()
-                                            val daysAbsent = if(initialAbsent.isBlank()) 0 else initialAbsent.toLong()
-                                            val lat = latitude.toDouble()
-                                            val lon = longitude.toDouble()
+                                        } else {
                                             classAttendanceViewModel.insertSubject(
                                                 Subject(
                                                     _id = 0,
                                                     subjectName = subjectNameTextField,
                                                     daysPresent = daysPresent,
                                                     daysAbsent = daysAbsent,
+                                                    daysPresentOfLogs = 0,
+                                                    daysAbsentOfLogs = 0,
                                                     latitude = lat,
-                                                    longitude = lon
+                                                    longitude = lon,
+                                                    range = ran
                                                 )
                                             )
-                                            classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-
-                                            subjectNameTextField = ""
-                                            initialPresent = 0.toString()
-                                            initialAbsent = 0.toString()
-                                            editingSubject = null
-                                            latitude = ""
-                                            longitude = ""
-
-                                        }catch(e: NumberFormatException){
-                                            Toast.makeText(context, "Please enter integer's only!", Toast.LENGTH_SHORT).show()
                                         }
+                                        classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
 
+                                        subjectNameTextField = ""
+                                        initialPresent = 0.toString()
+                                        initialAbsent = 0.toString()
+                                        editingSubject = null
+                                        latitude = ""
+                                        longitude = ""
+                                        range = ""
+
+                                    } catch (e: NumberFormatException) {
+                                        Toast.makeText(context,
+                                            "Please enter valid information!",
+                                            Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
@@ -346,6 +433,7 @@ fun SubjectsScreen(
                                 editingSubject = null
                                 latitude = ""
                                 longitude = ""
+                                range = ""
                             }
                         ) {
                             Text(stringResource(R.string.cancel))
@@ -355,13 +443,13 @@ fun SubjectsScreen(
             }
         )
     }
-    
-    if(subjectsList.value.isEmpty() && isInitialSubjectDataRetrievalDone.value){
+
+    if (subjectsList.value.isEmpty() && isInitialSubjectDataRetrievalDone.value) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
-        ){
+        ) {
             Image(
                 modifier = Modifier.size(150.dp),
                 painter = painterResource(id = R.drawable.subjects),
@@ -373,34 +461,32 @@ fun SubjectsScreen(
                 color = Color.White
             )
         }
-    } else if(subjectsList.value.isEmpty() && !isInitialSubjectDataRetrievalDone.value){
+    } else if (subjectsList.value.isEmpty() && !isInitialSubjectDataRetrievalDone.value) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             CircularProgressIndicator()
         }
-    }else{
+    } else {
         // Original Ui
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ){
+        Box{
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
-            ){
+            ) {
                 items(
-                    subjectsList.value.filter{
-                        if(searchBarText.value.isNotBlank()){
+                    subjectsList.value.filter {
+                        if (searchBarText.value.isNotBlank()) {
                             searchBarText.value.lowercase() in it.subjectName.lowercase()
-                        }else{
+                        } else {
                             true
                         }
                     }
-                ){
-                    var showOverFlowMenu by remember{ mutableStateOf(false) }
-                    var showAdditionalCardDetails by remember{ mutableStateOf(false) }
+                ) { currentSubject ->
+                    var showOverFlowMenu by remember { mutableStateOf(false) }
+                    var showAdditionalCardDetails by remember { mutableStateOf(false) }
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -423,9 +509,9 @@ fun SubjectsScreen(
                         ) {
                             DropdownMenuItem(
                                 onClick = {
-                                    coroutineScope.launch{
+                                    coroutineScope.launch {
                                         classAttendanceViewModel.deleteSubject(
-                                            it._id,
+                                            currentSubject._id,
                                             context
                                         )
                                     }
@@ -437,12 +523,15 @@ fun SubjectsScreen(
                             DropdownMenuItem(
                                 onClick = {
                                     showOverFlowMenu = false
-                                    subjectNameTextField = it.subjectName
-                                    initialPresent = it.daysPresent.toString()
-                                    initialAbsent = it.daysAbsent.toString()
-                                    editingSubject = it._id
-                                    latitude = it.latitude.toString()
-                                    longitude = it.longitude.toString()
+                                    subjectNameTextField = currentSubject.subjectName
+                                    initialPresent = currentSubject.daysPresent.toString()
+                                    initialAbsent = currentSubject.daysAbsent.toString()
+                                    editingSubject = currentSubject._id
+                                    latitude =
+                                        if (currentSubject.latitude == null) "" else currentSubject.latitude.toString()
+                                    longitude =
+                                        if (currentSubject.longitude == null) "" else currentSubject.longitude.toString()
+                                    range = if (currentSubject.range == null) "" else currentSubject.range.toString()
                                     classAttendanceViewModel.changeFloatingButtonClickedState(true)
                                 }
                             ) {
@@ -453,29 +542,28 @@ fun SubjectsScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(10.dp)
-                            ,
-                        ){
+                                .padding(10.dp),
+                        ) {
                             Box(
                                 contentAlignment = Alignment.CenterStart
-                            ){
+                            ) {
                                 Text(
                                     modifier = Modifier.width(200.dp),
-                                    text = it.subjectName,
+                                    text = currentSubject.subjectName,
                                     overflow = TextOverflow.Ellipsis,
                                     maxLines = 1
                                 )
                                 Box(
                                     modifier = Modifier.fillMaxWidth(),
                                     contentAlignment = Alignment.CenterEnd
-                                ){
+                                ) {
 
                                     Box(
                                         modifier = Modifier.size(60.dp),
                                         contentAlignment = Alignment.Center
-                                    ){
+                                    ) {
                                         val target = animateFloatAsState(
-                                            targetValue = if(startAttendanceArcAnimation.value) it.attendancePercentage.toFloat() else 0f,
+                                            targetValue = if (startAttendanceArcAnimation.value) currentSubject.attendancePercentage.toFloat() else 0f,
                                             animationSpec = tween(
                                                 durationMillis = 1000,
                                                 delayMillis = 50
@@ -483,13 +571,13 @@ fun SubjectsScreen(
                                         )
 
                                         val arcColor = animateColorAsState(
-                                            targetValue = if(target.value < 75f) Color.Red else Color.Green
+                                            targetValue = if (target.value < 75f) Color.Red else Color.Green
                                         )
-                                        Canvas(modifier = Modifier.size(60.dp)){
+                                        Canvas(modifier = Modifier.size(60.dp)) {
                                             drawArc(
                                                 color = arcColor.value,
                                                 startAngle = 270f,
-                                                sweepAngle = 360 * target.value/100,
+                                                sweepAngle = 360 * target.value / 100,
                                                 useCenter = false,
                                                 size = this.size,
                                                 style = Stroke(15f, cap = StrokeCap.Round)
@@ -497,8 +585,8 @@ fun SubjectsScreen(
                                         }
                                         Text("${String.format("%.1f", target.value)}%")
                                     }
-                                    LaunchedEffect(Unit){
-                                        if(!startAttendanceArcAnimation.value){
+                                    LaunchedEffect(Unit) {
+                                        if (!startAttendanceArcAnimation.value) {
                                             classAttendanceViewModel.startAttendanceArcAnimationInitiate()
                                         }
                                     }
@@ -507,71 +595,112 @@ fun SubjectsScreen(
                             AnimatedVisibility(
                                 visible = showAdditionalCardDetails
                             ) {
-                                Box{
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalAlignment = Alignment.Start,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Text("Days Present :")
-                                        Spacer(modifier = Modifier.height(10.dp))
 
-                                        Text("Days Present Through Logs :")
-                                        Spacer(modifier = Modifier.height(10.dp))
+                                Column{
 
-                                        Text("Days Absent :")
-                                        Spacer(modifier = Modifier.height(10.dp))
+                                    Box{
 
-                                        Text("Days Absent Through Logs :")
-                                        Spacer(modifier = Modifier.height(10.dp))
+                                        Column(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalAlignment = Alignment.Start,
+                                            verticalArrangement = Arrangement.Center
+                                        ) {
 
-                                        Text("Total Presents :")
-                                        Spacer(modifier = Modifier.height(10.dp))
+                                            Text("Latitude :")
+                                            Spacer(modifier = Modifier.height(5.dp))
 
-                                        Text("Total Absents :")
-                                        Spacer(modifier = Modifier.height(10.dp))
+                                            Text("Longitude :")
+                                            Spacer(modifier = Modifier.height(5.dp))
 
-                                        Text("Total Days :")
+                                            Text("Range(in meter) :")
+                                            Spacer(modifier = Modifier.height(5.dp))
 
-                                    }
-                                }
-                                Box{
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalAlignment = Alignment.End,
-                                        verticalArrangement = Arrangement.Center
-                                    ){
-                                        Text("${it.daysPresent}")
-                                        Spacer(modifier = Modifier.height(10.dp))
+                                            Text("Days Present :")
+                                            Spacer(modifier = Modifier.height(5.dp))
 
-                                        Text("${ it.daysPresentOfLogs }")
-                                        Spacer(modifier = Modifier.height(10.dp))
+                                            Text("Days Present Through Logs :")
+                                            Spacer(modifier = Modifier.height(5.dp))
 
-                                        Text("${it.daysAbsent}")
-                                        Spacer(modifier = Modifier.height(10.dp))
+                                            Text("Days Absent :")
+                                            Spacer(modifier = Modifier.height(5.dp))
 
-                                        Text("${it.daysAbsentOfLogs}")
-                                        Spacer(modifier = Modifier.height(10.dp))
+                                            Text("Days Absent Through Logs :")
+                                            Spacer(modifier = Modifier.height(5.dp))
 
-                                        Text(
-                                            "${
-                                                it.daysPresent + it.daysPresentOfLogs
-                                            }"
-                                        )
-                                        Spacer(modifier = Modifier.height(10.dp))
+                                            Text("Total Presents :")
+                                            Spacer(modifier = Modifier.height(5.dp))
 
-                                        Text(
-                                            "${
-                                                it.daysAbsent + it.daysAbsentOfLogs
-                                            }"
-                                        )
-                                        Spacer(modifier = Modifier.height(10.dp))
+                                            Text("Total Absents :")
+                                            Spacer(modifier = Modifier.height(5.dp))
 
-                                        Text(
-                                            "${
-                                                it.daysPresent + it.daysPresentOfLogs + it.daysAbsent + it.daysAbsentOfLogs
-                                            }"
-                                        )
+                                            Text("Total Days :")
+
+                                        }
+                                        Column(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalAlignment = Alignment.End,
+                                            verticalArrangement = Arrangement.Center
+                                        ) {
+                                            Text(
+                                                if (currentSubject.latitude == null) {
+                                                    "None"
+                                                } else {
+                                                    "${currentSubject.latitude}"
+                                                }
+                                            )
+                                            Spacer(modifier = Modifier.height(5.dp))
+
+                                            Text(
+                                                if (currentSubject.longitude == null) {
+                                                    "None"
+                                                } else {
+                                                    "${currentSubject.longitude}"
+                                                }
+                                            )
+                                            Spacer(modifier = Modifier.height(5.dp))
+
+                                            Text(
+                                                if (currentSubject.range == null) {
+                                                    "None"
+                                                } else {
+                                                    "${currentSubject.range}"
+                                                }
+                                            )
+                                            Spacer(modifier = Modifier.height(5.dp))
+
+                                            Text("${currentSubject.daysPresent}")
+                                            Spacer(modifier = Modifier.height(5.dp))
+
+                                            Text("${currentSubject.daysPresentOfLogs}")
+                                            Spacer(modifier = Modifier.height(5.dp))
+
+                                            Text("${currentSubject.daysAbsent}")
+                                            Spacer(modifier = Modifier.height(5.dp))
+
+                                            Text("${currentSubject.daysAbsentOfLogs}")
+                                            Spacer(modifier = Modifier.height(5.dp))
+
+                                            Text(
+                                                "${
+                                                    currentSubject.daysPresent + currentSubject.daysPresentOfLogs
+                                                }"
+                                            )
+                                            Spacer(modifier = Modifier.height(5.dp))
+
+                                            Text(
+                                                "${
+                                                    currentSubject.daysAbsent + currentSubject.daysAbsentOfLogs
+                                                }"
+                                            )
+                                            Spacer(modifier = Modifier.height(5.dp))
+
+                                            Text(
+                                                "${
+                                                    currentSubject.daysPresent + currentSubject.daysPresentOfLogs + currentSubject.daysAbsent + currentSubject.daysAbsentOfLogs
+                                                }"
+                                            )
+                                        }
+
                                     }
                                 }
                             }
@@ -582,4 +711,3 @@ fun SubjectsScreen(
         }
     }
 }
-

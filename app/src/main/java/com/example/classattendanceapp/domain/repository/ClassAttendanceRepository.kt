@@ -1,6 +1,5 @@
 package com.example.classattendanceapp.domain.repository
 
-import androidx.datastore.preferences.core.Preferences
 import com.example.classattendanceapp.data.models.Logs
 import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.data.models.TimeTable
@@ -50,11 +49,5 @@ interface ClassAttendanceRepository {
     suspend fun getTimeTableWithId(id: Int): TimeTable?
 
     fun getTimeTableWithSubjectId(subjectId: Int): Flow<List<TimeTable>>
-
-    suspend fun writeOrUpdateCoordinateInDataStore(key: Preferences.Key<Double>, value: Double)
-
-    suspend fun getCoordinateInDataStore(key: Preferences.Key<Double>): Flow<Double?>
-
-    suspend fun deleteCoordinateInDataStore(key: Preferences.Key<Double>)
 
 }

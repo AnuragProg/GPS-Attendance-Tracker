@@ -16,9 +16,11 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.example.classattendanceapp.R
+import com.example.classattendanceapp.data.db.ClassAttendanceDao
 import com.example.classattendanceapp.data.db.ClassAttendanceDatabase
 import com.example.classattendanceapp.data.models.Logs
 import com.example.classattendanceapp.data.models.TimeTable
+import com.example.classattendanceapp.domain.repository.ClassAttendanceRepository
 import com.example.classattendanceapp.domain.utils.location.ClassLocationManager
 import com.example.classattendanceapp.domain.utils.maths.CoordinateCalculations
 import com.example.classattendanceapp.domain.utils.notifications.NotificationHandler
@@ -35,12 +37,8 @@ import java.util.*
 class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val dataStore: DataStore<Preferences>
+    private val classAttendanceRepository: ClassAttendanceRepository
 ) : CoroutineWorker(context, workerParameters){
-
-    private val longitudeDataStoreKey = doublePreferencesKey("userLongitude")
-    private val latitudeDataStoreKey = doublePreferencesKey("userLatitude")
-    private val rangeDataStoreKey = doublePreferencesKey("userRange")
 
     private val foregroundNotificationChannelId = "FOREGROUNDLOCATIONNOTIFICATIONCHANNEL"
     private val foregroundNotificaitionId = -10
@@ -104,18 +102,13 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
             }
         }
 
-        val userSpecifiedLocation = combine(
-            dataStore.data.map { pref ->
-                pref[latitudeDataStoreKey] },
-            dataStore.data.map { pref ->
-                pref[longitudeDataStoreKey] },
-            dataStore.data.map { pref ->
-                pref[rangeDataStoreKey] }
-        ) { lat, lon, range ->
-            Triple(lat, lon, range)
-        }.first()
+        val subjectWithId = classAttendanceRepository.getSubjectWithId(subjectId)
+        val userSpecifiedLocation = Triple(
+            first = subjectWithId?.latitude,
+            second = subjectWithId?.longitude,
+            third = subjectWithId?.range,
+        )
 
-        // Getting Institute Location from datastore
         // if no userSpecifiedLocation found in datastore
         if(userSpecifiedLocation.first==null || userSpecifiedLocation.second==null || userSpecifiedLocation.third==null){
             createNotificationChannelAndShowNotification(
@@ -140,11 +133,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 )
             }
             else{
-                // Dao instance to mark either Absent or Present
-                val classAttendanceDao =
-                    ClassAttendanceDatabase.getInstance(context).classAttendanceDao
-
-
                 val distance = CoordinateCalculations.distanceBetweenPointsInM(
                     lat1 = currentLocation.latitude,
                     long1 = currentLocation.longitude,
@@ -152,12 +140,12 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                     long2 = userSpecifiedLocation.second!!,
                 )
                 if (distance <= userSpecifiedLocation.third!!) {
-                    val subjectWithId = classAttendanceDao.getSubjectWithId(subjectId)
+                    val subjectWithId = classAttendanceRepository.getSubjectWithId(subjectId)
                     subjectWithId!!.daysPresentOfLogs++
-                    classAttendanceDao.insertSubject(
+                    classAttendanceRepository.insertSubject(
                         subjectWithId
                     )
-                    val logsId = classAttendanceDao.insertLogs(
+                    val logsId = classAttendanceRepository.insertLogs(
                         Logs(
                             0,
                             subjectId,
@@ -185,12 +173,12 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             distance)
                     )
                 } else {
-                    val subjectWithId = classAttendanceDao.getSubjectWithId(subjectId)
+                    val subjectWithId = classAttendanceRepository.getSubjectWithId(subjectId)
                     subjectWithId!!.daysAbsentOfLogs++
-                    classAttendanceDao.insertSubject(
+                    classAttendanceRepository.insertSubject(
                         subjectWithId
                     )
-                    val logsId = classAttendanceDao.insertLogs(
+                    val logsId = classAttendanceRepository.insertLogs(
                         Logs(
                             0,
                             subjectId,
