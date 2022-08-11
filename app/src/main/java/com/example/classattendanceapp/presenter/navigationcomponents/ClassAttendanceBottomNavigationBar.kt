@@ -45,7 +45,7 @@ fun ClassAttendanceBottomNavigationBar(
     LaunchedEffect(Unit){
         navController.currentBackStackEntryFlow.collectLatest{
             currentCutOutSize = when(it.destination.route){
-                Screens.SETTINGSSCREEN.route -> {
+                Screens.MAPSSCREEN.route -> {
                     0.dp
                 }
                 else -> {

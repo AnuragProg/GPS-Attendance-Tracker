@@ -15,6 +15,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.models.Logs
 import com.example.classattendanceapp.presenter.utils.DateToSimpleFormat
@@ -28,6 +30,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.util.*
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun LogsScreenAlertDialog(
     classAttendanceViewModel: ClassAttendanceViewModel,
@@ -38,13 +41,13 @@ fun LogsScreenAlertDialog(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val isInitialLogDataRetrievalDone = classAttendanceViewModel.isInitialLogDataRetrievalDone.collectAsState()
+    val isInitialLogDataRetrievalDone = classAttendanceViewModel.isInitialLogDataRetrievalDone.collectAsStateWithLifecycle()
 
-    val selectedYear = classAttendanceViewModel.currentYear.collectAsState()
-    val selectedMonth = classAttendanceViewModel.currentMonth.collectAsState()
-    val selectedDay = classAttendanceViewModel.currentDay.collectAsState()
-    val selectedHour = classAttendanceViewModel.currentHour.collectAsState()
-    val selectedMinute = classAttendanceViewModel.currentMinute.collectAsState()
+    val selectedYear = classAttendanceViewModel.currentYear.collectAsStateWithLifecycle()
+    val selectedMonth = classAttendanceViewModel.currentMonth.collectAsStateWithLifecycle()
+    val selectedDay = classAttendanceViewModel.currentDay.collectAsStateWithLifecycle()
+    val selectedHour = classAttendanceViewModel.currentHour.collectAsStateWithLifecycle()
+    val selectedMinute = classAttendanceViewModel.currentMinute.collectAsStateWithLifecycle()
 
     var showAddLogsSubjectNameAlertDialog by remember{
         mutableStateOf(false)

@@ -3,7 +3,6 @@ package com.example.classattendanceapp.presenter.navigationcomponents
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
@@ -26,7 +25,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.presenter.screens.logsscreen.LogsScreen
-import com.example.classattendanceapp.presenter.screens.settingsscreen.SettingsScreen
+import com.example.classattendanceapp.presenter.screens.mapsscreen.MapsScreen
 import com.example.classattendanceapp.presenter.screens.subjectsscreen.SubjectsScreen
 import com.example.classattendanceapp.presenter.screens.timetablescreen.TimeTableScreen
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
@@ -70,7 +69,7 @@ fun ClassAttendanceNavigationHost(){
     LaunchedEffect(Unit){
         navController.currentBackStackEntryFlow.collectLatest{
             currentFloatingActionButtonIcon = when(it.destination.route){
-                Screens.SETTINGSSCREEN.route ->{
+                Screens.MAPSSCREEN.route ->{
                     Icons.Filled.Save
                 }
                 else -> {
@@ -79,7 +78,7 @@ fun ClassAttendanceNavigationHost(){
             }
 
             showFloatingActionButton = when(it.destination.route){
-                Screens.SETTINGSSCREEN.route -> false
+                Screens.MAPSSCREEN.route -> false
                 else -> true
             }
         }
@@ -113,7 +112,7 @@ fun ClassAttendanceNavigationHost(){
                     modifier = Modifier.size(50.dp),
                     onClick = {
                         if (
-                            currentBackStackEntry.value?.destination?.route != Screens.SETTINGSSCREEN.route
+                            currentBackStackEntry.value?.destination?.route != Screens.MAPSSCREEN.route
                         ) {
                             classAttendanceViewModel.changeFloatingButtonClickedState(true)
                         }
@@ -215,11 +214,11 @@ fun ClassAttendanceNavigationHost(){
                     TimeTableScreen(classAttendanceViewModel)
                 }
                 
-                composable(Screens.SETTINGSSCREEN.route){
+                composable(Screens.MAPSSCREEN.route){
                     BackHandler(enabled=true) {
                         context.moveTaskToBack(true)
                     }
-                    SettingsScreen(classAttendanceViewModel)
+                    MapsScreen(classAttendanceViewModel)
                 }
             }
         }

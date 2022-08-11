@@ -77,7 +77,7 @@ fun ClassAttendanceTopBar(
 
             if(currentBackStackEntry.value?.destination?.route in listOf(
                     Screens.TIMETABLESCREEN.route,
-                    Screens.SETTINGSSCREEN.route
+                    Screens.MAPSSCREEN.route
             )){
 
             }

@@ -5,6 +5,10 @@ import android.os.PersistableBundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleObserver
 import com.example.classattendanceapp.presenter.navigationcomponents.ClassAttendanceNavigationHost
 import com.example.classattendanceapp.ui.theme.ClassAttendanceAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,7 +23,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ClassAttendanceAppTheme{
-
                 ClassAttendanceNavigationHost()
             }
         }

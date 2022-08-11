@@ -6,8 +6,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -21,7 +19,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.PopupProperties
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.models.TimeTable
 import com.example.classattendanceapp.domain.models.ModifiedSubjects
@@ -35,7 +34,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLifecycleComposeApi::class)
 @Composable
 fun TimeTableScreen(
     classAttendanceViewModel: ClassAttendanceViewModel
@@ -45,7 +44,7 @@ fun TimeTableScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    val showAddTimeTableDialog = classAttendanceViewModel.floatingButtonClicked.collectAsState()
+    val showAddTimeTableDialog = classAttendanceViewModel.floatingButtonClicked.collectAsStateWithLifecycle()
 
     var showSelectDayDropDownMenu by remember{
         mutableStateOf(false)

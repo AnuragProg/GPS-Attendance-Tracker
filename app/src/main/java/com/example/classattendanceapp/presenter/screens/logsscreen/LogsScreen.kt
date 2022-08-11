@@ -19,6 +19,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.domain.models.ModifiedLogs
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
@@ -27,18 +29,18 @@ import kotlinx.coroutines.launch
 
 
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLifecycleComposeApi::class)
 @Composable
 fun LogsScreen(
     classAttendanceViewModel: ClassAttendanceViewModel
 ){
-    val logsList = classAttendanceViewModel.logsList.collectAsState()
+    val logsList = classAttendanceViewModel.logsList.collectAsStateWithLifecycle()
 
-    val isInitialLogDataRetrievalDone = classAttendanceViewModel.isInitialLogDataRetrievalDone.collectAsState()
+    val isInitialLogDataRetrievalDone = classAttendanceViewModel.isInitialLogDataRetrievalDone.collectAsStateWithLifecycle()
 
-    val showAddLogsAlertDialog = classAttendanceViewModel.floatingButtonClicked.collectAsState()
+    val showAddLogsAlertDialog = classAttendanceViewModel.floatingButtonClicked.collectAsStateWithLifecycle()
 
-    val searchBarText = classAttendanceViewModel.searchBarText.collectAsState()
+    val searchBarText = classAttendanceViewModel.searchBarText.collectAsStateWithLifecycle()
 
     val lazyScrollState = rememberLazyListState(
         initialFirstVisibleItemIndex = 0

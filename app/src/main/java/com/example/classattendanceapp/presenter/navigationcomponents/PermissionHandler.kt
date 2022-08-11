@@ -23,7 +23,8 @@ fun PermissionHandler(
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.INTERNET,
                 Manifest.permission.ACCESS_NETWORK_STATE,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
         )
     } else {
@@ -32,7 +33,8 @@ fun PermissionHandler(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.INTERNET,
-                Manifest.permission.ACCESS_NETWORK_STATE
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
         )
     }
@@ -43,23 +45,27 @@ fun PermissionHandler(
         val observer = LifecycleEventObserver{ _ , event ->
             if(event == Lifecycle.Event.ON_START){
                 permissions.permissions.forEach{
-                    if(it.status is PermissionStatus.Denied){
+                    if(it.status is PermissionStatus.Denied || it.status != PermissionStatus.Granted){
+
                         it.launchPermissionRequest()
                     }
                 }
                 permissions.revokedPermissions.forEach{
                     val permission = when(it.permission){
                         Manifest.permission.ACCESS_COARSE_LOCATION ->{
-                            "Location"
+                            "Location Permission"
                         }
                         Manifest.permission.ACCESS_FINE_LOCATION ->{
-                            "Location"
+                            "Location Permission"
                         }
                         Manifest.permission.ACCESS_BACKGROUND_LOCATION ->{
-                            "Location"
+                            "Location Permission"
                         }
                         Manifest.permission.ACCESS_NETWORK_STATE ->{
-                            "Access Network State"
+                            "Access Network State Permission"
+                        }
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE->{
+                            "Storage Permission"
                         }
                         else -> {
                             null
@@ -74,16 +80,19 @@ fun PermissionHandler(
                 }.forEach{
                     val permission = when(it.permission) {
                         Manifest.permission.ACCESS_COARSE_LOCATION -> {
-                            "Location"
+                            "Location Permission"
                         }
                         Manifest.permission.ACCESS_FINE_LOCATION -> {
-                            "Location"
+                            "Location Permission"
                         }
                         Manifest.permission.ACCESS_BACKGROUND_LOCATION -> {
-                            "Location"
+                            "Location Permission"
                         }
                         Manifest.permission.ACCESS_NETWORK_STATE -> {
-                            "Access Network State"
+                            "Access Network State Permission"
+                        }
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
+                            "Storage Permission"
                         }
                         else -> {
                             null
@@ -92,7 +101,8 @@ fun PermissionHandler(
 
                     permission?.let{
                         removeNonGrantedPermissionFromList(permission)
-                    }                }
+                    }
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

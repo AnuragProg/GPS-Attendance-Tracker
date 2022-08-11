@@ -29,13 +29,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLifecycleComposeApi::class,
+    ExperimentalMaterialApi::class)
 @Composable
 fun SubjectsScreen(
     classAttendanceViewModel: ClassAttendanceViewModel,
@@ -43,16 +46,16 @@ fun SubjectsScreen(
 
     val context = LocalContext.current
 
-    val subjectsList = classAttendanceViewModel.subjectsList.collectAsState()
+    val subjectsList = classAttendanceViewModel.subjectsList.collectAsStateWithLifecycle()
 
-    val searchBarText = classAttendanceViewModel.searchBarText.collectAsState()
+    val searchBarText = classAttendanceViewModel.searchBarText.collectAsStateWithLifecycle()
 
     val isInitialSubjectDataRetrievalDone =
-        classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
+        classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsStateWithLifecycle()
 
     val coroutineScope = rememberCoroutineScope()
 
-    val showAddSubjectDialog = classAttendanceViewModel.floatingButtonClicked.collectAsState()
+    val showAddSubjectDialog = classAttendanceViewModel.floatingButtonClicked.collectAsStateWithLifecycle()
 
     var subjectNameTextField by remember {
         mutableStateOf("")
@@ -75,6 +78,10 @@ fun SubjectsScreen(
         mutableStateOf("")
     }
 
+    var showLocationSelectionPopUp by remember{
+        mutableStateOf(false)
+    }
+
     val startAttendanceArcAnimation =
         classAttendanceViewModel.startAttendanceArcAnimation.collectAsState()
     /*
@@ -85,6 +92,19 @@ fun SubjectsScreen(
         mutableStateOf<Int?>(null)
     }
 
+    if(showLocationSelectionPopUp){
+        LocationSelectionPopUp(
+            changeLatitude = {
+                latitude = it.toString()
+            },
+            changeLongitude = {
+                longitude = it.toString()
+            },
+            changeLocationSelectionVisibility ={
+                showLocationSelectionPopUp = it
+            }
+        )
+    }
 
     // Alert Dialog -> To add new subject
     if (showAddSubjectDialog.value) {
@@ -262,7 +282,7 @@ fun SubjectsScreen(
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Decimal
                                 ),
-                                maxLines = 1
+                                maxLines = 1,
                             )
                             Box(
                                 modifier = Modifier
@@ -343,6 +363,13 @@ fun SubjectsScreen(
                             }
                         }
                     )
+                    OutlinedButton(
+                        onClick = {
+                            showLocationSelectionPopUp = true
+                        }
+                    ) {
+                        Text("Select Location From Map")
+                    }
                 }
             },
             buttons = {
@@ -443,7 +470,6 @@ fun SubjectsScreen(
             }
         )
     }
-
     if (subjectsList.value.isEmpty() && isInitialSubjectDataRetrievalDone.value) {
         Column(
             modifier = Modifier.fillMaxSize(),
