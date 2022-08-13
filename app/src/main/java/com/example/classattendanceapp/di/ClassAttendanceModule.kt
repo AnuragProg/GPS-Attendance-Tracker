@@ -3,8 +3,11 @@ package com.example.classattendanceapp.di
 import android.content.Context
 import com.example.classattendanceapp.data.db.ClassAttendanceDao
 import com.example.classattendanceapp.data.db.ClassAttendanceDatabase
+import com.example.classattendanceapp.data.excel.Excel
 import com.example.classattendanceapp.data.repository.ClassAttendanceRepositoryImpl
 import com.example.classattendanceapp.domain.repository.ClassAttendanceRepository
+import com.example.classattendanceapp.domain.usecases.excelusecase.WriteLogsStatsToExcelUseCase
+import com.example.classattendanceapp.domain.usecases.excelusecase.WriteSubjectsStatsToExcelUseCase
 import com.example.classattendanceapp.domain.usecases.logsusecase.*
 import com.example.classattendanceapp.domain.usecases.subjectsusecase.*
 import com.example.classattendanceapp.domain.usecases.timetableusecase.*
@@ -20,6 +23,12 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ClassAttendanceModule {
 
+    @Provides
+    @Singleton
+    fun providesExcel():Excel{
+        return Excel()
+    }
+
 
     @Provides
     @Singleton
@@ -31,9 +40,11 @@ object ClassAttendanceModule {
     @Singleton
     fun providesClassAttendanceRepository(
         classAttendanceDao: ClassAttendanceDao,
+        excel: Excel
     ): ClassAttendanceRepository{
         return  ClassAttendanceRepositoryImpl(
             classAttendanceDao,
+            excel
         )
     }
 
@@ -64,6 +75,8 @@ object ClassAttendanceModule {
             getLogOfSubjectUseCase = GetLogOfSubjectUseCase(classAttendanceRepository),
             getLogOfSubjectIdUseCase = GetLogOfSubjectIdUseCase(classAttendanceRepository),
             getTimeTableOfDayUseCase = GetTimeTableOfDayUseCase(classAttendanceRepository),
+            writeSubjectsStatsToExcelUseCase = WriteSubjectsStatsToExcelUseCase(classAttendanceRepository),
+            writeLogsStatsToExcelUseCase = WriteLogsStatsToExcelUseCase(classAttendanceRepository)
         )
     }
 }

@@ -1,23 +1,27 @@
 package com.example.classattendanceapp.data.repository
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import android.content.Context
+import android.net.Uri
 import com.example.classattendanceapp.data.db.ClassAttendanceDao
-import com.example.classattendanceapp.data.models.Logs
+import com.example.classattendanceapp.data.excel.Excel
+import com.example.classattendanceapp.data.models.Log
 import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.data.models.TimeTable
+import com.example.classattendanceapp.domain.models.ModifiedLogs
+import com.example.classattendanceapp.domain.models.ModifiedSubjects
 import com.example.classattendanceapp.domain.repository.ClassAttendanceRepository
 import kotlinx.coroutines.flow.Flow
 
 
 class ClassAttendanceRepositoryImpl(
     private val dao: ClassAttendanceDao,
+    private val excel: Excel
 ) : ClassAttendanceRepository{
     override suspend fun updateSubject(subject: Subject) {
         dao.updateSubject(subject)
     }
 
-    override suspend fun updateLog(log: Logs) {
+    override suspend fun updateLog(log: Log) {
         dao.updateLog(log)
     }
 
@@ -25,8 +29,8 @@ class ClassAttendanceRepositoryImpl(
         return dao.insertSubject(subject)
     }
 
-    override suspend fun insertLogs(logs: Logs): Long {
-        return dao.insertLogs(logs)
+    override suspend fun insertLogs(log: Log): Long {
+        return dao.insertLogs(log)
     }
 
     override suspend fun insertTimeTable(timeTable: TimeTable): Long {
@@ -57,7 +61,7 @@ class ClassAttendanceRepositoryImpl(
         dao.deleteLogsWithSubjectId(subjectId)
     }
 
-    override fun getAllLogs(): Flow<List<Logs>> {
+    override fun getAllLogs(): Flow<List<Log>> {
         return dao.getAllLogs()
     }
 
@@ -73,6 +77,14 @@ class ClassAttendanceRepositoryImpl(
         return dao.getTimeTableWithSubjectId(subjectId)
     }
 
+    override fun writeSubjectsStatsToExcel(context: Context, subjectsList: List<ModifiedSubjects>): Uri {
+        return excel.writeSubjectsStatsToExcel(context, subjectsList)
+    }
+
+    override fun writeLogsStatsToExcel(context: Context, logsList: List<ModifiedLogs>): Uri {
+        return excel.writeLogsStatsToExcel(context, logsList)
+    }
+
     override fun getAllSubjects(): Flow<List<Subject>> {
         return dao.getAllSubjects()
     }
@@ -81,15 +93,15 @@ class ClassAttendanceRepositoryImpl(
         return dao.getSubjectWithId(id)
     }
 
-    override suspend fun getLogsWithId(id: Int): Logs? {
+    override suspend fun getLogsWithId(id: Int): Log? {
         return dao.getLogsWithId(id)
     }
 
-    override fun getLogOfSubject(subjectName: String): Flow<List<Logs>> {
+    override fun getLogOfSubject(subjectName: String): Flow<List<Log>> {
         return dao.getLogOfSubject(subjectName)
     }
 
-    override fun getLogOfSubjectId(subjectId: Int): Flow<List<Logs>> {
+    override fun getLogOfSubjectId(subjectId: Int): Flow<List<Log>> {
         return dao.getLogOfSubjectId(subjectId)
     }
 

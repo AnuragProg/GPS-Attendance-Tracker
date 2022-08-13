@@ -10,7 +10,7 @@ enum class Screens(
     val icon: ImageVector
 ) {
 
-    LOGSSCREEN("Logs","LogsScreen", Icons.Filled.Login),
+    LOGSSCREEN("Log","LogsScreen", Icons.Filled.Login),
     SUBJECTSSCREEN("Subjects","SubjectsScreen", Icons.Filled.Subject),
     TIMETABLESCREEN("TimeTable","TimeTableScreen", Icons.Filled.Timer),
     MAPSSCREEN("Map", "SettingsScreen", Icons.Filled.Map)

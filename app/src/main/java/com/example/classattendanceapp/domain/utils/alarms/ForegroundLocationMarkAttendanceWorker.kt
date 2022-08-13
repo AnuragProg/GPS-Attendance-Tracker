@@ -6,19 +6,12 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.example.classattendanceapp.R
-import com.example.classattendanceapp.data.db.ClassAttendanceDao
-import com.example.classattendanceapp.data.db.ClassAttendanceDatabase
-import com.example.classattendanceapp.data.models.Logs
 import com.example.classattendanceapp.data.models.TimeTable
 import com.example.classattendanceapp.domain.repository.ClassAttendanceRepository
 import com.example.classattendanceapp.domain.utils.location.ClassLocationManager
@@ -26,9 +19,6 @@ import com.example.classattendanceapp.domain.utils.maths.CoordinateCalculations
 import com.example.classattendanceapp.domain.utils.notifications.NotificationHandler
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 import java.util.*
 
@@ -146,7 +136,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                         subjectWithId
                     )
                     val logsId = classAttendanceRepository.insertLogs(
-                        Logs(
+                        com.example.classattendanceapp.data.models.Log(
                             0,
                             subjectId,
                             subjectName,
@@ -179,7 +169,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                         subjectWithId
                     )
                     val logsId = classAttendanceRepository.insertLogs(
-                        Logs(
+                        com.example.classattendanceapp.data.models.Log(
                             0,
                             subjectId,
                             subjectName,

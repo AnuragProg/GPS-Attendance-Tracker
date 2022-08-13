@@ -117,7 +117,7 @@ fun TimeTableScreen(
                             Text(subjectInAlertDialog?.subjectName ?: stringResource(R.string.subject))
                         }
                         DropdownMenu(
-                            modifier = Modifier.height(300.dp),
+                            modifier = Modifier.requiredHeightIn(max=300.dp),
                             expanded = showAddTimeTableSubjectNameAlertDialog,
                             onDismissRequest = {
                                 showAddTimeTableSubjectNameAlertDialog = false
@@ -280,7 +280,6 @@ fun TimeTableScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp)
                             .animateItemPlacement(),
                         border = BorderStroke(2.dp, Color.Black)
                     ){

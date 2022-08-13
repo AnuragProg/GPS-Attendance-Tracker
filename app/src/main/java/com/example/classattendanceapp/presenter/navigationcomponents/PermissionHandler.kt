@@ -12,8 +12,8 @@ import com.google.accompanist.permissions.*
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PermissionHandler(
-    addNonGrantedPermissionToList: (String) -> Unit,
-    removeNonGrantedPermissionFromList: (String) -> Unit
+    grantedPermissions: (List<String>) -> Unit,
+    nonGrantedPermissions: (List<String>)->Unit
 ){
 
     val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -24,7 +24,10 @@ fun PermissionHandler(
                 Manifest.permission.INTERNET,
                 Manifest.permission.ACCESS_NETWORK_STATE,
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.SCHEDULE_EXACT_ALARM,
+                Manifest.permission.RECEIVE_BOOT_COMPLETED
             )
         )
     } else {
@@ -34,82 +37,46 @@ fun PermissionHandler(
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.INTERNET,
                 Manifest.permission.ACCESS_NETWORK_STATE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.SCHEDULE_EXACT_ALARM,
+                Manifest.permission.RECEIVE_BOOT_COMPLETED
+
             )
         )
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    DisposableEffect(key1 = lifecycleOwner, effect = {
-        val observer = LifecycleEventObserver{ _ , event ->
-            if(event == Lifecycle.Event.ON_START){
-                permissions.permissions.forEach{
-                    if(it.status is PermissionStatus.Denied || it.status != PermissionStatus.Granted){
+    DisposableEffect(lifecycleOwner){
+        val lifecycleObserver = LifecycleEventObserver{_, event->
 
-                        it.launchPermissionRequest()
-                    }
-                }
-                permissions.revokedPermissions.forEach{
-                    val permission = when(it.permission){
-                        Manifest.permission.ACCESS_COARSE_LOCATION ->{
-                            "Location Permission"
-                        }
-                        Manifest.permission.ACCESS_FINE_LOCATION ->{
-                            "Location Permission"
-                        }
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION ->{
-                            "Location Permission"
-                        }
-                        Manifest.permission.ACCESS_NETWORK_STATE ->{
-                            "Access Network State Permission"
-                        }
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE->{
-                            "Storage Permission"
-                        }
-                        else -> {
-                            null
-                        }
-                    }
-                    permission?.let{
-                        addNonGrantedPermissionToList(permission)
-                    }
-                }
-                permissions.permissions.filter{
-                    it.status.isGranted
-                }.forEach{
-                    val permission = when(it.permission) {
-                        Manifest.permission.ACCESS_COARSE_LOCATION -> {
-                            "Location Permission"
-                        }
-                        Manifest.permission.ACCESS_FINE_LOCATION -> {
-                            "Location Permission"
-                        }
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION -> {
-                            "Location Permission"
-                        }
-                        Manifest.permission.ACCESS_NETWORK_STATE -> {
-                            "Access Network State Permission"
-                        }
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
-                            "Storage Permission"
-                        }
-                        else -> {
-                            null
-                        }
-                    }
-
-                    permission?.let{
-                        removeNonGrantedPermissionFromList(permission)
-                    }
+            when(event){
+                Lifecycle.Event.ON_START -> {
+                    // Launching all permissions at once
+                    permissions.launchMultiplePermissionRequest()
                 }
             }
         }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
+        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+        onDispose{
+            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
         }
-    })
+    }
+
+    // Adding non granted permissions
+    if(!permissions.allPermissionsGranted){
+        nonGrantedPermissions(permissions.revokedPermissions.map{it.permission})
+    }
+
+    // Adding granted Permissions
+    val allowedPermissions = mutableListOf<String>()
+    for(permission in permissions.permissions){
+        if(permission.status.isGranted){
+            allowedPermissions.add(permission.permission)
+        }
+    }
+    grantedPermissions(allowedPermissions)
 
 
 }

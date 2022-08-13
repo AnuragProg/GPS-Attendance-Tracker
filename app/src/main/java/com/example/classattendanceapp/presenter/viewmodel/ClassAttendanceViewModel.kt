@@ -1,10 +1,10 @@
 package com.example.classattendanceapp.presenter.viewmodel
 
 import android.content.Context
-import androidx.datastore.preferences.core.doublePreferencesKey
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.classattendanceapp.data.models.Logs
+import com.example.classattendanceapp.data.models.Log
 import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.data.models.TimeTable
 import com.example.classattendanceapp.domain.models.ModifiedLogs
@@ -23,6 +23,7 @@ import javax.inject.Inject
 class ClassAttendanceViewModel @Inject constructor(
     private val classAttendanceUseCase: ClassAttendanceUseCase
 ): ViewModel() {
+
 
     init{
         viewModelScope.launch {
@@ -105,10 +106,6 @@ class ClassAttendanceViewModel @Inject constructor(
     val logsList : StateFlow<List<ModifiedLogs>> get() = _logsList
 
 
-    private val longitudeDataStoreKey = doublePreferencesKey("userLongitude")
-    private val latitudeDataStoreKey = doublePreferencesKey("userLatitude")
-    private val rangeDataStoreKey = doublePreferencesKey("userRange")
-
     private var _floatingButtonClicked = MutableStateFlow(false)
     val floatingButtonClicked: StateFlow<Boolean> get() = _floatingButtonClicked
 
@@ -130,13 +127,6 @@ class ClassAttendanceViewModel @Inject constructor(
         _currentDay.value = getCurrentDay()
     }
 
-    private var _showAddLocationCoordinateDialog = MutableStateFlow(false)
-    val showAddLocationCoordinateDialog:StateFlow<Boolean> get() = _showAddLocationCoordinateDialog
-
-    fun changeAddLocationCoordinateState(state: Boolean){
-        _showAddLocationCoordinateDialog.value = state
-    }
-
 
     suspend fun getSubjectWithId(subjectId: Int):Subject?{
         return classAttendanceUseCase.getSubjectWithIdWithUseCase(subjectId)
@@ -147,7 +137,7 @@ class ClassAttendanceViewModel @Inject constructor(
         classAttendanceUseCase.updateSubjectUseCase(subject)
     }
 
-    suspend fun updateLog(log: Logs){
+    suspend fun updateLog(log: Log){
         classAttendanceUseCase.updateLogUseCase(log)
     }
 
@@ -188,6 +178,7 @@ class ClassAttendanceViewModel @Inject constructor(
                 }else{
                     (totalPresents.toDouble()/(totalPresents + totalAbsents))*100
                 }
+                val totalDays = totalPresents + totalAbsents
                 tempSubjectList.add(
                     ModifiedSubjects(
                         _id = it._id,
@@ -197,6 +188,9 @@ class ClassAttendanceViewModel @Inject constructor(
                         daysAbsent = it.daysAbsent,
                         daysPresentOfLogs = it.daysPresentOfLogs,
                         daysAbsentOfLogs = it.daysAbsentOfLogs,
+                        totalPresents = totalPresents,
+                        totalAbsents = totalAbsents,
+                        totalDays = totalDays,
                         latitude = it.latitude,
                         longitude = it.longitude,
                         range = it.range
@@ -219,11 +213,11 @@ class ClassAttendanceViewModel @Inject constructor(
         }
     }
 
-    suspend fun insertLogs(logs: Logs): Long{
-        val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(logs.subjectId)
+    suspend fun insertLogs(log: Log): Long{
+        val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(log.subjectId)
 
         val subject = subjectWithId?.let{
-            if (logs.wasPresent) {
+            if (log.wasPresent) {
                 it.daysPresentOfLogs++
             } else {
                 it.daysAbsentOfLogs++
@@ -233,7 +227,7 @@ class ClassAttendanceViewModel @Inject constructor(
         subject?.let{
             classAttendanceUseCase.insertSubjectUseCase(subject)
         }
-        return classAttendanceUseCase.insertLogsUseCase(logs)
+        return classAttendanceUseCase.insertLogsUseCase(log)
     }
 
     suspend fun insertSubject(subject: Subject): Long{
@@ -312,4 +306,14 @@ class ClassAttendanceViewModel @Inject constructor(
         val cal = Calendar.getInstance()
         return cal.get(Calendar.MINUTE)
     }
+
+    fun writeSubjectsStatsToExcel(context: Context, subjectsList: List<ModifiedSubjects>): Uri{
+        return classAttendanceUseCase.writeSubjectsStatsToExcelUseCase(context, subjectsList)
+    }
+    fun writeLogsStatsToExcel(context: Context, logsList: List<ModifiedLogs>): Uri{
+        return classAttendanceUseCase.writeLogsStatsToExcelUseCase(context, logsList)
+    }
+
+
+
 }

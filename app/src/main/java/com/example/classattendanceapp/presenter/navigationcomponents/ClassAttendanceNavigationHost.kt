@@ -1,5 +1,6 @@
 package com.example.classattendanceapp.presenter.navigationcomponents
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -19,6 +20,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -38,14 +41,15 @@ import kotlinx.coroutines.launch
 fun ClassAttendanceNavigationHost(){
 
     val context = LocalContext.current as Activity
-    val navController = rememberNavController()
-    val currentBackStackEntry = navController.currentBackStackEntryAsState()
-    val classAttendanceViewModel = hiltViewModel<ClassAttendanceViewModel>()
-    var goneToAnotherScreen by remember{ mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
 
-    val nonGrantedPermissionList = remember{
-        mutableStateListOf<String>()
+    val navController = rememberNavController()
+
+    val currentBackStackEntry = navController.currentBackStackEntryAsState()
+
+    val classAttendanceViewModel = hiltViewModel<ClassAttendanceViewModel>()
+
+    val nonGrantedPermissionSet = remember{
+        mutableSetOf<String>()
     }
     var currentFloatingActionButtonIcon by remember{
         mutableStateOf(Icons.Filled.Add)
@@ -55,16 +59,9 @@ fun ClassAttendanceNavigationHost(){
         mutableStateOf(false)
     }
 
-    fun navigate(
-        route: String
-    ){
-        coroutineScope.launch{
-            navController.navigate(route){
-                popUpTo(route)
-            }
-            goneToAnotherScreen = !goneToAnotherScreen
-        }
-    }
+
+    val scaffoldState = rememberScaffoldState()
+
 
     LaunchedEffect(Unit){
         navController.currentBackStackEntryFlow.collectLatest{
@@ -85,19 +82,24 @@ fun ClassAttendanceNavigationHost(){
     }
 
 
+
+
     Scaffold(
+        scaffoldState = scaffoldState,
         modifier = Modifier.fillMaxSize(),
         topBar = {
             ClassAttendanceTopBar(
                 classAttendanceViewModel,
-                navController
+                navController,
+                scaffoldState.snackbarHostState
             )
+
         },
         bottomBar = {
             ClassAttendanceBottomNavigationBar(
                 navController = navController,
                 navigate = { route ->
-                    navigate(route)
+                    navController.navigate(route)
                 }
             )
         },
@@ -143,19 +145,68 @@ fun ClassAttendanceNavigationHost(){
         isFloatingActionButtonDocked = true,
         floatingActionButtonPosition = FabPosition.Center
     ) {
+
+
+        // Handling Permissions
+        PermissionHandler(
+            grantedPermissions = {
+                nonGrantedPermissionSet.removeAll(
+//                    it.map{ grantedPermission ->
+//                        when (grantedPermission) {
+//                            Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION -> {
+//                                "Location"
+//                            }
+//                            Manifest.permission.INTERNET -> {
+//                                "Internet"
+//                            }
+//                            Manifest.permission.ACCESS_NETWORK_STATE -> {
+//                                "Network"
+//                            }
+//                            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
+//                                "Storage"
+//                            }
+//                            else -> {
+//                                ""
+//                            }
+//                        }
+//                    }.toSet()
+                it
+                )
+                                 } ,
+            nonGrantedPermissions = {
+                nonGrantedPermissionSet.addAll(
+//                    it.map{ nonGrantedPermission ->
+//                        when (nonGrantedPermission) {
+//                            Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION -> {
+//                                "Location"
+//                            }
+//                            Manifest.permission.INTERNET -> {
+//                                "Internet"
+//                            }
+//                            Manifest.permission.ACCESS_NETWORK_STATE -> {
+//                                "Network"
+//                            }
+//                            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
+//                                "Storage"
+//                            }
+//                            Manifest.permission.SCHEDULE_EXACT_ALARM -> {
+//                                "Alarm"
+//                            }
+//                            Manifest.permission.RECEIVE_BOOT_COMPLETED ->{
+//                                "Boot"
+//                            }
+//                            else->{
+//                                ""
+//                            }
+//                        }
+//                    }
+                it
+                )
+            }
+        )
+
         Column{
-            PermissionHandler ({ nonGrantedPermission ->
-                if (!nonGrantedPermissionList.contains(nonGrantedPermission)) {
-                    nonGrantedPermissionList.add(nonGrantedPermission)
-                }
-            },
-                { grantedPermission ->
-                    if(nonGrantedPermissionList.contains(grantedPermission)){
-                        nonGrantedPermissionList.remove(grantedPermission)
-                    }
-                }
-            )
-            if (nonGrantedPermissionList.isNotEmpty()) {
+            if (nonGrantedPermissionSet.isNotEmpty()) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -167,7 +218,7 @@ fun ClassAttendanceNavigationHost(){
                         modifier = Modifier.padding(10.dp)
                     ){
                         Text(stringResource(R.string.feature_permission_not_granted_warning_message))
-                        for(nonGrantedPermission in nonGrantedPermissionList){
+                        for(nonGrantedPermission in nonGrantedPermissionSet){
                             TextButton(
                                 onClick = {
                                     Toast.makeText(context, context.getString(R.string.grant_app_permanent_location_access), Toast.LENGTH_LONG).show()
@@ -176,7 +227,26 @@ fun ClassAttendanceNavigationHost(){
                                     context.startActivity(settingsIntent)
                                 }
                             ){
-                                Text(nonGrantedPermission)
+                                Text(
+                                    when (nonGrantedPermission) {
+                                        Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION -> {
+                                            "Location"
+                                        }
+                                        Manifest.permission.INTERNET -> {
+                                            "Internet"
+                                        }
+                                        Manifest.permission.ACCESS_NETWORK_STATE -> {
+                                            "Network"
+                                        }
+                                        Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
+                                            "Storage"
+                                        }
+                                        else -> {
+                                            ""
+                                        }
+                                    }
+
+                                )
                             }
                         }
                     }

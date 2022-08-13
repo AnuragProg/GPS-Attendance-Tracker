@@ -2,6 +2,7 @@
 
 package com.example.classattendanceapp.presenter.screens.logsscreen
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -15,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -22,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.classattendanceapp.R
+import com.example.classattendanceapp.data.excel.Excel
 import com.example.classattendanceapp.domain.models.ModifiedLogs
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -69,6 +72,16 @@ fun LogsScreen(
                 lazyScrollState.scrollToItem(it.size-1)
             }
         }
+    }
+
+    val context = LocalContext.current
+    LaunchedEffect(Unit){
+        val logsList = classAttendanceViewModel.logsList.value
+        Log.d("excel", "Starting calling")
+        val excel = Excel()
+        excel.writeLogsStatsToExcel(context, logsList)
+        Log.d("excel", "Call ended")
+
     }
 
     // Making Log Dialog Box
@@ -124,7 +137,8 @@ fun LogsScreen(
                         }else{
                             true
                         }
-                    }
+                    },
+                    key = {it._id}
                 ){ currentLog ->
                     var showOverFlowMenu by remember{ mutableStateOf(false) }
                     var showAdditionalCardDetails by remember{ mutableStateOf(false) }
@@ -132,7 +146,6 @@ fun LogsScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp)
                             .combinedClickable(
                                 onClick = {
                                     showAdditionalCardDetails = !showAdditionalCardDetails

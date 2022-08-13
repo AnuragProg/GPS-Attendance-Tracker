@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.classattendanceapp.R
-import com.example.classattendanceapp.data.models.Logs
+import com.example.classattendanceapp.data.models.Log
 import com.example.classattendanceapp.presenter.utils.DateToSimpleFormat
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import com.vanpra.composematerialdialogs.MaterialDialog
@@ -150,7 +150,7 @@ fun LogsScreenAlertDialog(
                     }
 
                     DropdownMenu(
-                        modifier = Modifier.height(300.dp),
+                        modifier = Modifier.requiredHeightIn(max=300.dp),
                         expanded = showAddLogsSubjectNameAlertDialog,
                         onDismissRequest = {
                             showAddLogsSubjectNameAlertDialog = false
@@ -298,7 +298,7 @@ fun LogsScreenAlertDialog(
                                 logsTime.set(selectedYear.value, selectedMonth.value, selectedDay.value, selectedHour.value, selectedMinute.value, 0)
                                 if(editingLog == null){
                                     classAttendanceViewModel.insertLogs(
-                                        Logs(
+                                        Log(
                                             0,
                                             subjectIdInAlertDialog!!,
                                             subjectNameInAlertDialog!!,
@@ -309,7 +309,7 @@ fun LogsScreenAlertDialog(
 
                                 }else{
                                     classAttendanceViewModel.updateLog(
-                                        Logs(
+                                        Log(
                                             editingLog!!,
                                             subjectIdInAlertDialog!!,
                                             subjectNameInAlertDialog!!,

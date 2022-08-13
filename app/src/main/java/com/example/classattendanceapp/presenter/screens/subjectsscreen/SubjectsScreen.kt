@@ -2,6 +2,7 @@
 
 package com.example.classattendanceapp.presenter.screens.subjectsscreen
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -33,7 +34,9 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.models.Subject
+import com.example.classattendanceapp.data.excel.Excel
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
@@ -91,6 +94,7 @@ fun SubjectsScreen(
     var editingSubject by remember {
         mutableStateOf<Int?>(null)
     }
+
 
     if(showLocationSelectionPopUp){
         LocationSelectionPopUp(
@@ -509,14 +513,14 @@ fun SubjectsScreen(
                         } else {
                             true
                         }
-                    }
+                    },
+                    key = {it._id}
                 ) { currentSubject ->
                     var showOverFlowMenu by remember { mutableStateOf(false) }
                     var showAdditionalCardDetails by remember { mutableStateOf(false) }
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp)
                             .animateItemPlacement()
                             .combinedClickable(
                                 onClick = {
@@ -644,13 +648,13 @@ fun SubjectsScreen(
                                             Text("Days Present :")
                                             Spacer(modifier = Modifier.height(5.dp))
 
-                                            Text("Days Present Through Logs :")
+                                            Text("Days Present Through Log :")
                                             Spacer(modifier = Modifier.height(5.dp))
 
                                             Text("Days Absent :")
                                             Spacer(modifier = Modifier.height(5.dp))
 
-                                            Text("Days Absent Through Logs :")
+                                            Text("Days Absent Through Log :")
                                             Spacer(modifier = Modifier.height(5.dp))
 
                                             Text("Total Presents :")
@@ -669,7 +673,7 @@ fun SubjectsScreen(
                                         ) {
                                             Text(
                                                 if (currentSubject.latitude == null) {
-                                                    "None"
+                                                    "Unknown"
                                                 } else {
                                                     "${currentSubject.latitude}"
                                                 }
@@ -678,7 +682,7 @@ fun SubjectsScreen(
 
                                             Text(
                                                 if (currentSubject.longitude == null) {
-                                                    "None"
+                                                    "Unknown"
                                                 } else {
                                                     "${currentSubject.longitude}"
                                                 }
@@ -687,7 +691,7 @@ fun SubjectsScreen(
 
                                             Text(
                                                 if (currentSubject.range == null) {
-                                                    "None"
+                                                    "Unknown"
                                                 } else {
                                                     "${currentSubject.range}"
                                                 }
@@ -706,25 +710,13 @@ fun SubjectsScreen(
                                             Text("${currentSubject.daysAbsentOfLogs}")
                                             Spacer(modifier = Modifier.height(5.dp))
 
-                                            Text(
-                                                "${
-                                                    currentSubject.daysPresent + currentSubject.daysPresentOfLogs
-                                                }"
-                                            )
+                                            Text("${currentSubject.totalPresents}")
                                             Spacer(modifier = Modifier.height(5.dp))
 
-                                            Text(
-                                                "${
-                                                    currentSubject.daysAbsent + currentSubject.daysAbsentOfLogs
-                                                }"
-                                            )
+                                            Text("${currentSubject.totalAbsents}")
                                             Spacer(modifier = Modifier.height(5.dp))
 
-                                            Text(
-                                                "${
-                                                    currentSubject.daysPresent + currentSubject.daysPresentOfLogs + currentSubject.daysAbsent + currentSubject.daysAbsentOfLogs
-                                                }"
-                                            )
+                                            Text("${currentSubject.totalDays}")
                                         }
 
                                     }

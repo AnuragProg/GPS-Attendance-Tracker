@@ -1,33 +1,28 @@
 package com.example.classattendanceapp.presenter.navigationcomponents
 
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.keyframes
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
+import android.net.Uri
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.IntSize
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ClassAttendanceTopBar(
     classAttendanceViewModel: ClassAttendanceViewModel,
-    navController: NavController
+    navController: NavController,
+    snackbarHostState: SnackbarHostState
 ){
     val context = LocalContext.current
     var showSearchBar by remember{
@@ -35,12 +30,18 @@ fun ClassAttendanceTopBar(
     }
     val searchBarText = classAttendanceViewModel.searchBarText.collectAsState()
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
+    var isOverflowMenuVisible by remember{
+        mutableStateOf(false)
+    }
+
     TopAppBar(
         title = {
             if(!showSearchBar){
                 Text(context.getString(R.string.app_name))
             }else{
-
+                /*
+                Text Field for filtering through searching
+                 */
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = searchBarText.value,
@@ -74,25 +75,40 @@ fun ClassAttendanceTopBar(
             }
         },
         actions = {
+            if(!showSearchBar){
+                if (currentBackStackEntry.value?.destination?.route !in listOf(Screens.TIMETABLESCREEN.route,
+                        Screens.MAPSSCREEN.route)
+                ) {
+                    IconButton(
+                        onClick = {
+                            showSearchBar = true
+                        }
+                    ){
+                        Icon(
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = null
+                        )
+                    }
+                }
 
-            if(currentBackStackEntry.value?.destination?.route in listOf(
-                    Screens.TIMETABLESCREEN.route,
-                    Screens.MAPSSCREEN.route
-            )){
-
-            }
-            else if (!showSearchBar) {
                 IconButton(
                     onClick = {
-                        showSearchBar = true
+                        isOverflowMenuVisible = true
                     }
-                ) {
+                ){
                     Icon(
-                        Icons.Filled.Search,
+                        imageVector = Icons.Filled.MoreVert,
                         contentDescription = null
                     )
                 }
             }
+            OverflowMenu(
+                classAttendanceViewModel = classAttendanceViewModel,
+                isOverflowMenuVisible = isOverflowMenuVisible,
+                changeOverflowMenuVisibility = {isOverflowMenuVisible=it},
+                snackbarHostState = snackbarHostState
+            )
+
         }
     )
 }
