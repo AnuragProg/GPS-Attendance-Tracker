@@ -14,10 +14,21 @@ GAT(in short) is an Android App that does all the work for you and makes everyth
 GAT uses User's GPS to retrieve user's current location and based on the distance between the institution and user's current location,
 it decides whether the user is in class or not and marks the attendance accordingly. The only thing user has to do is to turn on internet and GPS and that's it.
 
+### Features:
+- Detailed Cards for Subjects and Logs
+- Search Bar for filtering content
+- GPS to automatically register user's attendance
+- Timetable Screen to register subjects for periodic alarms
+- Expanded Notification Features to mark attendance through notification only
+- Map Screen for seeing saved subject's location
+- Maps to select subject's location
+- Feature to export subject and logs data to excel document
+
 ### About the app:
 - Uses GPS service for retrieving user location
 - Uses WorkManager for doing long-running tasks when the alarm goes on
 - Uses Dagger-Hilt for Dependency Injection
 - Kotlin Flows handle the flow of data between Database and UI
 - Uses Clean Architecture for code structure
-
+- Uses Apache POI for writing data to excel
+- Uses Open Source Maps for map tiles
