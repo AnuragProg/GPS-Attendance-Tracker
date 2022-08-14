@@ -48,7 +48,7 @@ fun MapsScreen(
                 setTileSource(TileSourceFactory.MAPNIK)
                 setMultiTouchControls(true)
                 setBuiltInZoomControls(true)
-                controller.setZoom(12.5)
+                controller.setZoom(16.5)
 
             }
         )
