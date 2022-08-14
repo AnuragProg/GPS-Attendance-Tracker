@@ -156,7 +156,7 @@ fun LogsScreenAlertDialog(
                             showAddLogsSubjectNameAlertDialog = false
                         }
                     ) {
-                        val subjectsList = classAttendanceViewModel.subjectsList.collectAsState()
+                        val subjectsList = classAttendanceViewModel.subjectsList.collectAsStateWithLifecycle()
                         val isInitialSubjectDataRetrievalDone = classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
                         if(subjectsList.value.isNotEmpty()){
                             subjectsList.value.forEach{
@@ -303,7 +303,10 @@ fun LogsScreenAlertDialog(
                                             subjectIdInAlertDialog!!,
                                             subjectNameInAlertDialog!!,
                                             logsTime.time,
-                                            isPresent
+                                            isPresent,
+                                            null,
+                                            null,
+                                            null
                                         )
                                     )
 
@@ -314,7 +317,10 @@ fun LogsScreenAlertDialog(
                                             subjectIdInAlertDialog!!,
                                             subjectNameInAlertDialog!!,
                                             logsTime.time,
-                                            isPresent
+                                            isPresent,
+                                            null,
+                                            null,
+                                            null
                                         )
                                     )
                                 }

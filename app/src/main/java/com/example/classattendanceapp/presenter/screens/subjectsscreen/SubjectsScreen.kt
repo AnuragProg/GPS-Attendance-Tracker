@@ -160,7 +160,7 @@ fun SubjectsScreen(
                     ) {
                         Box {
                             OutlinedTextField(
-                                modifier = Modifier.defaultMinSize(minWidth = 40.dp),
+                                modifier = Modifier.width(135.dp),
                                 value = initialPresent,
                                 onValueChange = {
                                     initialPresent = it
@@ -215,7 +215,7 @@ fun SubjectsScreen(
                         }
                         Box {
                             OutlinedTextField(
-                                modifier = Modifier.defaultMinSize(minWidth = 40.dp),
+                                modifier = Modifier.width(135.dp),
                                 value = initialAbsent,
                                 onValueChange = {
                                     initialAbsent = it
@@ -275,7 +275,7 @@ fun SubjectsScreen(
                     ) {
                         Box{
                             OutlinedTextField(
-                                modifier = Modifier.defaultMinSize(minWidth = 50.dp),
+                                modifier = Modifier.width(135.dp),
                                 value = latitude,
                                 onValueChange = {
                                     latitude = it
@@ -308,7 +308,7 @@ fun SubjectsScreen(
                         }
                         Box{
                             OutlinedTextField(
-                                modifier = Modifier.defaultMinSize(minWidth = 50.dp),
+                                modifier = Modifier.width(135.dp),
                                 value = longitude,
                                 onValueChange = {
                                     longitude = it

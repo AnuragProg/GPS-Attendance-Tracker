@@ -150,58 +150,10 @@ fun ClassAttendanceNavigationHost(){
         // Handling Permissions
         PermissionHandler(
             grantedPermissions = {
-                nonGrantedPermissionSet.removeAll(
-//                    it.map{ grantedPermission ->
-//                        when (grantedPermission) {
-//                            Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION -> {
-//                                "Location"
-//                            }
-//                            Manifest.permission.INTERNET -> {
-//                                "Internet"
-//                            }
-//                            Manifest.permission.ACCESS_NETWORK_STATE -> {
-//                                "Network"
-//                            }
-//                            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
-//                                "Storage"
-//                            }
-//                            else -> {
-//                                ""
-//                            }
-//                        }
-//                    }.toSet()
-                it
-                )
-                                 } ,
+
+            } ,
             nonGrantedPermissions = {
-                nonGrantedPermissionSet.addAll(
-//                    it.map{ nonGrantedPermission ->
-//                        when (nonGrantedPermission) {
-//                            Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION -> {
-//                                "Location"
-//                            }
-//                            Manifest.permission.INTERNET -> {
-//                                "Internet"
-//                            }
-//                            Manifest.permission.ACCESS_NETWORK_STATE -> {
-//                                "Network"
-//                            }
-//                            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
-//                                "Storage"
-//                            }
-//                            Manifest.permission.SCHEDULE_EXACT_ALARM -> {
-//                                "Alarm"
-//                            }
-//                            Manifest.permission.RECEIVE_BOOT_COMPLETED ->{
-//                                "Boot"
-//                            }
-//                            else->{
-//                                ""
-//                            }
-//                        }
-//                    }
-                it
-                )
+
             }
         )
 
@@ -228,23 +180,7 @@ fun ClassAttendanceNavigationHost(){
                                 }
                             ){
                                 Text(
-                                    when (nonGrantedPermission) {
-                                        Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION -> {
-                                            "Location"
-                                        }
-                                        Manifest.permission.INTERNET -> {
-                                            "Internet"
-                                        }
-                                        Manifest.permission.ACCESS_NETWORK_STATE -> {
-                                            "Network"
-                                        }
-                                        Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
-                                            "Storage"
-                                        }
-                                        else -> {
-                                            ""
-                                        }
-                                    }
+                                    nonGrantedPermission
 
                                 )
                             }

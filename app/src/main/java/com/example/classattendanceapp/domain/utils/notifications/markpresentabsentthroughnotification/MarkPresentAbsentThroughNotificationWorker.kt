@@ -36,7 +36,10 @@ class MarkPresentAbsentThroughNotificationWorker @AssistedInject constructor(
                     subjectId = subject._id,
                     subjectName = subject.subjectName,
                     timestamp = Calendar.getInstance().time,
-                    wasPresent = attendance
+                    wasPresent = attendance,
+                    latitude = null,
+                    longitude = null,
+                    distance = null
                 )
             )
             classAttendanceRepository.updateSubject(

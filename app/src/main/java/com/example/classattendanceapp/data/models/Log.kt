@@ -15,8 +15,9 @@ data class Log(
     val subjectName: String,    //TEC201
     val timestamp: Date,             //15360000
     var wasPresent: Boolean,     //true -> present or false -> absent
-    val latitude: Double? = null,
-    val longitude: Double? = null
+    var latitude: Double?,
+    var longitude: Double?,
+    var distance: Double?
 )
 
 fun Log.toModifiedLogs(): ModifiedLogs{
@@ -33,7 +34,8 @@ fun Log.toModifiedLogs(): ModifiedLogs{
         year = DateToSimpleFormat.getYear(timestamp),
         wasPresent = wasPresent,
         latitude = latitude,
-        longitude = longitude
+        longitude = longitude,
+        distance = distance
     )
 }
 

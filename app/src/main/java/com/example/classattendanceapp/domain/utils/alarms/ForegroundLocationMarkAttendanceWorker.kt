@@ -143,7 +143,8 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             Calendar.getInstance().time,
                             true,
                             latitude = currentLocation.latitude,
-                            longitude = currentLocation.longitude
+                            longitude = currentLocation.longitude,
+                            distance = distance
                         )
                     )
                     createNotificationChannelAndShowNotification(
@@ -176,7 +177,8 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             Calendar.getInstance().time,
                             false,
                             latitude = currentLocation.latitude,
-                            longitude = currentLocation.longitude
+                            longitude = currentLocation.longitude,
+                            distance = distance
                         )
                     )
                     createNotificationChannelAndShowNotification(

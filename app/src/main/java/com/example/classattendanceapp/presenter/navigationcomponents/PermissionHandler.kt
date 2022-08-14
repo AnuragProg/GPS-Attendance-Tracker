@@ -26,8 +26,6 @@ fun PermissionHandler(
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.SCHEDULE_EXACT_ALARM,
-                Manifest.permission.RECEIVE_BOOT_COMPLETED
             )
         )
     } else {
@@ -39,8 +37,6 @@ fun PermissionHandler(
                 Manifest.permission.ACCESS_NETWORK_STATE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.SCHEDULE_EXACT_ALARM,
-                Manifest.permission.RECEIVE_BOOT_COMPLETED
 
             )
         )
@@ -55,6 +51,20 @@ fun PermissionHandler(
                 Lifecycle.Event.ON_START -> {
                     // Launching all permissions at once
                     permissions.launchMultiplePermissionRequest()
+
+                    // Adding non granted permissions
+                    if(!permissions.allPermissionsGranted){
+                        nonGrantedPermissions(permissions.revokedPermissions.map{it.permission})
+                    }
+
+                    // Adding granted Permissions
+                    val allowedPermissions = mutableListOf<String>()
+                    for(permission in permissions.permissions){
+                        if(permission.status.isGranted){
+                            allowedPermissions.add(permission.permission)
+                        }
+                    }
+                    grantedPermissions(allowedPermissions)
                 }
             }
         }
@@ -64,19 +74,6 @@ fun PermissionHandler(
         }
     }
 
-    // Adding non granted permissions
-    if(!permissions.allPermissionsGranted){
-        nonGrantedPermissions(permissions.revokedPermissions.map{it.permission})
-    }
-
-    // Adding granted Permissions
-    val allowedPermissions = mutableListOf<String>()
-    for(permission in permissions.permissions){
-        if(permission.status.isGranted){
-            allowedPermissions.add(permission.permission)
-        }
-    }
-    grantedPermissions(allowedPermissions)
 
 
 }

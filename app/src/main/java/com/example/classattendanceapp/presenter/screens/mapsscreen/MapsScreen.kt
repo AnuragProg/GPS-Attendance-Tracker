@@ -29,6 +29,8 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.*
+import org.osmdroid.views.overlay.infowindow.InfoWindow
+import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow
 
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
@@ -43,10 +45,11 @@ fun MapsScreen(
     val mapView by remember{
         mutableStateOf(
             MapView(context).apply{
-
                 setTileSource(TileSourceFactory.MAPNIK)
                 setMultiTouchControls(true)
                 setBuiltInZoomControls(true)
+                controller.setZoom(12.5)
+
             }
         )
     }
@@ -85,7 +88,6 @@ fun MapsScreen(
         val currentLocation = ClassLocationManager.getLocation(context).first()
         if(currentLocation != null){
             mapView.controller.setCenter(GeoPoint(currentLocation.latitude, currentLocation.longitude))
-            mapView.controller.setZoom(12.5)
         }else if(subjectsList.value.isNotEmpty()){
             val randomSubject = subjectsList.value.filter{
                 it.latitude!=null && it.longitude!=null
@@ -93,10 +95,6 @@ fun MapsScreen(
             mapView.controller.setCenter(
                 GeoPoint(randomSubject.latitude!!, randomSubject.longitude!!)
             )
-            mapView.controller.setZoom(12.5)
-        }else{
-
-            mapView.controller.setZoom(12.5)
         }
     }
 
@@ -134,7 +132,6 @@ fun MapsScreen(
                 mapView
             }
         ) { map ->
-            val mapController = map.controller
 
             subjectsList.value
                 .filter {
@@ -144,9 +141,8 @@ fun MapsScreen(
                     val marker = Marker(map)
                     marker.position = GeoPoint(it.latitude!!, it.longitude!!)
                     marker.title = it.subjectName
-                    marker.setTextIcon(it.attendancePercentage.toString())
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    marker.showInfoWindow()
+
                     map.overlays.add(marker)
                 }
 

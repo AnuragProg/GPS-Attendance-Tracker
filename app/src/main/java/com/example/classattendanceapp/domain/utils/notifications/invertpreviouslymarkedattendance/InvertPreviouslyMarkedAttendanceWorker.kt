@@ -23,9 +23,11 @@ class InvertPreviouslyMarkedAttendanceWorker @AssistedInject constructor(
 
         val logsId = inputData.getInt(NotificationKeys.LOGS_ID.key, -1)
         val retrievedLog = classAttendanceRepository.getLogsWithId(logsId)
-
         if(retrievedLog!=null){
             val retrievedSubject = classAttendanceRepository.getSubjectWithId(retrievedLog.subjectId)
+            retrievedLog.latitude = null
+            retrievedLog.longitude = null
+            retrievedLog.distance = null
             if(retrievedSubject!=null){
                 retrievedLog.wasPresent = !retrievedLog.wasPresent
                 if(retrievedLog.wasPresent){

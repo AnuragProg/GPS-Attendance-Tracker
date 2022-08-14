@@ -83,7 +83,9 @@ fun TimeTableScreen(
             timetableList.clear()
             timetables.keys.forEach{
                 timetableList[it] = mutableListOf()
-                timetableList[it]?.addAll(timetables[it]!!)
+                timetableList[it]?.addAll(timetables[it]!!.sortedBy {
+                    it.hour+it.minute
+                })
             }
         }
     }

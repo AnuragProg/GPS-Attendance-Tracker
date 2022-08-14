@@ -69,8 +69,7 @@ class Excel {
         val outputStream = FileOutputStream(excelFile)
         workbook.write(outputStream)
         outputStream.close()
-
-        return Uri.parse(excelFile.path)
+        return Uri.parse(excelFile.absolutePath)
     }
 
     fun writeLogsStatsToExcel(context: Context, logsList: List<ModifiedLogs>): Uri{
@@ -82,6 +81,7 @@ class Excel {
             "Day",
             "Latitude",
             "Longitude",
+            "Distance",
             "Attendance"
         )
 
@@ -104,10 +104,21 @@ class Excel {
             cell = row.createCell(3)
             cell.setCellValue(log.day)
             cell = row.createCell(4)
-            cell.setCellValue(log.latitude.toString())
+            cell.setCellValue(
+                if(log.latitude==null)"Unknown"
+                else log.latitude.toString()
+            )
             cell = row.createCell(5)
-            cell.setCellValue(log.longitude.toString())
+            cell.setCellValue(
+                if(log.longitude==null)"Unknown"
+                else log.longitude.toString()
+            )
             cell = row.createCell(6)
+            cell.setCellValue(
+                if(log.distance==null)"Unknown"
+                else log.distance.toString()
+            )
+            cell = row.createCell(7)
             cell.setCellValue(if(log.wasPresent)"Present" else "Absent")
         }
 
@@ -116,7 +127,7 @@ class Excel {
         val outputFileStream = FileOutputStream(excelFile)
         workbook.write(outputFileStream)
         outputFileStream.close()
-        return Uri.parse(excelFile.path)
+        return Uri.parse(excelFile.absolutePath)
     }
 
 }

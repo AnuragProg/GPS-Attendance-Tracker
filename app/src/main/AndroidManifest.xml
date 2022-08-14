@@ -38,8 +38,7 @@
         </activity>
         <receiver android:name=".domain.utils.alarms.ClassAlarmBroadcastReceiver"
             android:enabled="true"
-            android:exported="true"
-            >
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.example.classattendanceapp.domain.utils.alarms.ClassAlarmBroadcastReceiver"/>
                 <category android:name="android.intent.category.DEFAULT"/>

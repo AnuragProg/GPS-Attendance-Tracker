@@ -159,7 +159,8 @@ class ClassAttendanceViewModel @Inject constructor(
                     year = DateToSimpleFormat.getYear(log.timestamp),
                     wasPresent = log.wasPresent,
                     latitude = log.latitude,
-                    longitude = log.longitude
+                    longitude = log.longitude,
+                    distance = log.distance
                 )
                 tempLogList.add(tempLog)
             }

@@ -15,5 +15,6 @@ data class ModifiedLogs(
     val year: Int,
     val wasPresent: Boolean,
     val latitude: Double?,
-    val longitude: Double?
+    val longitude: Double?,
+    val distance: Double?
 )
