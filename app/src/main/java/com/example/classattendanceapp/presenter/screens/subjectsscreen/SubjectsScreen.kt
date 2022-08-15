@@ -2,8 +2,6 @@
 
 package com.example.classattendanceapp.presenter.screens.subjectsscreen
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -12,10 +10,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,18 +20,12 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.classattendanceapp.R
-import com.example.classattendanceapp.data.models.Subject
-import com.example.classattendanceapp.data.excel.Excel
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
@@ -112,366 +101,16 @@ fun SubjectsScreen(
 
     // Alert Dialog -> To add new subject
     if (showAddSubjectDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-                subjectNameTextField = ""
-                initialPresent = 0.toString()
-                initialAbsent = 0.toString()
-                editingSubject = null
-                latitude = ""
-                longitude = ""
-                range = ""
-            },
-            text = {
-                Column {
-                    Text(
-                        text = stringResource(R.string.add_new_subject),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                    Spacer(modifier = Modifier.height(5.dp))
-                    OutlinedTextField(
-                        value = subjectNameTextField,
-                        onValueChange = { subjectNameTextField = it },
-                        label = {
-                            Text(stringResource(R.string.subject_name) + " (Required)")
-                        },
-                        maxLines = 1,
-                        trailingIcon = {
-                            if(subjectNameTextField.isNotEmpty()){
-                                IconButton(
-                                    onClick = {
-                                        subjectNameTextField = ""
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.Filled.Clear,
-                                        contentDescription = null
-                                    )
-                                }
-                            }
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(5.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Box {
-                            OutlinedTextField(
-                                modifier = Modifier.width(135.dp),
-                                value = initialPresent,
-                                onValueChange = {
-                                    initialPresent = it
-                                },
-                                label = {
-                                    Text(stringResource(R.string.presents))
-                                },
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Number
-                                ),
-                                maxLines = 1
-                            )
-                            Box(
-                                modifier = Modifier.matchParentSize()
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .matchParentSize()
-                                        .padding(top = 10.dp, end = 10.dp),
-                                    horizontalAlignment = Alignment.End,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Icon(
-                                        modifier = Modifier.clickable {
-                                            try {
-                                                initialPresent =
-                                                    (initialPresent.toLong() + 1).toString()
-                                            } catch (e: NumberFormatException) {
-
-                                            }
-                                        },
-                                        imageVector = Icons.Filled.ArrowDropUp,
-                                        contentDescription = null
-                                    )
-                                    Icon(
-                                        modifier = Modifier.clickable {
-                                            try {
-                                                if (initialPresent.toLong() > 0) {
-                                                    initialPresent =
-                                                        (initialPresent.toLong() - 1).toString()
-                                                }
-                                            } catch (e: NumberFormatException) {
-
-                                            }
-                                        },
-                                        imageVector = Icons.Filled.ArrowDropDown,
-                                        contentDescription = null
-                                    )
-                                }
-                            }
-
-                        }
-                        Box {
-                            OutlinedTextField(
-                                modifier = Modifier.width(135.dp),
-                                value = initialAbsent,
-                                onValueChange = {
-                                    initialAbsent = it
-                                },
-                                label = {
-                                    Text(stringResource(R.string.absents))
-                                },
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Number
-                                ),
-                                maxLines = 1,
-                            )
-                            Box(
-                                modifier = Modifier.matchParentSize()
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .matchParentSize()
-                                        .padding(end = 10.dp, top = 10.dp),
-                                    horizontalAlignment = Alignment.End,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Icon(
-                                        modifier = Modifier.clickable {
-                                            try {
-                                                initialAbsent =
-                                                    (initialAbsent.toLong() + 1).toString()
-                                            } catch (e: NumberFormatException) {
-
-                                            }
-                                        },
-                                        imageVector = Icons.Filled.ArrowDropUp,
-                                        contentDescription = null
-                                    )
-                                    Icon(
-                                        modifier = Modifier.clickable {
-                                            try {
-                                                if (initialAbsent.toLong() > 0) {
-                                                    initialAbsent =
-                                                        (initialAbsent.toLong() - 1).toString()
-                                                }
-                                            } catch (e: NumberFormatException) {
-
-                                            }
-                                        },
-                                        imageVector = Icons.Filled.ArrowDropDown,
-                                        contentDescription = null
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(5.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Box{
-                            OutlinedTextField(
-                                modifier = Modifier.width(135.dp),
-                                value = latitude,
-                                onValueChange = {
-                                    latitude = it
-                                },
-                                label = {
-                                    Text(stringResource(R.string.latitude))
-                                },
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Decimal
-                                ),
-                                maxLines = 1,
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .matchParentSize()
-                                    .padding(end = 8.dp),
-                                contentAlignment = Alignment.CenterEnd
-                            ){
-                                if(latitude.isNotEmpty()){
-                                    Icon(
-                                        modifier = Modifier.clickable {
-                                            latitude = ""
-                                        },
-                                        imageVector = Icons.Filled.Clear,
-                                        contentDescription = null
-                                    )
-                                }
-                            }
-
-                        }
-                        Box{
-                            OutlinedTextField(
-                                modifier = Modifier.width(135.dp),
-                                value = longitude,
-                                onValueChange = {
-                                    longitude = it
-                                },
-                                label = {
-                                    Text(stringResource(R.string.longitude))
-                                },
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Decimal
-                                ),
-                                maxLines = 1
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .matchParentSize()
-                                    .padding(end = 8.dp),
-                                contentAlignment = Alignment.CenterEnd
-                            ){
-                                if(longitude.isNotEmpty()){
-                                    Icon(
-                                        modifier = Modifier.clickable {
-                                            longitude = ""
-                                        },
-                                        imageVector = Icons.Filled.Clear,
-                                        contentDescription = null
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    OutlinedTextField(
-
-                        value = range,
-                        onValueChange = {
-                            range = it
-                        },
-                        label = {
-                            Text(stringResource(R.string.rangeInM))
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Decimal
-                        ),
-                        maxLines = 1,
-                        trailingIcon = {
-                            if(range.isNotEmpty()){
-                                IconButton(
-                                    onClick = {
-                                        range = ""
-                                    }
-                                ){
-                                    Icon(
-                                        imageVector = Icons.Filled.Clear,
-                                        contentDescription = null
-                                    )
-                                }
-                            }
-                        }
-                    )
-                    OutlinedButton(
-                        onClick = {
-                            showLocationSelectionPopUp = true
-                        }
-                    ) {
-                        Text("Select Location From Map")
-                    }
-                }
-            },
-            buttons = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    Row {
-                        TextButton(
-                            onClick = {
-                                coroutineScope.launch {
-                                    if (subjectNameTextField.isBlank()) {
-                                        Toast.makeText(context,
-                                            "Subject Name can't be empty!",
-                                            Toast.LENGTH_SHORT).show()
-                                        return@launch
-                                    }
-                                    try {
-                                        val daysPresent =
-                                            if (initialPresent.isBlank()) 0 else initialPresent.toLong()
-                                        val daysAbsent =
-                                            if (initialAbsent.isBlank()) 0 else initialAbsent.toLong()
-                                        val lat = if(latitude.isBlank()) null else latitude.toDouble()
-                                        val lon = if(longitude.isBlank()) null else longitude.toDouble()
-                                        val ran = if(range.isBlank()) null else range.toDouble()
-
-
-                                        if (editingSubject != null) {
-                                            val subject = classAttendanceViewModel.getSubjectWithId(
-                                                editingSubject!!)!!
-                                            classAttendanceViewModel.updateSubject(
-                                                Subject(
-                                                    _id = subject._id,
-                                                    subjectName = subjectNameTextField,
-                                                    daysPresent = daysPresent,
-                                                    daysAbsent = daysAbsent,
-                                                    daysPresentOfLogs = subject.daysPresentOfLogs,
-                                                    daysAbsentOfLogs = subject.daysAbsentOfLogs,
-                                                    latitude = lat,
-                                                    longitude = lon,
-                                                    range = ran
-                                                )
-                                            )
-                                        } else {
-                                            classAttendanceViewModel.insertSubject(
-                                                Subject(
-                                                    _id = 0,
-                                                    subjectName = subjectNameTextField,
-                                                    daysPresent = daysPresent,
-                                                    daysAbsent = daysAbsent,
-                                                    daysPresentOfLogs = 0,
-                                                    daysAbsentOfLogs = 0,
-                                                    latitude = lat,
-                                                    longitude = lon,
-                                                    range = ran
-                                                )
-                                            )
-                                        }
-                                        classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-
-                                        subjectNameTextField = ""
-                                        initialPresent = 0.toString()
-                                        initialAbsent = 0.toString()
-                                        editingSubject = null
-                                        latitude = ""
-                                        longitude = ""
-                                        range = ""
-
-                                    } catch (e: NumberFormatException) {
-                                        Toast.makeText(context,
-                                            "Please enter valid information!",
-                                            Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            }
-                        ) {
-                            Text(stringResource(R.string.add))
-                        }
-                        Spacer(modifier = Modifier.width(5.dp))
-                        TextButton(
-                            onClick = {
-                                classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-                                subjectNameTextField = ""
-                                initialPresent = 0.toString()
-                                initialAbsent = 0.toString()
-                                editingSubject = null
-                                latitude = ""
-                                longitude = ""
-                                range = ""
-                            }
-                        ) {
-                            Text(stringResource(R.string.cancel))
-                        }
-                    }
-                }
-            }
+        SubjectScreenAlertDialog(
+            editingSubject = editingSubject,
+            subjectNameTextField = subjectNameTextField,
+            initialPresent = initialPresent,
+            initialAbsent = initialAbsent,
+            latitude = latitude,
+            longitude = longitude,
+            range = range,
+            changeShowLocationSelectionPopup = {showLocationSelectionPopUp=it},
+            classAttendanceViewModel = classAttendanceViewModel
         )
     }
     if (subjectsList.value.isEmpty() && isInitialSubjectDataRetrievalDone.value) {
