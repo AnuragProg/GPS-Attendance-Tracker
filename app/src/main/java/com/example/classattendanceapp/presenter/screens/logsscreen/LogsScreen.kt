@@ -2,10 +2,7 @@
 
 package com.example.classattendanceapp.presenter.screens.logsscreen
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,21 +14,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalLifecycleComposeApi::class)
+@OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun LogsScreen(
-    classAttendanceViewModel: ClassAttendanceViewModel
+    classAttendanceViewModel: ClassAttendanceViewModel,
+    addLogIdtoDelete: (Int)->Unit,
+    removeLogIdToDelete: (Int)->Unit
 ){
     val logsList = classAttendanceViewModel.logsList.collectAsStateWithLifecycle()
 
@@ -125,14 +122,35 @@ fun LogsScreen(
                     },
                     key = {it._id}
                 ){ log ->
-                    LogCard(
-                        changeSubjectIdInAlertDialog = { subjectIdInAlertDialog = it },
-                        changeSubjectNameInAlertDialog = { subjectNameInAlertDialog = it },
-                        log = log,
-                        changeEditingLog = {editingLog=it},
-                        classAttendanceViewModel = classAttendanceViewModel
-                    )
+                    var isLogSelected by remember{mutableStateOf(false)}
+                    Box{
+                        LogCard(
+                            changeSubjectIdInAlertDialog = { subjectIdInAlertDialog = it },
+                            changeSubjectNameInAlertDialog = { subjectNameInAlertDialog = it },
+                            log = log,
+                            changeEditingLog = { editingLog = it },
+                            classAttendanceViewModel = classAttendanceViewModel,
+                            changeIsLogSelected = { selected ->
+                                if(selected){
+                                    addLogIdtoDelete(log._id)
+                                }else{
+                                    removeLogIdToDelete(log._id)
+                                }
 
+                                isLogSelected = selected
+                            }
+                        )
+                        if (isLogSelected) {
+                            Surface(
+                                modifier = Modifier.matchParentSize(),
+                                color = Color.Blue.copy(alpha = 0.2f),
+                                onClick = {
+                                    removeLogIdToDelete(log._id)
+                                    isLogSelected = false
+                                }
+                            ) {}
+                        }
+                    }
                 }
             }
         }

@@ -357,7 +357,7 @@ fun SubjectScreenAlertDialog(
                                         classAttendanceViewModel.updateSubject(
                                             Subject(
                                                 _id = subject._id,
-                                                subjectName = lsubjectNameTextField,
+                                                subjectName = lsubjectNameTextField.trim(),
                                                 daysPresent = daysPresent,
                                                 daysAbsent = daysAbsent,
                                                 daysPresentOfLogs = subject.daysPresentOfLogs,
@@ -371,7 +371,7 @@ fun SubjectScreenAlertDialog(
                                         classAttendanceViewModel.insertSubject(
                                             Subject(
                                                 _id = 0,
-                                                subjectName = lsubjectNameTextField,
+                                                subjectName = lsubjectNameTextField.trim(),
                                                 daysPresent = daysPresent,
                                                 daysAbsent = daysAbsent,
                                                 daysPresentOfLogs = 0,

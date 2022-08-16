@@ -1,9 +1,9 @@
 package com.example.classattendanceapp.presenter.navigationcomponents
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
@@ -20,8 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -33,7 +31,6 @@ import com.example.classattendanceapp.presenter.screens.subjectsscreen.SubjectsS
 import com.example.classattendanceapp.presenter.screens.timetablescreen.TimeTableScreen
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -63,6 +60,21 @@ fun ClassAttendanceNavigationHost(){
     val scaffoldState = rememberScaffoldState()
 
 
+    val listOfSubjectIdsToDelete = remember{
+        mutableStateListOf<Int>()
+    }
+    val listOfLogIdsToDelete = remember{
+        mutableStateListOf<Int>()
+    }
+
+    listOfSubjectIdsToDelete.forEach{
+        Log.d("selectedid", "subject id is $it")
+    }
+
+    listOfLogIdsToDelete.forEach{
+        Log.d("selectedid", "log id is $it")
+    }
+
     LaunchedEffect(Unit){
         navController.currentBackStackEntryFlow.collectLatest{
             currentFloatingActionButtonIcon = when(it.destination.route){
@@ -91,7 +103,13 @@ fun ClassAttendanceNavigationHost(){
             ClassAttendanceTopBar(
                 classAttendanceViewModel,
                 navController,
-                scaffoldState.snackbarHostState
+                scaffoldState.snackbarHostState,
+                listOfSubjectIdsToDelete,
+                listOfLogIdsToDelete,
+                {listOfSubjectIdsToDelete.remove(it)},
+                {listOfLogIdsToDelete.remove(it)},
+                {listOfSubjectIdsToDelete.clear()},
+                {listOfLogIdsToDelete.clear()}
             )
 
         },
@@ -202,7 +220,11 @@ fun ClassAttendanceNavigationHost(){
                     BackHandler(enabled = true) {
                         context.moveTaskToBack(true)
                     }
-                    LogsScreen(classAttendanceViewModel)
+                    LogsScreen(
+                        classAttendanceViewModel,
+                        {listOfLogIdsToDelete.add(it)},
+                        {listOfLogIdsToDelete.remove(it)},
+                    )
                 }
 
                 composable(Screens.SUBJECTSSCREEN.route) {
@@ -210,7 +232,11 @@ fun ClassAttendanceNavigationHost(){
                     BackHandler(enabled=true) {
                         context.moveTaskToBack(true)
                     }
-                    SubjectsScreen(classAttendanceViewModel)
+                    SubjectsScreen(
+                        classAttendanceViewModel,
+                        {listOfSubjectIdsToDelete.add(it)},
+                        {listOfSubjectIdsToDelete.remove(it)}
+                    )
                 }
 
                 composable(Screens.TIMETABLESCREEN.route) {

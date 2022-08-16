@@ -2,6 +2,8 @@ package com.example.classattendanceapp.presenter.viewmodel
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.classattendanceapp.data.models.Log
@@ -315,6 +317,14 @@ class ClassAttendanceViewModel @Inject constructor(
         return classAttendanceUseCase.writeLogsStatsToExcelUseCase(context, logsList)
     }
 
-
-
+    suspend fun deleteSubjectsInList(context: Context,subjectIds: List<Int>){
+        subjectIds.forEach { subjectId ->
+            deleteSubject(subjectId, context)
+        }
+    }
+    suspend fun deleteLogsInList(logIds: List<Int>){
+        logIds.forEach { logId ->
+            deleteLogs(logId)
+        }
+    }
 }

@@ -13,5 +13,5 @@ data class ModifiedSubjects(
     var totalDays: Long,
     val latitude: Double?,
     val longitude: Double?,
-    val range: Double?
+    val range: Double?,
 )

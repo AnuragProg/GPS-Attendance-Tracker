@@ -22,12 +22,12 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LogCard(
-
     changeSubjectIdInAlertDialog : (Int?)->Unit,
     changeSubjectNameInAlertDialog : (String?)->Unit,
     changeEditingLog: (Int?)->Unit,
     log: ModifiedLogs,
     classAttendanceViewModel: ClassAttendanceViewModel,
+    changeIsLogSelected: (Boolean)->Unit
 ){
     var showAdditionalCardDetails by remember{
         mutableStateOf(false)
@@ -45,7 +45,8 @@ fun LogCard(
                     showAdditionalCardDetails = !showAdditionalCardDetails
                 },
                 onLongClick = {
-                    showOverFlowMenu = true
+                    changeIsLogSelected(true)
+//                    showOverFlowMenu = true
                 }
             )
     ) {
