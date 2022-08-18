@@ -144,76 +144,15 @@ class ClassAttendanceViewModel @Inject constructor(
     }
 
     private fun getAllLogsAdvanced() :Flow<List<ModifiedLogs>>{
-        return classAttendanceUseCase.getAllLogsUseCase().map{
-            val tempLogList = mutableListOf<ModifiedLogs>()
-            it.forEach { log ->
-
-                val tempLog = ModifiedLogs(
-                    _id = log._id,
-                    subjectName = log.subjectName,
-                    subjectId = log.subjectId,
-                    hour = DateToSimpleFormat.getHours(log.timestamp),
-                    minute = DateToSimpleFormat.getMinutes(log.timestamp),
-                    date = DateToSimpleFormat.getDay(log.timestamp),
-                    day = DateToSimpleFormat.getDayOfTheWeek(log.timestamp),
-                    month = DateToSimpleFormat.getMonthStringFromNumber(log.timestamp),
-                    monthNumber = DateToSimpleFormat.getConventionalMonthNumber(log.timestamp),
-                    year = DateToSimpleFormat.getYear(log.timestamp),
-                    wasPresent = log.wasPresent,
-                    latitude = log.latitude,
-                    longitude = log.longitude,
-                    distance = log.distance
-                )
-                tempLogList.add(tempLog)
-            }
-            tempLogList
-        }
+        return classAttendanceUseCase.getAllLogsUseCase()
     }
 
     private fun getSubjectsAdvanced() : Flow<List<ModifiedSubjects>>{
-        return classAttendanceUseCase.getSubjectsUseCase().map {
-            val tempSubjectList = mutableListOf<ModifiedSubjects>()
-            it.forEach{
-                val totalPresents = it.daysPresent + it.daysPresentOfLogs
-                val totalAbsents = it.daysAbsent + it.daysAbsentOfLogs
-                val percentage = if(totalPresents + totalAbsents == 0.toLong()){
-                    0.toDouble()
-                }else{
-                    (totalPresents.toDouble()/(totalPresents + totalAbsents))*100
-                }
-                val totalDays = totalPresents + totalAbsents
-                tempSubjectList.add(
-                    ModifiedSubjects(
-                        _id = it._id,
-                        subjectName = it.subjectName,
-                        attendancePercentage = percentage,
-                        daysPresent = it.daysPresent,
-                        daysAbsent = it.daysAbsent,
-                        daysPresentOfLogs = it.daysPresentOfLogs,
-                        daysAbsentOfLogs = it.daysAbsentOfLogs,
-                        totalPresents = totalPresents,
-                        totalAbsents = totalAbsents,
-                        totalDays = totalDays,
-                        latitude = it.latitude,
-                        longitude = it.longitude,
-                        range = it.range
-                    )
-                )
-            }
-            tempSubjectList
-        }
+        return classAttendanceUseCase.getSubjectsUseCase()
     }
 
     fun getTimeTableAdvanced(): Flow<Map<String, List<TimeTable>>>{
-        return classAttendanceUseCase.getTimeTableUseCase().map{
-            val resultant = mutableMapOf<String, List<TimeTable>>()
-            for(day in Days.values()){
-                resultant[day.day] = it.filter{
-                    it.dayOfTheWeek == day.value
-                }
-            }
-            resultant
-        }
+        return classAttendanceUseCase.getTimeTableUseCase()
     }
 
     suspend fun insertLogs(log: Log): Long{
