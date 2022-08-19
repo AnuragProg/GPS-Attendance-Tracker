@@ -17,11 +17,18 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import dev.shreyaspatil.permissionFlow.PermissionFlow
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object ClassAttendanceModule {
+
+    @Provides
+    @Singleton
+    fun providesPermissionFlow(): PermissionFlow{
+        return PermissionFlow.getInstance()
+    }
 
     @Provides
     @Singleton

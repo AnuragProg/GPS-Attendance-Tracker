@@ -46,7 +46,6 @@ fun LogCard(
                 },
                 onLongClick = {
                     changeIsLogSelected(true)
-//                    showOverFlowMenu = true
                 }
             )
     ) {

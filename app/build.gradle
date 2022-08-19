@@ -99,4 +99,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha01"
 
     implementation 'org.apache.poi:poi:3.17'
+
+    implementation "dev.shreyaspatil.permission-flow:permission-flow-android:1.0.0"
 }

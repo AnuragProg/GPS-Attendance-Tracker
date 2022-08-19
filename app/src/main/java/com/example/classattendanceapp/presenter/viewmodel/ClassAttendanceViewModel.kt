@@ -1,7 +1,9 @@
 package com.example.classattendanceapp.presenter.viewmodel
 
+import android.Manifest
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
@@ -16,6 +18,8 @@ import com.example.classattendanceapp.domain.utils.alarms.ClassAlarmManager
 import com.example.classattendanceapp.presenter.utils.DateToSimpleFormat
 import com.example.classattendanceapp.presenter.utils.Days
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.shreyaspatil.permissionFlow.MultiplePermissionState
+import dev.shreyaspatil.permissionFlow.PermissionFlow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -23,7 +27,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ClassAttendanceViewModel @Inject constructor(
-    private val classAttendanceUseCase: ClassAttendanceUseCase
+    private val classAttendanceUseCase: ClassAttendanceUseCase,
+    private val permissionFlow: PermissionFlow
 ): ViewModel() {
 
 
@@ -45,6 +50,30 @@ class ClassAttendanceViewModel @Inject constructor(
             }
         }
     }
+
+    fun permissionsStateFlow():StateFlow<MultiplePermissionState>{
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            permissionFlow.getMultiplePermissionState(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+            )
+        } else {
+            permissionFlow.getMultiplePermissionState(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+            )
+        }
+    }
+
 
     private var _searchBarText = MutableStateFlow("")
     val searchBarText: StateFlow<String> get() = _searchBarText
