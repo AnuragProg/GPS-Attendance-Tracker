@@ -175,7 +175,7 @@ class ClassAttendanceViewModel @Inject constructor(
         classAttendanceUseCase.updateLogUseCase(log)
     }
 
-    private fun getAllLogsAdvanced() :Flow<List<ModifiedLogs>>{
+    fun getAllLogsAdvanced() :Flow<List<ModifiedLogs>>{
         return classAttendanceUseCase.getAllLogsUseCase()
     }
 

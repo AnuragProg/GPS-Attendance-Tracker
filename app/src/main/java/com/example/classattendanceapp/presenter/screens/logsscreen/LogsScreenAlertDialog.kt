@@ -36,7 +36,10 @@ fun LogsScreenAlertDialog(
     classAttendanceViewModel: ClassAttendanceViewModel,
     initialSubjectNameInAlertDialog: String? = null,
     initialSubjectIdInAlertDialog: Int? = null,
-    initialEditingLog: Int? = null
+    initialEditingLog: Int? = null,
+    changeInitialSubjectNameInAlertDialog: (String?)->Unit,
+    changeInitialSubjectIdInAlertDialog:(Int?)->Unit,
+    changeInitialEditingLog: (Int?)->Unit
 ){
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -113,9 +116,9 @@ fun LogsScreenAlertDialog(
     AlertDialog(
         onDismissRequest = {
             classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-            subjectIdInAlertDialog = null
-            subjectNameInAlertDialog = null
-            editingLog = null
+            changeInitialSubjectIdInAlertDialog(null)
+            changeInitialSubjectNameInAlertDialog(null)
+            changeInitialEditingLog(null)
         },
         text = {
             Column{
@@ -325,10 +328,10 @@ fun LogsScreenAlertDialog(
                                     )
                                 }
                                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-                                subjectIdInAlertDialog = null
-                                subjectNameInAlertDialog = null
+                                changeInitialSubjectIdInAlertDialog(null)
+                                changeInitialSubjectNameInAlertDialog(null)
+                                changeInitialEditingLog(null)
                                 isPresent = true
-                                editingLog = null
                             }else{
                                 Toast.makeText(context, "Subject Name cannot be empty!", Toast.LENGTH_SHORT).show()
                             }
@@ -342,10 +345,10 @@ fun LogsScreenAlertDialog(
 
                 TextButton(
                     onClick = {
-                        subjectIdInAlertDialog = null
-                        subjectNameInAlertDialog = null
+                        changeInitialSubjectIdInAlertDialog(null)
+                        changeInitialSubjectNameInAlertDialog(null)
+                        changeInitialEditingLog(null)
                         isPresent = true
-                        editingLog = null
                         classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                     }
                 ) {

@@ -33,7 +33,14 @@ fun SubjectScreenAlertDialog(
     longitude : String,
     range: String,
     changeShowLocationSelectionPopup: (Boolean) -> Unit,
-    classAttendanceViewModel: ClassAttendanceViewModel
+    classAttendanceViewModel: ClassAttendanceViewModel,
+    changeEditingSubject: (Int?)->Unit,
+    changeSubjectNameTextField: (String)->Unit,
+    changeInitialPresent:(String)->Unit,
+    changeInitialAbsent:(String)->Unit,
+    changeLatitude: (String)->Unit,
+    changeLongitude:(String)->Unit,
+    changeRange:(String)->Unit
 ){
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -63,13 +70,21 @@ fun SubjectScreenAlertDialog(
     AlertDialog(
         onDismissRequest = {
             classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-            lsubjectNameTextField = ""
-            linitialPresent = 0.toString()
-            linitialAbsent = 0.toString()
-            leditingSubject = null
-            llatitude = ""
-            llongitude = ""
-            lrange = ""
+
+            changeSubjectNameTextField("")
+            changeInitialPresent("0")
+            changeInitialAbsent("0")
+            changeEditingSubject(null)
+            changeLatitude("")
+            changeLongitude("")
+            changeRange("")
+            //lsubjectNameTextField = ""
+//            linitialPresent = 0.toString()
+//            linitialAbsent = 0.toString()
+//            leditingSubject = null
+//            llatitude = ""
+//            llongitude = ""
+//            lrange = ""
         },
         text = {
             Column {
@@ -384,13 +399,22 @@ fun SubjectScreenAlertDialog(
                                     }
                                     classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
 
-                                    lsubjectNameTextField = ""
-                                    linitialPresent = 0.toString()
-                                    linitialAbsent = 0.toString()
-                                    leditingSubject = null
-                                    llatitude = ""
-                                    llongitude = ""
-                                    lrange = ""
+
+                                    changeSubjectNameTextField("")
+                                    changeInitialPresent("0")
+                                    changeInitialAbsent("0")
+                                    changeEditingSubject(null)
+                                    changeLatitude("")
+                                    changeLongitude("")
+                                    changeRange("")
+
+//                                    lsubjectNameTextField = ""
+//                                    linitialPresent = 0.toString()
+//                                    linitialAbsent = 0.toString()
+//                                    leditingSubject = null
+//                                    llatitude = ""
+//                                    llongitude = ""
+//                                    lrange = ""
 
                                 } catch (e: NumberFormatException) {
                                     Toast.makeText(context,
@@ -406,13 +430,22 @@ fun SubjectScreenAlertDialog(
                     TextButton(
                         onClick = {
                             classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-                            lsubjectNameTextField = ""
-                            linitialPresent = 0.toString()
-                            linitialAbsent = 0.toString()
-                            leditingSubject = null
-                            llatitude = ""
-                            llongitude = ""
-                            lrange = ""
+
+                            changeSubjectNameTextField("")
+                            changeInitialPresent("0")
+                            changeInitialAbsent("0")
+                            changeEditingSubject(null)
+                            changeLatitude("")
+                            changeLongitude("")
+                            changeRange("")
+
+//                            lsubjectNameTextField = ""
+//                            linitialPresent = 0.toString()
+//                            linitialAbsent = 0.toString()
+//                            leditingSubject = null
+//                            llatitude = ""
+//                            llongitude = ""
+//                            lrange = ""
                         }
                     ) {
                         Text(stringResource(R.string.cancel))

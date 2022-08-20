@@ -32,11 +32,6 @@ fun LogCard(
     var showAdditionalCardDetails by remember{
         mutableStateOf(false)
     }
-    var showOverFlowMenu by remember{
-        mutableStateOf(false)
-    }
-    val coroutineScope = rememberCoroutineScope()
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -175,46 +170,6 @@ fun LogCard(
                             } ?: "Unknown"
                         )
                     }
-                }
-            }
-        }
-        if (showOverFlowMenu) {
-            DropdownMenu(
-                expanded = showOverFlowMenu,
-                onDismissRequest = {
-                    showOverFlowMenu = false
-                }
-            ) {
-                DropdownMenuItem(
-                    onClick = {
-                        coroutineScope.launch {
-                            classAttendanceViewModel.deleteLogs(log._id)
-                        }
-                        showOverFlowMenu = false
-                    }
-                ) {
-                    Text(stringResource(R.string.delete))
-                }
-                DropdownMenuItem(
-                    onClick = {
-                        changeEditingLog(log._id)
-                        changeSubjectIdInAlertDialog(log.subjectId)
-                        changeSubjectNameInAlertDialog(log.subjectName)
-                        classAttendanceViewModel.changeCurrentYear(log.year)
-                        classAttendanceViewModel.changeCurrentMonth(log.monthNumber)
-                        classAttendanceViewModel.changeCurrentDay(log.date)
-                        classAttendanceViewModel.changeCurrentHour(log.hour)
-                        classAttendanceViewModel.changeCurrentMinute(log.minute)
-
-                        classAttendanceViewModel.changeFloatingButtonClickedState(
-                            state = true,
-                            doNotMakeChangesToTime = true
-                        )
-
-                        showOverFlowMenu = false
-                    }
-                ) {
-                    Text(stringResource(R.string.edit))
                 }
             }
         }
