@@ -9,10 +9,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Card
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,7 +61,6 @@ fun SubjectCard(
                     changeIsSubjectSelected(false)
                 },
                 onLongClick = {
-//                    showOverFlowMenu = true
                     changeIsSubjectSelected(true)
                 }
             )
@@ -155,6 +154,26 @@ fun SubjectCard(
                     }
                 }
             }
+            /* Code for edit and delete button for single cards */
+//            Box(
+//                modifier = Modifier.fillMaxSize(),
+//                contentAlignment = Alignment.CenterEnd
+//            ){
+//                Row{
+//                    IconButton(onClick = { /*TODO*/ }) {
+//                        Icon(
+//                            imageVector = Icons.Filled.Edit,
+//                            contentDescription = null
+//                        )
+//                    }
+//                    IconButton(onClick = { /*TODO*/ }) {
+//                        Icon(
+//                            imageVector = Icons.Filled.Delete,
+//                            contentDescription = null
+//                        )
+//                    }
+//                }
+//            }
             AnimatedVisibility(
                 visible = showAdditionalCardDetails
             ) {

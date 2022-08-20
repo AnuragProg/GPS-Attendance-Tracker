@@ -1,6 +1,7 @@
 package com.example.classattendanceapp.presenter.viewmodel
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -73,6 +74,8 @@ class ClassAttendanceViewModel @Inject constructor(
             )
         }
     }
+
+
 
 
     private var _searchBarText = MutableStateFlow("")
@@ -176,7 +179,7 @@ class ClassAttendanceViewModel @Inject constructor(
         return classAttendanceUseCase.getAllLogsUseCase()
     }
 
-    private fun getSubjectsAdvanced() : Flow<List<ModifiedSubjects>>{
+    fun getSubjectsAdvanced() : Flow<List<ModifiedSubjects>>{
         return classAttendanceUseCase.getSubjectsUseCase()
     }
 

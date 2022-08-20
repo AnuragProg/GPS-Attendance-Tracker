@@ -8,13 +8,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.classattendanceapp.R
@@ -83,15 +87,24 @@ fun LogsScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ){
-            Image(
-                modifier = Modifier.size(150.dp),
-                painter = painterResource(id = R.drawable.logs),
-                contentDescription = null
+//            Image(
+//                modifier = Modifier.size(150.dp),
+//                painter = painterResource(id = R.drawable.logs),
+//                contentDescription = null
+//            )
+            Icon(
+                modifier = Modifier.size(200.dp),
+                imageVector = Icons.Outlined.Timer,
+                contentDescription = null,
+                tint = Color.White
             )
+
             Text(
                 modifier = Modifier.padding(5.dp),
                 text = stringResource(R.string.no_logs),
-                color = Color.White
+                color = Color.White,
+                fontFamily = FontFamily.SansSerif,
+                fontSize = 20.sp
             )
         }
     } else if(logsList.value.isEmpty() && !isInitialLogDataRetrievalDone.value){

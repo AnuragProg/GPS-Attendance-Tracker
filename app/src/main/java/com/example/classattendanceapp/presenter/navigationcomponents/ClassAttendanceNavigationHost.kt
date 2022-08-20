@@ -12,9 +12,14 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleObserver
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -25,6 +30,7 @@ import com.example.classattendanceapp.presenter.screens.subjectsscreen.SubjectsS
 import com.example.classattendanceapp.presenter.screens.timetablescreen.TimeTableScreen
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import java.security.Permission
 
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalPermissionsApi::class)
@@ -35,7 +41,6 @@ fun ClassAttendanceNavigationHost(){
 
     val navController = rememberNavController()
 
-    val coroutineScope = rememberCoroutineScope()
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
 
     val classAttendanceViewModel = hiltViewModel<ClassAttendanceViewModel>()
@@ -57,13 +62,11 @@ fun ClassAttendanceNavigationHost(){
     val listOfLogIdsToDelete = remember{
         mutableStateListOf<Int>()
     }
-
-
-
     LaunchedEffect(Unit){
         showFloatingActionButton = true
     }
 
+    PermissionHandler()
 
 
     Scaffold(
@@ -87,7 +90,7 @@ fun ClassAttendanceNavigationHost(){
             ClassAttendanceBottomNavigationBar(
                 navController = navController,
                 navigate = { route ->
-                    showFloatingActionButton = route != Screens.MAPSSCREEN.route && route!=Screens.TIMETABLESCREEN.route
+                    showFloatingActionButton = route != Screens.MAPSSCREEN.route
                     navController.navigate(route)
                 }
             )
@@ -109,25 +112,11 @@ fun ClassAttendanceNavigationHost(){
                         }
                     }
                 ) {
-                    AnimatedContent(
-                        targetState = currentFloatingActionButtonIcon,
-                        transitionSpec = {
-                            when (currentFloatingActionButtonIcon) {
-                                Icons.Filled.Save -> {
-                                    fadeIn() with fadeOut()
-                                }
-                                else -> {
-                                    fadeIn() with fadeOut()
-                                }
-                            }
-
-                        }
-                    ) { icon ->
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
                 }
             }
         },
