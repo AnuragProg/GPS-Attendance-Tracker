@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
@@ -50,47 +51,29 @@ fun SubjectsScreen(
 
     val showAddSubjectDialog = classAttendanceViewModel.floatingButtonClicked.collectAsStateWithLifecycle()
 
-    var subjectNameTextField by remember {
-        mutableStateOf("")
-    }
-
-    var initialPresent by remember {
-        mutableStateOf("0")
-    }
-    var initialAbsent by remember {
-        mutableStateOf("0")
-    }
-
-    var latitude by remember {
-        mutableStateOf("")
-    }
-    var longitude by remember {
-        mutableStateOf("")
-    }
-    var range by remember {
-        mutableStateOf("")
-    }
 
     var showLocationSelectionPopUp by remember{
         mutableStateOf(false)
     }
-    val snackbarHostState = rememberScaffoldState()
 
-    /*
-    number -> subject Id to updated that subject
-    null -> if(null)not updating else updating
-     */
-    var editingSubject by remember {
-        mutableStateOf<Int?>(null)
+    var subjectToEdit by remember{
+        mutableStateOf<ModifiedSubjects?>(null)
+    }
+
+    var latitudeFromMap by remember{
+        mutableStateOf<String?>(null)
+    }
+    var longitudeFromMap by remember{
+        mutableStateOf<String?>(null)
     }
 
     LaunchedEffect(searchBarText){
         classAttendanceViewModel.getSubjectsAdvanced().collect{
             subjectsList.clear()
             subjectsList.addAll(
-                it.filter {
+                it.filter { subject ->
                     if(searchBarText.isNotBlank()){
-                        searchBarText.lowercase() in it.subjectName.lowercase()
+                        searchBarText.lowercase() in subject.subjectName.lowercase()
                     }else{
                         true
                     }
@@ -103,10 +86,10 @@ fun SubjectsScreen(
     if(showLocationSelectionPopUp){
         LocationSelectionPopUp(
             changeLatitude = {
-                latitude = it.toString()
+                latitudeFromMap = it.toString()
             },
             changeLongitude = {
-                longitude = it.toString()
+                longitudeFromMap = it.toString()
             },
             changeLocationSelectionVisibility ={
                 showLocationSelectionPopUp = it
@@ -117,22 +100,18 @@ fun SubjectsScreen(
     // Alert Dialog -> To add new subject
     if (showAddSubjectDialog.value) {
         SubjectScreenAlertDialog(
-            editingSubject = editingSubject,
-            subjectNameTextField = subjectNameTextField,
-            initialPresent = initialPresent,
-            initialAbsent = initialAbsent,
-            latitude = latitude,
-            longitude = longitude,
-            range = range,
+            subjectToEdit = subjectToEdit,
+            resetSubjectToEdit = {
+                subjectToEdit=null
+                latitudeFromMap = null
+                longitudeFromMap = null
+                                 },
             changeShowLocationSelectionPopup = {showLocationSelectionPopUp=it},
             classAttendanceViewModel = classAttendanceViewModel,
-            changeEditingSubject = {editingSubject=it},
-            changeSubjectNameTextField = {subjectNameTextField=it},
-            changeInitialAbsent = {initialAbsent=it},
-            changeInitialPresent = {initialPresent=it},
-            changeLatitude = {latitude=it},
-            changeLongitude = {longitude=it},
-            changeRange = {range=it}
+            latitudeFromMap = latitudeFromMap,
+            longitudeFromMap = longitudeFromMap,
+            changeLatitudeFromMap = {latitudeFromMap=it},
+            changeLongitudeFromMap = {longitudeFromMap=it}
         )
     }
     if (subjectsList.isEmpty() && isInitialSubjectDataRetrievalDone.value) {
@@ -154,7 +133,8 @@ fun SubjectsScreen(
                 text = stringResource(R.string.no_subjects),
                 color = Color.White,
                 fontSize = 20.sp,
-                fontFamily = FontFamily.SansSerif
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Bold
             )
         }
     } else if (subjectsList.isEmpty() && !isInitialSubjectDataRetrievalDone.value) {
@@ -184,13 +164,7 @@ fun SubjectsScreen(
                             classAttendanceViewModel.deleteSubject(subject._id, context)
                         }
                     }else if(dismissState.isDismissed(DismissDirection.EndToStart)){
-                        editingSubject = subject._id
-                        subjectNameTextField = subject.subjectName
-                        initialPresent = subject.daysPresent.toString()
-                        initialAbsent = subject.daysAbsent.toString()
-                        latitude = if(subject.latitude!=null)subject.latitude.toString() else ""
-                        longitude = if(subject.longitude!=null)subject.longitude.toString() else ""
-                        range = if(subject.range!=null)subject.range.toString() else ""
+                        subjectToEdit = subject
                         classAttendanceViewModel.changeFloatingButtonClickedState(state = true)
                         coroutineScope.launch{ dismissState.reset() }
 
@@ -238,20 +212,13 @@ fun SubjectsScreen(
                             SubjectCard(
                                 subject = subject,
                                 classAttendanceViewModel = classAttendanceViewModel,
-                                changeSubjectNameTextField = { subjectNameTextField = it },
-                                changeInitialPresent = { initialPresent = it },
-                                changeInitialAbsent = { initialAbsent = it },
-                                changeEditingSubject = { editingSubject = it },
-                                changeLatitude = { latitude = it },
-                                changeLongitude = { longitude = it },
-                                changeRange = { range = it },
-                                changeIsSubjectSelected = { selected ->
-                                    if (selected) {
+                                onSubjectSelected = { isSelected ->
+                                    isSubjectSelected = isSelected
+                                    if(isSelected){
                                         addSubjectIdtoDelete(subject._id)
-                                    } else {
+                                    }else{
                                         removeSubjectIdToDelete(subject._id)
                                     }
-                                    isSubjectSelected = selected
                                 }
                             )
                         }

@@ -1,6 +1,5 @@
 package com.example.classattendanceapp.presenter.screens.subjectsscreen
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -10,9 +9,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,14 +31,7 @@ import kotlinx.coroutines.launch
 fun SubjectCard(
     subject: ModifiedSubjects,
     classAttendanceViewModel: ClassAttendanceViewModel,
-    changeSubjectNameTextField: (String)-> Unit,
-    changeInitialPresent: (String)->Unit,
-    changeInitialAbsent: (String)->Unit,
-    changeEditingSubject: (Int) -> Unit,
-    changeLatitude: (String)->Unit,
-    changeLongitude: (String)->Unit,
-    changeRange: (String)->Unit,
-    changeIsSubjectSelected: (Boolean)->Unit
+    onSubjectSelected: (Boolean)->Unit
 
 ){
     var showOverFlowMenu by remember { mutableStateOf(false) }
@@ -58,49 +47,13 @@ fun SubjectCard(
             .combinedClickable(
                 onClick = {
                     showAdditionalCardDetails = !showAdditionalCardDetails
-                    changeIsSubjectSelected(false)
+                    onSubjectSelected(false)
                 },
                 onLongClick = {
-                    changeIsSubjectSelected(true)
+                    onSubjectSelected(true)
                 }
             )
     ) {
-        DropdownMenu(
-            expanded = showOverFlowMenu,
-            onDismissRequest = {
-                showOverFlowMenu = false
-            }
-        ) {
-            DropdownMenuItem(
-                onClick = {
-                    coroutineScope.launch {
-                        classAttendanceViewModel.deleteSubject(
-                            subject._id,
-                            context
-                        )
-                    }
-                    showOverFlowMenu = false
-                }
-            ) {
-                Text(stringResource(R.string.delete))
-            }
-            DropdownMenuItem(
-                onClick = {
-                    showOverFlowMenu = false
-                    changeSubjectNameTextField(subject.subjectName)
-                    changeInitialPresent(subject.daysPresent.toString())
-                    changeInitialAbsent(subject.daysAbsent.toString())
-                    changeEditingSubject(subject._id)
-                    changeLatitude(if (subject.latitude == null) "" else subject.latitude.toString())
-                    changeLongitude(if (subject.longitude == null) "" else subject.longitude.toString())
-                    changeRange(if (subject.range == null) "" else subject.range.toString())
-                    classAttendanceViewModel.changeFloatingButtonClickedState(true)
-                }
-            ) {
-                Text(stringResource(R.string.edit))
-            }
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()

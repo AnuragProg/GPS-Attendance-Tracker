@@ -1,3 +1,5 @@
+@file:Suppress("OPT_IN_IS_NOT_ENABLED")
+
 package com.example.classattendanceapp.presenter.screens.timetablescreen
 
 import androidx.compose.animation.*
@@ -276,7 +278,7 @@ fun TimeTableScreen(
                     .fillMaxSize()
                     .animateContentSize(),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ){
                 items(Days.values()){
                     Card(

@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -20,71 +19,56 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.models.Subject
+import com.example.classattendanceapp.domain.models.ModifiedSubjects
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun SubjectScreenAlertDialog(
-    editingSubject: Int?,
-    subjectNameTextField: String,
-    initialPresent: String,
-    initialAbsent: String,
-    latitude : String,
-    longitude : String,
-    range: String,
+    subjectToEdit: ModifiedSubjects?,
+    resetSubjectToEdit: ()->Unit,
     changeShowLocationSelectionPopup: (Boolean) -> Unit,
     classAttendanceViewModel: ClassAttendanceViewModel,
-    changeEditingSubject: (Int?)->Unit,
-    changeSubjectNameTextField: (String)->Unit,
-    changeInitialPresent:(String)->Unit,
-    changeInitialAbsent:(String)->Unit,
-    changeLatitude: (String)->Unit,
-    changeLongitude:(String)->Unit,
-    changeRange:(String)->Unit
+    latitudeFromMap: String?,
+    longitudeFromMap: String?,
+    changeLatitudeFromMap:(String?)->Unit,
+    changeLongitudeFromMap:(String?)->Unit
 ){
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
 
-    var lsubjectNameTextField by remember{
-        mutableStateOf(subjectNameTextField)
+    val uiState = if(subjectToEdit!=null){
+        rememberSubjectScreenAlertDialogUiState(
+            subjectName = subjectToEdit.subjectName,
+            presents = subjectToEdit.daysPresent.toString(),
+            absents = subjectToEdit.daysAbsent.toString(),
+            subjectId = subjectToEdit._id,
+            range = if(subjectToEdit.range ==null) "" else subjectToEdit.range.toString()
+        )
+    }else{
+        rememberSubjectScreenAlertDialogUiState()
     }
-    var linitialPresent by remember{
-        mutableStateOf(initialPresent)
+
+    LaunchedEffect(Unit){
+        if(subjectToEdit==null){
+            uiState.latitude.value = ""
+            uiState.longitude.value = ""
+        }else{
+            uiState.latitude.value = if(subjectToEdit.latitude==null) "" else subjectToEdit.latitude.toString()
+            uiState.longitude.value = if(subjectToEdit.longitude==null) "" else subjectToEdit.longitude.toString()
+        }
     }
-    var linitialAbsent by remember{
-        mutableStateOf(initialAbsent)
+
+    LaunchedEffect(latitudeFromMap, longitudeFromMap){
+        if(latitudeFromMap!=null && longitudeFromMap!=null){
+            uiState.latitude.value = latitudeFromMap
+            uiState.longitude.value = longitudeFromMap
+        }
     }
-    var leditingSubject by remember{
-        mutableStateOf(editingSubject)
-    }
-    var llatitude by remember{
-        mutableStateOf(latitude)
-    }
-    var llongitude by remember{
-        mutableStateOf(longitude)
-    }
-    var lrange by remember{
-        mutableStateOf(range)
-    }
+    
 
     AlertDialog(
         onDismissRequest = {
             classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-
-            changeSubjectNameTextField("")
-            changeInitialPresent("0")
-            changeInitialAbsent("0")
-            changeEditingSubject(null)
-            changeLatitude("")
-            changeLongitude("")
-            changeRange("")
-            //lsubjectNameTextField = ""
-//            linitialPresent = 0.toString()
-//            linitialAbsent = 0.toString()
-//            leditingSubject = null
-//            llatitude = ""
-//            llongitude = ""
-//            lrange = ""
+            resetSubjectToEdit()
         },
         text = {
             Column {
@@ -95,17 +79,17 @@ fun SubjectScreenAlertDialog(
                 )
                 Spacer(modifier = Modifier.height(5.dp))
                 OutlinedTextField(
-                    value = lsubjectNameTextField,
-                    onValueChange = { lsubjectNameTextField = it },
+                    value = uiState.subjectName.value,
+                    onValueChange = { uiState.subjectName.value = it },
                     label = {
                         Text(stringResource(R.string.subject_name) + " (Required)")
                     },
                     maxLines = 1,
                     trailingIcon = {
-                        if(lsubjectNameTextField.isNotEmpty()){
+                        if(uiState.subjectName.value.isNotEmpty()){
                             IconButton(
                                 onClick = {
-                                    lsubjectNameTextField = ""
+                                    uiState.subjectName.value = ""
                                 }
                             ) {
                                 Icon(
@@ -124,9 +108,9 @@ fun SubjectScreenAlertDialog(
                     Box {
                         OutlinedTextField(
                             modifier = Modifier.width(135.dp),
-                            value = linitialPresent,
+                            value = uiState.presents.value,
                             onValueChange = {
-                                linitialPresent = it
+                                uiState.presents.value = it
                             },
                             label = {
                                 Text(stringResource(R.string.presents))
@@ -149,8 +133,8 @@ fun SubjectScreenAlertDialog(
                                 Icon(
                                     modifier = Modifier.clickable {
                                         try {
-                                            linitialPresent =
-                                                (linitialPresent.toLong() + 1).toString()
+                                            uiState.presents.value =
+                                                (uiState.presents.value.toLong() + 1).toString()
                                         } catch (e: NumberFormatException) {
 
                                         }
@@ -161,9 +145,9 @@ fun SubjectScreenAlertDialog(
                                 Icon(
                                     modifier = Modifier.clickable {
                                         try {
-                                            if (linitialPresent.toLong() > 0) {
-                                                linitialPresent =
-                                                    (linitialPresent.toLong() - 1).toString()
+                                            if (uiState.presents.value.toLong() > 0) {
+                                                uiState.presents.value =
+                                                    (uiState.presents.value.toLong() - 1).toString()
                                             }
                                         } catch (e: NumberFormatException) {
 
@@ -179,9 +163,9 @@ fun SubjectScreenAlertDialog(
                     Box {
                         OutlinedTextField(
                             modifier = Modifier.width(135.dp),
-                            value = linitialAbsent,
+                            value = uiState.absents.value,
                             onValueChange = {
-                                linitialAbsent = it
+                                uiState.absents.value = it
                             },
                             label = {
                                 Text(stringResource(R.string.absents))
@@ -204,8 +188,8 @@ fun SubjectScreenAlertDialog(
                                 Icon(
                                     modifier = Modifier.clickable {
                                         try {
-                                            linitialAbsent =
-                                                (linitialAbsent.toLong() + 1).toString()
+                                            uiState.absents.value =
+                                                (uiState.absents.value.toLong() + 1).toString()
                                         } catch (e: NumberFormatException) {
 
                                         }
@@ -216,9 +200,9 @@ fun SubjectScreenAlertDialog(
                                 Icon(
                                     modifier = Modifier.clickable {
                                         try {
-                                            if (linitialAbsent.toLong() > 0) {
-                                                linitialAbsent =
-                                                    (linitialAbsent.toLong() - 1).toString()
+                                            if (uiState.absents.value.toLong() > 0) {
+                                                uiState.absents.value =
+                                                    (uiState.absents.value.toLong() - 1).toString()
                                             }
                                         } catch (e: NumberFormatException) {
 
@@ -239,9 +223,9 @@ fun SubjectScreenAlertDialog(
                     Box{
                         OutlinedTextField(
                             modifier = Modifier.width(135.dp),
-                            value = llatitude,
+                            value = uiState.latitude.value,
                             onValueChange = {
-                                llatitude = it
+                                uiState.latitude.value = it
                             },
                             label = {
                                 Text(stringResource(R.string.latitude))
@@ -257,10 +241,11 @@ fun SubjectScreenAlertDialog(
                                 .padding(end = 8.dp),
                             contentAlignment = Alignment.CenterEnd
                         ){
-                            if(llatitude.isNotEmpty()){
+                            if(uiState.latitude.value.isNotEmpty()){
                                 Icon(
                                     modifier = Modifier.clickable {
-                                        llatitude = ""
+                                        uiState.latitude.value = ""
+                                        changeLatitudeFromMap(null)
                                     },
                                     imageVector = Icons.Filled.Clear,
                                     contentDescription = null
@@ -272,9 +257,9 @@ fun SubjectScreenAlertDialog(
                     Box{
                         OutlinedTextField(
                             modifier = Modifier.width(135.dp),
-                            value = llongitude,
+                            value = uiState.longitude.value,
                             onValueChange = {
-                                llongitude = it
+                                uiState.longitude.value=it
                             },
                             label = {
                                 Text(stringResource(R.string.longitude))
@@ -290,10 +275,11 @@ fun SubjectScreenAlertDialog(
                                 .padding(end = 8.dp),
                             contentAlignment = Alignment.CenterEnd
                         ){
-                            if(llongitude.isNotEmpty()){
+                            if(uiState.longitude.value.isNotEmpty()){
                                 Icon(
                                     modifier = Modifier.clickable {
-                                        llongitude = ""
+                                        uiState.longitude.value = ""
+                                        changeLongitudeFromMap(null)
                                     },
                                     imageVector = Icons.Filled.Clear,
                                     contentDescription = null
@@ -304,9 +290,9 @@ fun SubjectScreenAlertDialog(
                 }
                 OutlinedTextField(
 
-                    value = lrange,
+                    value = uiState.range.value,
                     onValueChange = {
-                        lrange = it
+                        uiState.range.value = it
                     },
                     label = {
                         Text(stringResource(R.string.rangeInM))
@@ -316,10 +302,10 @@ fun SubjectScreenAlertDialog(
                     ),
                     maxLines = 1,
                     trailingIcon = {
-                        if(lrange.isNotEmpty()){
+                        if(uiState.range.value.isNotEmpty()){
                             IconButton(
                                 onClick = {
-                                    lrange = ""
+                                    uiState.range.value = ""
                                 }
                             ){
                                 Icon(
@@ -349,30 +335,30 @@ fun SubjectScreenAlertDialog(
                 Row {
                     TextButton(
                         onClick = {
-                            coroutineScope.launch {
-                                if (lsubjectNameTextField.isBlank()) {
-                                    Toast.makeText(context,
+                            uiState.coroutineScope.launch {
+                                if (uiState.subjectName.value.isBlank()) {
+                                    Toast.makeText(uiState.context,
                                         "Subject Name can't be empty!",
                                         Toast.LENGTH_SHORT).show()
                                     return@launch
                                 }
                                 try {
                                     val daysPresent =
-                                        if (linitialPresent.isBlank()) 0 else linitialPresent.toLong()
+                                        if (uiState.presents.value.isBlank()) 0 else uiState.presents.value.toLong()
                                     val daysAbsent =
-                                        if (linitialAbsent.isBlank()) 0 else linitialAbsent.toLong()
-                                    val lat = if(llatitude.isBlank()) null else llatitude.toDouble()
-                                    val lon = if(llongitude.isBlank()) null else llongitude.toDouble()
-                                    val ran = if(lrange.isBlank()) null else lrange.toDouble()
+                                        if (uiState.absents.value.isBlank()) 0 else uiState.absents.value.toLong()
+                                    val lat = latitudeFromMap?.toDouble()
+                                    val lon = longitudeFromMap?.toDouble()
+                                    val ran = if(uiState.range.value.isBlank()) null else uiState.range.value.toDouble()
 
 
-                                    if (leditingSubject != null) {
+                                    if (uiState.subjectId.value != null) {
                                         val subject = classAttendanceViewModel.getSubjectWithId(
-                                            leditingSubject!!)!!
+                                            uiState.subjectId.value!!)!!
                                         classAttendanceViewModel.updateSubject(
                                             Subject(
                                                 _id = subject._id,
-                                                subjectName = lsubjectNameTextField.trim(),
+                                                subjectName = uiState.subjectName.value.trim(),
                                                 daysPresent = daysPresent,
                                                 daysAbsent = daysAbsent,
                                                 daysPresentOfLogs = subject.daysPresentOfLogs,
@@ -386,7 +372,7 @@ fun SubjectScreenAlertDialog(
                                         classAttendanceViewModel.insertSubject(
                                             Subject(
                                                 _id = 0,
-                                                subjectName = lsubjectNameTextField.trim(),
+                                                subjectName = uiState.subjectName.value.trim(),
                                                 daysPresent = daysPresent,
                                                 daysAbsent = daysAbsent,
                                                 daysPresentOfLogs = 0,
@@ -398,26 +384,10 @@ fun SubjectScreenAlertDialog(
                                         )
                                     }
                                     classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-
-
-                                    changeSubjectNameTextField("")
-                                    changeInitialPresent("0")
-                                    changeInitialAbsent("0")
-                                    changeEditingSubject(null)
-                                    changeLatitude("")
-                                    changeLongitude("")
-                                    changeRange("")
-
-//                                    lsubjectNameTextField = ""
-//                                    linitialPresent = 0.toString()
-//                                    linitialAbsent = 0.toString()
-//                                    leditingSubject = null
-//                                    llatitude = ""
-//                                    llongitude = ""
-//                                    lrange = ""
+                                    resetSubjectToEdit()
 
                                 } catch (e: NumberFormatException) {
-                                    Toast.makeText(context,
+                                    Toast.makeText(uiState.context,
                                         "Please enter valid information!",
                                         Toast.LENGTH_SHORT).show()
                                 }
@@ -430,22 +400,7 @@ fun SubjectScreenAlertDialog(
                     TextButton(
                         onClick = {
                             classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-
-                            changeSubjectNameTextField("")
-                            changeInitialPresent("0")
-                            changeInitialAbsent("0")
-                            changeEditingSubject(null)
-                            changeLatitude("")
-                            changeLongitude("")
-                            changeRange("")
-
-//                            lsubjectNameTextField = ""
-//                            linitialPresent = 0.toString()
-//                            linitialAbsent = 0.toString()
-//                            leditingSubject = null
-//                            llatitude = ""
-//                            llongitude = ""
-//                            lrange = ""
+                            resetSubjectToEdit()
                         }
                     ) {
                         Text(stringResource(R.string.cancel))

@@ -121,8 +121,7 @@ fun ClassAttendanceTopBar(
         },
         actions = {
             if(!showSearchBar && listOfSubjectIdsToDelete.isEmpty() && listOfLogIdsToDelete.isEmpty()){
-                if (currentBackStackEntry.value?.destination?.route !in listOf(Screens.TIMETABLESCREEN.route,
-                        Screens.MAPSSCREEN.route)
+                if (currentBackStackEntry.value?.destination?.route !in listOf(Screens.TIMETABLESCREEN.route, )
                 ) {
                     IconButton(
                         onClick = {

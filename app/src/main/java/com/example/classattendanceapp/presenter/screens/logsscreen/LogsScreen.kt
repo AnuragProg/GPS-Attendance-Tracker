@@ -11,13 +11,14 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
@@ -101,7 +102,7 @@ fun LogsScreen(
         ){
             Icon(
                 modifier = Modifier.size(200.dp),
-                imageVector = Icons.Outlined.Timer,
+                imageVector = Icons.Outlined.ListAlt,
                 contentDescription = null,
                 tint = Color.White
             )
@@ -111,7 +112,8 @@ fun LogsScreen(
                 text = stringResource(R.string.no_logs),
                 color = Color.White,
                 fontFamily = FontFamily.SansSerif,
-                fontSize = 20.sp
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     } else if(logsList.isEmpty() && !isInitialLogDataRetrievalDone.value){
