@@ -19,6 +19,7 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.classattendanceapp.R
 import com.example.classattendanceapp.data.models.Log
+import com.example.classattendanceapp.domain.models.ModifiedLogs
 import com.example.classattendanceapp.presenter.utils.DateToSimpleFormat
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import com.vanpra.composematerialdialogs.MaterialDialog
@@ -34,45 +35,28 @@ import java.util.*
 @Composable
 fun LogsScreenAlertDialog(
     classAttendanceViewModel: ClassAttendanceViewModel,
-    initialSubjectNameInAlertDialog: String? = null,
-    initialSubjectIdInAlertDialog: Int? = null,
-    initialEditingLog: Int? = null,
-    changeInitialSubjectNameInAlertDialog: (String?)->Unit,
-    changeInitialSubjectIdInAlertDialog:(Int?)->Unit,
-    changeInitialEditingLog: (Int?)->Unit
+    logToEdit: ModifiedLogs?,
+    resetLogToEdit: ()->Unit
 ){
+
+    val uiState = remember{
+        LogsScreenAlertDialogUiState()
+    }
+
+    val localLog by remember{
+        mutableStateOf(logToEdit ?: ModifiedLogs())
+    }
+
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
     val isInitialLogDataRetrievalDone = classAttendanceViewModel.isInitialLogDataRetrievalDone.collectAsStateWithLifecycle()
 
-    val selectedYear = classAttendanceViewModel.currentYear.collectAsStateWithLifecycle()
-    val selectedMonth = classAttendanceViewModel.currentMonth.collectAsStateWithLifecycle()
-    val selectedDay = classAttendanceViewModel.currentDay.collectAsStateWithLifecycle()
-    val selectedHour = classAttendanceViewModel.currentHour.collectAsStateWithLifecycle()
-    val selectedMinute = classAttendanceViewModel.currentMinute.collectAsStateWithLifecycle()
-
-    var showAddLogsSubjectNameAlertDialog by remember{
-        mutableStateOf(false)
-    }
-
-    var subjectIdInAlertDialog by remember{
-        mutableStateOf(initialSubjectIdInAlertDialog)
-    }
-
-    var subjectNameInAlertDialog by remember{
-        mutableStateOf(initialSubjectNameInAlertDialog)
-    }
-
-    var isPresent by remember{
-        mutableStateOf(true)
-    }
-
-    // null -> no editing to be done
-    // id of log -> editing to be done of log with given id
-    var editingLog by remember{
-        mutableStateOf(initialEditingLog)
-    }
+    val selectedYear by classAttendanceViewModel.currentYear.collectAsStateWithLifecycle()
+    val selectedMonth by classAttendanceViewModel.currentMonth.collectAsStateWithLifecycle()
+    val selectedDay by classAttendanceViewModel.currentDay.collectAsStateWithLifecycle()
+    val selectedHour by classAttendanceViewModel.currentHour.collectAsStateWithLifecycle()
+    val selectedMinute by classAttendanceViewModel.currentMinute.collectAsStateWithLifecycle()
 
     val datePickerDialogState =
         remember{
@@ -83,13 +67,30 @@ fun LogsScreenAlertDialog(
                     classAttendanceViewModel.changeCurrentMonth(month)
                     classAttendanceViewModel.changeCurrentDay(day)
                 },
-                selectedYear.value,
-                selectedMonth.value,
-                selectedDay.value
+                logToEdit?.year ?: selectedYear,
+                logToEdit?.monthNumber  ?: selectedMonth,
+                logToEdit?.date ?: selectedDay
             ))
         }
+    LaunchedEffect(Unit){
+        /*
+        Populating the empty fields with fields of log to be edited
+         */
+        if(logToEdit!=null){
+            uiState.subjectName = logToEdit.subjectName!!
+            uiState.isPresent = logToEdit.wasPresent
+            classAttendanceViewModel.changeCurrentYear(logToEdit.year!!)
+            classAttendanceViewModel.changeCurrentMonth(logToEdit.monthNumber!!)
+            classAttendanceViewModel.changeCurrentDay(logToEdit.date!!)
+            classAttendanceViewModel.changeCurrentHour(logToEdit.hour!!)
+            classAttendanceViewModel.changeCurrentMinute(logToEdit.minute!!)
+        }
+    }
 
     LaunchedEffect(Unit){
+        /*
+        Changing the DatePickerDialog with latest changed value
+         */
         combine(
             classAttendanceViewModel.currentDay,
             classAttendanceViewModel.currentMonth,
@@ -116,9 +117,7 @@ fun LogsScreenAlertDialog(
     AlertDialog(
         onDismissRequest = {
             classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-            changeInitialSubjectIdInAlertDialog(null)
-            changeInitialSubjectNameInAlertDialog(null)
-            changeInitialEditingLog(null)
+            resetLogToEdit()
         },
         text = {
             Column{
@@ -130,47 +129,52 @@ fun LogsScreenAlertDialog(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedButton(
-                    onClick = {
-                        showAddLogsSubjectNameAlertDialog = true
-                    }
+                    onClick = {}
                 ) {
                     Row(
                         modifier = Modifier,
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ){
-                        Text(subjectNameInAlertDialog ?: stringResource(R.string.select_subject))
-                        IconButton(
-                            onClick = {
-                                showAddLogsSubjectNameAlertDialog = true
+                        Text(uiState.subjectName ?: stringResource(R.string.select_subject))
+                        if(logToEdit==null){
+                            IconButton(
+                                onClick = {
+
+                                    uiState.showSubjectListOverflowMenu = true
+
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Filled.ArrowDropDown,
+                                    contentDescription = null
+                                )
                             }
-                        ) {
-                            Icon(
-                                Icons.Filled.ArrowDropDown,
-                                contentDescription = null
-                            )
                         }
                     }
 
                     DropdownMenu(
                         modifier = Modifier.requiredHeightIn(max=300.dp),
-                        expanded = showAddLogsSubjectNameAlertDialog,
+                        expanded = uiState.showSubjectListOverflowMenu,
                         onDismissRequest = {
-                            showAddLogsSubjectNameAlertDialog = false
+                            uiState.showSubjectListOverflowMenu = false
                         }
                     ) {
                         val subjectsList = classAttendanceViewModel.subjectsList.collectAsStateWithLifecycle()
                         val isInitialSubjectDataRetrievalDone = classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
                         if(subjectsList.value.isNotEmpty()){
-                            subjectsList.value.forEach{
+                            subjectsList.value.forEach{ subject->
                                 DropdownMenuItem(
                                     onClick = {
-                                        subjectIdInAlertDialog = it._id
-                                        subjectNameInAlertDialog = it.subjectName
-                                        showAddLogsSubjectNameAlertDialog = false
+                                        localLog.subjectId = subject._id
+
+                                        uiState.subjectName = subject.subjectName /* To show user selected subject */
+
+                                        localLog.subjectName = subject.subjectName /* To enter into the database */
+                                        uiState.showSubjectListOverflowMenu = false
                                     }
                                 ) {
-                                    Text(it.subjectName)
+                                    Text(subject.subjectName)
                                 }
                             }
                         }else if(subjectsList.value.isEmpty() && isInitialLogDataRetrievalDone.value){
@@ -184,9 +188,10 @@ fun LogsScreenAlertDialog(
                 Row{
                     Row{
                         RadioButton(
-                            selected = isPresent,
+                            selected = uiState.isPresent,
                             onClick = {
-                                isPresent = true
+                                uiState.isPresent = true /* To show user is Present */
+                                localLog.wasPresent = true /* To enter into database */
                             }
                         )
                         Spacer(modifier = Modifier.width(5.dp))
@@ -200,9 +205,10 @@ fun LogsScreenAlertDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Row{
                         RadioButton(
-                            selected = !isPresent,
+                            selected = !uiState.isPresent,
                             onClick = {
-                                isPresent = false
+                                uiState.isPresent = false /* To show user isAbsent */
+                                localLog.wasPresent = false /* To enter into database */
                             }
                         )
                         Spacer(modifier = Modifier.width(5.dp))
@@ -224,7 +230,7 @@ fun LogsScreenAlertDialog(
                         }
                     ) {
                         Text(
-                            "${DateToSimpleFormat.getMonthStringFromNumber(selectedMonth.value)} ${selectedDay.value}, ${selectedYear.value}"
+                            "${DateToSimpleFormat.getMonthStringFromNumber(selectedMonth)} ${selectedDay}, ${selectedYear}"
                         )
                     }
 
@@ -237,16 +243,16 @@ fun LogsScreenAlertDialog(
                     ) {
                         Text(
                             "${
-                                if (selectedHour.value < 10) {
-                                    "0${selectedHour.value}"
+                                if (selectedHour < 10) {
+                                    "0${selectedHour}"
                                 } else {
-                                    selectedHour.value
+                                    selectedHour
                                 }
                             }:${
-                                if (selectedMinute.value < 10) {
-                                    "0${selectedMinute.value}"
+                                if (selectedMinute < 10) {
+                                    "0${selectedMinute}"
                                 } else {
-                                    selectedMinute.value
+                                    selectedMinute
                                 }
                             }")
                     }
@@ -274,8 +280,8 @@ fun LogsScreenAlertDialog(
                     timepicker(
                         is24HourClock = true,
                         initialTime = LocalTime.of(
-                            selectedHour.value,
-                            selectedMinute.value,
+                            selectedHour,
+                            selectedMinute,
                             0,
                             0
                         )
@@ -295,43 +301,41 @@ fun LogsScreenAlertDialog(
                     onClick = {
                         coroutineScope.launch {
                             if(
-                                subjectNameInAlertDialog!=null
+                                localLog.subjectName!=null
                             ){
                                 val logsTime = Calendar.getInstance()
-                                logsTime.set(selectedYear.value, selectedMonth.value, selectedDay.value, selectedHour.value, selectedMinute.value, 0)
-                                if(editingLog == null){
+                                logsTime.set(selectedYear, selectedMonth, selectedDay, selectedHour, selectedMinute, 0)
+
+                                if(logToEdit == null){
                                     classAttendanceViewModel.insertLogs(
                                         Log(
-                                            0,
-                                            subjectIdInAlertDialog!!,
-                                            subjectNameInAlertDialog!!,
-                                            logsTime.time,
-                                            isPresent,
-                                            null,
-                                            null,
-                                            null
+                                            _id = 0,
+                                            subjectId = localLog.subjectId!!,
+                                            subjectName = localLog.subjectName!!,
+                                            timestamp = logsTime.time,
+                                            wasPresent = localLog.wasPresent,
+                                            latitude = null,
+                                            longitude = null,
+                                            distance = null
                                         )
                                     )
 
                                 }else{
                                     classAttendanceViewModel.updateLog(
                                         Log(
-                                            editingLog!!,
-                                            subjectIdInAlertDialog!!,
-                                            subjectNameInAlertDialog!!,
-                                            logsTime.time,
-                                            isPresent,
-                                            null,
-                                            null,
-                                            null
+                                            _id = localLog._id!!,
+                                            subjectId = localLog.subjectId!!,
+                                            subjectName = localLog.subjectName!!,
+                                            timestamp = logsTime.time,
+                                            wasPresent = localLog.wasPresent,
+                                            latitude = null,
+                                            longitude = null,
+                                            distance = null
                                         )
                                     )
                                 }
                                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
-                                changeInitialSubjectIdInAlertDialog(null)
-                                changeInitialSubjectNameInAlertDialog(null)
-                                changeInitialEditingLog(null)
-                                isPresent = true
+                                resetLogToEdit()
                             }else{
                                 Toast.makeText(context, "Subject Name cannot be empty!", Toast.LENGTH_SHORT).show()
                             }
@@ -345,10 +349,7 @@ fun LogsScreenAlertDialog(
 
                 TextButton(
                     onClick = {
-                        changeInitialSubjectIdInAlertDialog(null)
-                        changeInitialSubjectNameInAlertDialog(null)
-                        changeInitialEditingLog(null)
-                        isPresent = true
+                        resetLogToEdit()
                         classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                     }
                 ) {

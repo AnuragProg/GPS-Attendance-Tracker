@@ -53,18 +53,9 @@ fun LogsScreen(
         initialFirstVisibleItemIndex = 0
     )
 
-    var subjectIdInAlertDialog by remember{
-        mutableStateOf<Int?>(null)
-    }
 
-    var subjectNameInAlertDialog by remember{
-        mutableStateOf<String?>(null)
-    }
-
-    // null -> no editing to be done
-    // id of log -> editing to be done of log with given id
-    var editingLog by remember{
-        mutableStateOf<Int?>(null)
+    var logToEdit by remember{
+        mutableStateOf<ModifiedLogs?>(null)
     }
 
 
@@ -83,7 +74,7 @@ fun LogsScreen(
             logsList.addAll(
                 it.filter{
                     if(searchBarText.isNotBlank()){
-                        searchBarText.lowercase() in it.subjectName.lowercase()
+                        searchBarText.lowercase() in it.subjectName!!.lowercase()
                     }else{
                         true
                     }
@@ -96,12 +87,8 @@ fun LogsScreen(
     if(showAddLogsAlertDialog.value){
         LogsScreenAlertDialog(
             classAttendanceViewModel = classAttendanceViewModel,
-            initialSubjectNameInAlertDialog = subjectNameInAlertDialog,
-            initialSubjectIdInAlertDialog = subjectIdInAlertDialog,
-            initialEditingLog = editingLog,
-            changeInitialEditingLog = {editingLog=it},
-            changeInitialSubjectIdInAlertDialog = {subjectIdInAlertDialog=it},
-            changeInitialSubjectNameInAlertDialog = {subjectNameInAlertDialog=it}
+            logToEdit = logToEdit,
+            resetLogToEdit = {logToEdit=null}
         )
     }
 
@@ -147,20 +134,17 @@ fun LogsScreen(
             ){
                 items(
                     logsList,
-                    key = {it._id}
+                    key = {it._id!!}
                 ){ log ->
                     var isLogSelected by remember{mutableStateOf(false)}
                     val dismissState = rememberDismissState()
 
                     if(dismissState.isDismissed(DismissDirection.StartToEnd)){
                         coroutineScope.launch{
-                            classAttendanceViewModel.deleteLogs(log._id)
+                            classAttendanceViewModel.deleteLogs(log._id!!)
                         }
                     }else if(dismissState.isDismissed(DismissDirection.EndToStart)){
-
-                        subjectNameInAlertDialog = log.subjectName
-                        subjectIdInAlertDialog = log.subjectId
-                        editingLog = log._id
+                        logToEdit = log
                         classAttendanceViewModel.changeFloatingButtonClickedState(true)
                         coroutineScope.launch{
                             dismissState.reset()
@@ -203,16 +187,12 @@ fun LogsScreen(
                             }
                         ){
                             LogCard(
-                                changeSubjectIdInAlertDialog = { subjectIdInAlertDialog = it },
-                                changeSubjectNameInAlertDialog = { subjectNameInAlertDialog = it },
                                 log = log,
-                                changeEditingLog = { editingLog = it },
-                                classAttendanceViewModel = classAttendanceViewModel,
                                 changeIsLogSelected = { selected ->
                                     if (selected) {
-                                        addLogIdtoDelete(log._id)
+                                        addLogIdtoDelete(log._id!!)
                                     } else {
-                                        removeLogIdToDelete(log._id)
+                                        removeLogIdToDelete(log._id!!)
                                     }
 
                                     isLogSelected = selected
@@ -224,7 +204,7 @@ fun LogsScreen(
                                 modifier = Modifier.matchParentSize(),
                                 color = Color.Blue.copy(alpha = 0.2f),
                                 onClick = {
-                                    removeLogIdToDelete(log._id)
+                                    removeLogIdToDelete(log._id!!)
                                     isLogSelected = false
                                 }
                             ) {}

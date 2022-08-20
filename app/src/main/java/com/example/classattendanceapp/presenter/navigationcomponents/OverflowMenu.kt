@@ -36,7 +36,7 @@ fun OverflowMenu(
                     )
                     when(result){
                         SnackbarResult.ActionPerformed -> {
-                            val intent = Intent(Intent.ACTION_GET_CONTENT)
+                            val intent = Intent(Intent.ACTION_VIEW)
                             intent.setDataAndType(uri, "*/*")
                             context.startActivity(intent)
                         }
@@ -60,7 +60,7 @@ fun OverflowMenu(
                     )
                     when(result){
                         SnackbarResult.ActionPerformed->{
-                            val intent = Intent(Intent.ACTION_GET_CONTENT)
+                            val intent = Intent(Intent.ACTION_VIEW)
                             intent.setDataAndType(uri, "*/*")
                             context.startActivity(intent)
                         }

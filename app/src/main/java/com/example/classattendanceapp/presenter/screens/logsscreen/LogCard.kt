@@ -22,11 +22,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LogCard(
-    changeSubjectIdInAlertDialog : (Int?)->Unit,
-    changeSubjectNameInAlertDialog : (String?)->Unit,
-    changeEditingLog: (Int?)->Unit,
     log: ModifiedLogs,
-    classAttendanceViewModel: ClassAttendanceViewModel,
     changeIsLogSelected: (Boolean)->Unit
 ){
     var showAdditionalCardDetails by remember{
@@ -57,7 +53,7 @@ fun LogCard(
             ) {
                 Text(
                     modifier = if(showAdditionalCardDetails) Modifier.fillMaxWidth() else Modifier.width(80.dp),
-                    text = log.subjectName,
+                    text = log.subjectName!!,
                     overflow = if (!showAdditionalCardDetails) {
                         TextOverflow.Ellipsis
                     } else {
@@ -129,16 +125,16 @@ fun LogCard(
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             "${
-                                if (log.hour < 10) "0${log.hour}"
+                                if (log.hour !!< 10) "0${log.hour}"
                                 else log.hour
                             }:${
-                                if (log.minute < 10) "0${log.minute}"
+                                if (log.minute!! < 10) "0${log.minute}"
                                 else log.minute
                             }"
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            log.day
+                            log.day!!
                         )
                         Spacer(modifier = Modifier.height(10.dp))
 

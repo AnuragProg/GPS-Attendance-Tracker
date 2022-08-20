@@ -62,7 +62,7 @@ fun ClassAttendanceTopBar(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(end = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.Start
                 ){
                     Text(
                         modifier = Modifier
@@ -75,28 +75,11 @@ fun ClassAttendanceTopBar(
                                     } else if (currentBackStackEntry.value?.destination?.route == Screens.LOGSSCREEN.route) {
                                         clearLogIdsToDelete()
                                         classAttendanceViewModel.deleteLogsInList(
-                                            classAttendanceViewModel.logsList.value.map { it._id })
+                                            classAttendanceViewModel.logsList.value.map { it._id!! })
                                     }
                                 }
                             },
                         text = "Delete all"
-                    )
-                    Text(
-                        modifier = Modifier
-                            .clickable{
-                                coroutineScope.launch{
-                                    if (currentBackStackEntry.value?.destination?.route == Screens.SUBJECTSSCREEN.route) {
-                                        classAttendanceViewModel.deleteSubjectsInList(context,
-                                            listOfSubjectIdsToDelete)
-                                        clearSubjectIdsToDelete()
-                                    } else if (currentBackStackEntry.value?.destination?.route == Screens.LOGSSCREEN.route) {
-                                        classAttendanceViewModel.deleteLogsInList(
-                                            listOfLogIdsToDelete)
-                                        clearLogIdsToDelete()
-                                    }
-                                }
-                            },
-                        text = "Delete"
                     )
                 }
 

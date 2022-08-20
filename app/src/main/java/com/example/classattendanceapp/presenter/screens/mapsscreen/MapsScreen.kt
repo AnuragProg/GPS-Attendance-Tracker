@@ -82,22 +82,6 @@ fun MapsScreen(
         }
     }
 
-    LaunchedEffect(Unit){
-
-
-        val currentLocation = ClassLocationManager.getLocation(context).first()
-        if(currentLocation != null){
-            mapView.controller.setCenter(GeoPoint(currentLocation.latitude, currentLocation.longitude))
-        }else if(subjectsList.value.isNotEmpty()){
-            val randomSubject = subjectsList.value.filter{
-                it.latitude!=null && it.longitude!=null
-            }.random()
-            mapView.controller.setCenter(
-                GeoPoint(randomSubject.latitude!!, randomSubject.longitude!!)
-            )
-        }
-    }
-
     DisposableEffect(Unit){
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkCallback = object: ConnectivityManager.NetworkCallback(){
