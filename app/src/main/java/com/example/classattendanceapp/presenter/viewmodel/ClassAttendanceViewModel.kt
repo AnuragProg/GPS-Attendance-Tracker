@@ -1,12 +1,10 @@
 package com.example.classattendanceapp.presenter.viewmodel
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Build
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateListOf
+import android.util.Log.d
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.classattendanceapp.data.models.Log
@@ -16,8 +14,6 @@ import com.example.classattendanceapp.domain.models.ModifiedLogs
 import com.example.classattendanceapp.domain.models.ModifiedSubjects
 import com.example.classattendanceapp.domain.usecases.usecase.ClassAttendanceUseCase
 import com.example.classattendanceapp.domain.utils.alarms.ClassAlarmManager
-import com.example.classattendanceapp.presenter.utils.DateToSimpleFormat
-import com.example.classattendanceapp.presenter.utils.Days
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.shreyaspatil.permissionFlow.MultiplePermissionState
 import dev.shreyaspatil.permissionFlow.PermissionFlow
@@ -31,6 +27,11 @@ class ClassAttendanceViewModel @Inject constructor(
     private val classAttendanceUseCase: ClassAttendanceUseCase,
     private val permissionFlow: PermissionFlow
 ): ViewModel() {
+
+
+
+    private var _deniedPermissions = MutableStateFlow<List<String>>(emptyList())
+    val deniedPermissions : StateFlow<List<String>> get() = _deniedPermissions
 
 
     init{
@@ -48,6 +49,50 @@ class ClassAttendanceViewModel @Inject constructor(
                     _isInitialLogDataRetrievalDone.value = true
                 }
                 _logsList.value = retrievedLogsList
+            }
+        }
+
+        viewModelScope.launch{
+            permissionsStateFlow().collectLatest{
+                d("debugging", "Granted Permissions: ${it.grantedPermissions}")
+                d("debugging", "Denied Permissions: ${it.deniedPermissions}")
+                val deniedPermissions = mutableListOf<String>()
+                it.deniedPermissions.forEach{
+                    val permission = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+                        when (it) {
+                            Manifest.permission.ACCESS_FINE_LOCATION , Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION -> {
+                                "Location"
+                            }
+                            Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET -> {
+                                "Network"
+                            }
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE -> {
+                                "Storage"
+                            }
+                            else -> ""
+                        }
+                    }else{
+                        when (it) {
+                            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION -> {
+                                d("debugging", "Added location for fine or coarse location")
+                                "Location"
+                            }
+                            Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET -> {
+                                d("debugging", "Added Network for network state and internet")
+                                "Network"
+                            }
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE -> {
+                                d("debugging", "Added Storage for read/write external storage")
+                                "Storage"
+                            }
+                            else -> ""
+                        }
+                    }
+                    if(permission.isNotBlank() && permission !in deniedPermissions){
+                        deniedPermissions.add(permission)
+                    }
+                }
+                _deniedPermissions.value = deniedPermissions
             }
         }
     }
@@ -74,8 +119,6 @@ class ClassAttendanceViewModel @Inject constructor(
             )
         }
     }
-
-
 
 
     private var _searchBarText = MutableStateFlow("")

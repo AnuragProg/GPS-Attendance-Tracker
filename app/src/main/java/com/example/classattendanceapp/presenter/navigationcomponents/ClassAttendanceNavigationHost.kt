@@ -1,30 +1,38 @@
 package com.example.classattendanceapp.presenter.navigationcomponents
 
+import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.classattendanceapp.presenter.screens.logsscreen.LogsScreen
+import com.example.classattendanceapp.presenter.screens.mapsscreen.DeniedPermissionMapScreen
 import com.example.classattendanceapp.presenter.screens.mapsscreen.MapsScreen
 import com.example.classattendanceapp.presenter.screens.subjectsscreen.SubjectsScreen
 import com.example.classattendanceapp.presenter.screens.timetablescreen.TimeTableScreen
+import com.google.accompanist.permissions.PermissionStatus
 
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class)
 @Composable
 fun ClassAttendanceNavigationHost(){
 
     val uiState = rememberClassAttendanceNavigationHostUiState()
+    val deniedPermissions by uiState.classAttendanceViewModel.deniedPermissions.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit){
         uiState.showFloatingActionButton.value = true
@@ -86,7 +94,12 @@ fun ClassAttendanceNavigationHost(){
         isFloatingActionButtonDocked = true,
         floatingActionButtonPosition = FabPosition.Center
     ){
-
+        Column{
+            DeniedPermissionsCard(
+                scaffoldPadding = it,
+                uiState = uiState,
+                deniedPermissions = deniedPermissions
+            )
             NavHost(
                 modifier = Modifier
                     .fillMaxSize()
@@ -125,14 +138,18 @@ fun ClassAttendanceNavigationHost(){
                     }
                     TimeTableScreen(uiState.classAttendanceViewModel)
                 }
-                
+
                 composable(Screens.MAPSSCREEN.route){
                     BackHandler(enabled=true) {
                         uiState.context.moveTaskToBack(true)
                     }
-                    MapsScreen(uiState.classAttendanceViewModel)
+                    if("Location" in deniedPermissions){
+                        DeniedPermissionMapScreen()
+                    }else{
+                        MapsScreen(uiState.classAttendanceViewModel)
+                    }
                 }
             }
         }
     }
-
+}

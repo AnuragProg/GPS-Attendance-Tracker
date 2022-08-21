@@ -2,12 +2,10 @@ package com.example.classattendanceapp.presenter.navigationcomponents
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat.startActivity
 import com.example.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.launch
 

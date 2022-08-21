@@ -3,6 +3,8 @@
 package com.example.classattendanceapp.presenter.screens.subjectsscreen
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -156,8 +158,13 @@ fun SubjectsScreen(
                     subjectsList,
                     key = {subject -> subject._id}
                 ) { subject ->
+                    var isCardVisible by remember{mutableStateOf(false)}
                     var isSubjectSelected by remember{mutableStateOf(false)}
                     val dismissState = rememberDismissState()
+
+                    LaunchedEffect(Unit){
+                        isCardVisible = true
+                    }
 
                     if(dismissState.isDismissed(DismissDirection.StartToEnd)){
                         coroutineScope.launch{
@@ -167,60 +174,66 @@ fun SubjectsScreen(
                         subjectToEdit = subject
                         classAttendanceViewModel.changeFloatingButtonClickedState(state = true)
                         coroutineScope.launch{ dismissState.reset() }
-
                     }
 
                     Box(
                         modifier = Modifier.fillMaxWidth()
                     ){
-                        SwipeToDismiss(
-                            state = dismissState,
-                            dismissThresholds = { FractionalThreshold(0.8f) },
-                            background = {
 
-                                if(dismissState.dismissDirection == DismissDirection.StartToEnd){
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .requiredHeightIn(min = 80.dp)
-                                            .padding(start = 10.dp),
-                                        contentAlignment = Alignment.CenterStart
-                                    ){
-                                        Icon(
-                                            imageVector = Icons.Filled.Delete,
-                                            contentDescription = null,
-                                            tint = Color.White
-                                        )
-                                    }
-                                }else{
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .requiredHeightIn(min = 80.dp)
-                                            .padding(end = 10.dp),
-                                        contentAlignment = Alignment.CenterEnd
-                                    ){
-                                        Icon(
-                                            imageVector = Icons.Filled.Edit,
-                                            contentDescription = null,
-                                            tint = Color.White
-                                        )
-                                    }
-                                }
-                            }
-                        ){
-                            SubjectCard(
-                                subject = subject,
-                                classAttendanceViewModel = classAttendanceViewModel,
-                                onSubjectSelected = { isSelected ->
-                                    isSubjectSelected = isSelected
-                                    if(isSelected){
-                                        addSubjectIdtoDelete(subject._id)
+                        AnimatedVisibility(
+                            visible = isCardVisible,
+                            enter = slideInHorizontally{ it/10} + fadeIn(),
+                            exit = slideOutHorizontally{-it/10} + fadeOut()
+                        ) {
+                            SwipeToDismiss(
+                                state = dismissState,
+                                dismissThresholds = { FractionalThreshold(0.8f) },
+                                background = {
+
+                                    if(dismissState.dismissDirection == DismissDirection.StartToEnd){
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .requiredHeightIn(min = 80.dp)
+                                                .padding(start = 10.dp),
+                                            contentAlignment = Alignment.CenterStart
+                                        ){
+                                            Icon(
+                                                imageVector = Icons.Filled.Delete,
+                                                contentDescription = null,
+                                                tint = Color.White
+                                            )
+                                        }
                                     }else{
-                                        removeSubjectIdToDelete(subject._id)
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .requiredHeightIn(min = 80.dp)
+                                                .padding(end = 10.dp),
+                                            contentAlignment = Alignment.CenterEnd
+                                        ){
+                                            Icon(
+                                                imageVector = Icons.Filled.Edit,
+                                                contentDescription = null,
+                                                tint = Color.White
+                                            )
+                                        }
                                     }
                                 }
-                            )
+                            ){
+                                SubjectCard(
+                                    subject = subject,
+                                    classAttendanceViewModel = classAttendanceViewModel,
+                                    onSubjectSelected = { isSelected ->
+                                        isSubjectSelected = isSelected
+                                        if(isSelected){
+                                            addSubjectIdtoDelete(subject._id)
+                                        }else{
+                                            removeSubjectIdToDelete(subject._id)
+                                        }
+                                    }
+                                )
+                            }
                         }
                         if(isSubjectSelected){
                             Surface(

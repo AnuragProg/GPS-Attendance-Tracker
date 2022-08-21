@@ -61,6 +61,9 @@ fun MapsScreen(
         mutableStateOf(false)
     }
 
+    /*
+    Searchbar filtering
+     */
     LaunchedEffect(searchBarText){
         classAttendanceViewModel.getSubjectsAdvanced().collect{
             subjectsList.clear()
@@ -78,6 +81,10 @@ fun MapsScreen(
         }
     }
 
+
+    /*
+    MapView lifecycle adjustments
+     */
     DisposableEffect(lifecycleOwner){
 
         val lifecycleObserver = LifecycleEventObserver { _, event ->
@@ -101,6 +108,10 @@ fun MapsScreen(
         }
     }
 
+
+    /*
+    Callback for checking network status
+     */
     DisposableEffect(Unit){
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkCallback = object: ConnectivityManager.NetworkCallback(){
