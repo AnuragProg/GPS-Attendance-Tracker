@@ -1,20 +1,26 @@
 package com.example.classattendanceapp.presenter.navigationcomponents
 
-import android.content.Intent
-import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.*
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.FabPosition
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -24,7 +30,6 @@ import com.example.classattendanceapp.presenter.screens.mapsscreen.DeniedPermiss
 import com.example.classattendanceapp.presenter.screens.mapsscreen.MapsScreen
 import com.example.classattendanceapp.presenter.screens.subjectsscreen.SubjectsScreen
 import com.example.classattendanceapp.presenter.screens.timetablescreen.TimeTableScreen
-import com.google.accompanist.permissions.PermissionStatus
 
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class)
@@ -94,16 +99,17 @@ fun ClassAttendanceNavigationHost(){
         isFloatingActionButtonDocked = true,
         floatingActionButtonPosition = FabPosition.Center
     ){
-        Column{
+        Column(
+            modifier = Modifier.fillMaxSize()
+                .padding(it)
+        ){
             DeniedPermissionsCard(
-                scaffoldPadding = it,
                 uiState = uiState,
                 deniedPermissions = deniedPermissions
             )
             NavHost(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it),
+                    .fillMaxSize(),
                 navController = uiState.navController,
                 startDestination = Screens.SUBJECTSSCREEN.route,
             ) {

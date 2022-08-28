@@ -1,4 +1,4 @@
-package com.example.classattendanceapp.domain.utils.reservedPendingIntentRequestCodes
+package com.example.classattendanceapp.components.reservedPendingIntentRequestCodes
 
 enum class ReservedPendingIntentRequestCodes (
     val requestCode: Int

@@ -1,4 +1,4 @@
-package com.example.classattendanceapp.domain.utils.internetcheck
+package com.example.classattendanceapp.components.internetcheck
 
 import android.content.Context
 import android.net.ConnectivityManager

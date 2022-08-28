@@ -1,4 +1,4 @@
-package com.example.classattendanceapp.domain.utils.alarms
+package com.example.classattendanceapp.components.alarms
 
 enum class AlarmKeys(
     val key: String

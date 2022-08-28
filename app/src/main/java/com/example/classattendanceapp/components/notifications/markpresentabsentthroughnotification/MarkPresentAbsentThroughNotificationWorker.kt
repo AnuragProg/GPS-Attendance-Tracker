@@ -1,11 +1,11 @@
-package com.example.classattendanceapp.domain.utils.notifications.markpresentabsentthroughnotification
+package com.example.classattendanceapp.components.notifications.markpresentabsentthroughnotification
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.classattendanceapp.components.notifications.NotificationKeys
 import com.example.classattendanceapp.domain.repository.ClassAttendanceRepository
-import com.example.classattendanceapp.domain.utils.notifications.NotificationKeys
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.util.*

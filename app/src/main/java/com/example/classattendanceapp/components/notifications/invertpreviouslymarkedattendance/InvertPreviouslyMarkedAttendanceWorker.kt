@@ -1,13 +1,11 @@
-package com.example.classattendanceapp.domain.utils.notifications.invertpreviouslymarkedattendance
+package com.example.classattendanceapp.components.notifications.invertpreviouslymarkedattendance
 
 import android.content.Context
-import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.example.classattendanceapp.data.db.ClassAttendanceDao
+import com.example.classattendanceapp.components.notifications.NotificationKeys
 import com.example.classattendanceapp.domain.repository.ClassAttendanceRepository
-import com.example.classattendanceapp.domain.utils.notifications.NotificationKeys
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 

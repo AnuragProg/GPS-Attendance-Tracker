@@ -36,7 +36,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".domain.utils.alarms.ClassAlarmBroadcastReceiver"
+        <receiver android:name=".components.alarms.ClassAlarmBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -44,7 +44,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
-        <receiver android:name=".domain.utils.resetalarmsonreboot.RebootBroadCastReceiver"
+        <receiver android:name=".components.resetalarmsonreboot.RebootBroadCastReceiver"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
             android:exported="true"
             android:enabled="true">
@@ -53,7 +53,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
-        <receiver android:name=".domain.utils.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver"
+        <receiver android:name=".components.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver"
             android:exported="true"
             android:enabled="true">
             <intent-filter>
@@ -62,7 +62,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".domain.utils.notifications.invertpreviouslymarkedattendance.InvertPreviouslyMarkedAttendanceBroadcastReceiver"
+        <receiver android:name=".components.notifications.invertpreviouslymarkedattendance.InvertPreviouslyMarkedAttendanceBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

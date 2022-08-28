@@ -1,4 +1,4 @@
-package com.example.classattendanceapp.domain.utils.maths
+package com.example.classattendanceapp.components.maths
 
 import kotlin.math.*
 

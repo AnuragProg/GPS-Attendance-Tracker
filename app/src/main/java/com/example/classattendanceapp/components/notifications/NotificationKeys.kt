@@ -1,4 +1,4 @@
-package com.example.classattendanceapp.domain.utils.notifications
+package com.example.classattendanceapp.components.notifications
 
 enum class NotificationKeys(
     val key: String

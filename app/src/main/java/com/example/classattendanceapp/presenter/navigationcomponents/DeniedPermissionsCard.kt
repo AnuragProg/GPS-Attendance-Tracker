@@ -6,7 +6,6 @@ import android.provider.Settings
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Surface
@@ -21,7 +20,6 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun DeniedPermissionsCard(
-    scaffoldPadding: PaddingValues,
     uiState: ClassAttendanceNavigationHostUiState,
     deniedPermissions: List<String>
 ) {
@@ -30,7 +28,7 @@ fun DeniedPermissionsCard(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(scaffoldPadding)
+                .padding(10.dp)
                 .border(5.dp, Color.Black)
         ) {
             Column(

@@ -1,10 +1,9 @@
-package com.example.classattendanceapp.domain.utils.alarms
+package com.example.classattendanceapp.components.alarms
 
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.example.classattendanceapp.data.models.TimeTable
 import java.util.*
 

@@ -1,14 +1,13 @@
-package com.example.classattendanceapp.domain.utils.notifications.markpresentabsentthroughnotification
+package com.example.classattendanceapp.components.notifications.markpresentabsentthroughnotification
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.example.classattendanceapp.domain.utils.notifications.NotificationKeys
+import com.example.classattendanceapp.components.notifications.NotificationKeys
 
 class MarkPresentAbsentThroughNotificationBroadcastReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {

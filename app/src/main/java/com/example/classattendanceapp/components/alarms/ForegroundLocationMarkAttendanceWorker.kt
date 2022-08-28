@@ -1,4 +1,4 @@
-package com.example.classattendanceapp.domain.utils.alarms
+package com.example.classattendanceapp.components.alarms
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -12,14 +12,16 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.example.classattendanceapp.R
+import com.example.classattendanceapp.components.location.ClassLocationManager
+import com.example.classattendanceapp.components.maths.CoordinateCalculations
+import com.example.classattendanceapp.components.notifications.NotificationHandler
 import com.example.classattendanceapp.data.models.TimeTable
 import com.example.classattendanceapp.domain.repository.ClassAttendanceRepository
-import com.example.classattendanceapp.domain.utils.location.ClassLocationManager
-import com.example.classattendanceapp.domain.utils.maths.CoordinateCalculations
-import com.example.classattendanceapp.domain.utils.notifications.NotificationHandler
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeout
 import java.util.*
 
 
@@ -92,14 +94,14 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
             }
         }
 
-        val subjectWithId = classAttendanceRepository.getSubjectWithId(subjectId)
+        val subject = classAttendanceRepository.getSubjectWithId(subjectId)
         val userSpecifiedLocation = Triple(
-            first = subjectWithId?.latitude,
-            second = subjectWithId?.longitude,
-            third = subjectWithId?.range,
+            first = subject?.latitude,
+            second = subject?.longitude,
+            third = subject?.range,
         )
 
-        // if no userSpecifiedLocation found in datastore
+        // if no userSpecifiedLocation found in database
         if(userSpecifiedLocation.first==null || userSpecifiedLocation.second==null || userSpecifiedLocation.third==null){
             createNotificationChannelAndShowNotification(
                 timeTableId = timeTableId,
@@ -109,10 +111,91 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 minute = minute,
                 context = context
             )
-            return Result.success()
         }else{
-            val currentLocation = ClassLocationManager.getLocation(context).single()
-            if(currentLocation==null) {
+            try{
+                withTimeout(5000){
+
+
+                    val currentLocation = ClassLocationManager.getLocationFlow(context).first()
+
+                    val distance = CoordinateCalculations.distanceBetweenPointsInM(
+                        lat1 = currentLocation.latitude,
+                        long1 = currentLocation.longitude,
+                        lat2 = userSpecifiedLocation.first!!,
+                        long2 = userSpecifiedLocation.second!!,
+                    )
+                    if (distance <= userSpecifiedLocation.third!!) {
+                        val subjectWithId = classAttendanceRepository.getSubjectWithId(subjectId)
+                        subjectWithId!!.daysPresentOfLogs++
+                        classAttendanceRepository.insertSubject(
+                            subjectWithId
+                        )
+                        val logsId = classAttendanceRepository.insertLogs(
+                            com.example.classattendanceapp.data.models.Log(
+                                0,
+                                subjectId,
+                                subjectName,
+                                Calendar.getInstance().time,
+                                true,
+                                latitude = currentLocation.latitude,
+                                longitude = currentLocation.longitude,
+                                distance = distance
+                            )
+                        )
+                        createNotificationChannelAndShowNotification(
+                            timeTableId = timeTableId,
+                            logsId = logsId.toInt(),
+                            markedPresentOrAbsent = true,
+                            subjectId = subjectId,
+                            subjectName = subjectName,
+                            hour = hour,
+                            minute = minute,
+                            context = context,
+                            message = "Present \nLatitude = " + String.format("%.6f",
+                                currentLocation.latitude) + "\nLongitude = " + String.format(
+                                "%.6f",
+                                currentLocation.longitude) + "\nDistance = " + String.format(
+                                "%.6f",
+                                distance)
+                        )
+                    } else {
+                        val subjectWithId = classAttendanceRepository.getSubjectWithId(subjectId)
+                        subjectWithId!!.daysAbsentOfLogs++
+                        classAttendanceRepository.insertSubject(
+                            subjectWithId
+                        )
+                        val logsId = classAttendanceRepository.insertLogs(
+                            com.example.classattendanceapp.data.models.Log(
+                                0,
+                                subjectId,
+                                subjectName,
+                                Calendar.getInstance().time,
+                                false,
+                                latitude = currentLocation.latitude,
+                                longitude = currentLocation.longitude,
+                                distance = distance
+                            )
+                        )
+                        createNotificationChannelAndShowNotification(
+                            logsId = logsId.toInt(),
+                            markedPresentOrAbsent = false,
+                            timeTableId = timeTableId,
+                            subjectId = subjectId,
+                            subjectName = subjectName,
+                            hour = hour,
+                            minute = minute,
+                            context = context,
+                            message = "Absent \nLatitude = " + String.format("%.6f",
+                                currentLocation.latitude) + "\nLongitude = " + String.format(
+                                "%.6f",
+                                currentLocation.longitude) + "\nDistance = " + String.format(
+                                "%.6f",
+                                distance)
+                        )
+                    }
+                }
+            }
+            catch(timeout: TimeoutCancellationException){
                 createNotificationChannelAndShowNotification(
                     timeTableId = timeTableId,
                     subjectId = subjectId,
@@ -121,83 +204,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                     minute = minute,
                     context = context
                 )
-            }
-            else{
-                val distance = CoordinateCalculations.distanceBetweenPointsInM(
-                    lat1 = currentLocation.latitude,
-                    long1 = currentLocation.longitude,
-                    lat2 = userSpecifiedLocation.first!!,
-                    long2 = userSpecifiedLocation.second!!,
-                )
-                if (distance <= userSpecifiedLocation.third!!) {
-                    val subjectWithId = classAttendanceRepository.getSubjectWithId(subjectId)
-                    subjectWithId!!.daysPresentOfLogs++
-                    classAttendanceRepository.insertSubject(
-                        subjectWithId
-                    )
-                    val logsId = classAttendanceRepository.insertLogs(
-                        com.example.classattendanceapp.data.models.Log(
-                            0,
-                            subjectId,
-                            subjectName,
-                            Calendar.getInstance().time,
-                            true,
-                            latitude = currentLocation.latitude,
-                            longitude = currentLocation.longitude,
-                            distance = distance
-                        )
-                    )
-                    createNotificationChannelAndShowNotification(
-                        timeTableId = timeTableId,
-                        logsId = logsId.toInt(),
-                        markedPresentOrAbsent = true,
-                        subjectId = subjectId,
-                        subjectName = subjectName,
-                        hour = hour,
-                        minute = minute,
-                        context = context,
-                        message = "Present \nLatitude = " + String.format("%.6f",
-                            currentLocation.latitude) + "\nLongitude = " + String.format(
-                            "%.6f",
-                            currentLocation.longitude) + "\nDistance = " + String.format(
-                            "%.6f",
-                            distance)
-                    )
-                } else {
-                    val subjectWithId = classAttendanceRepository.getSubjectWithId(subjectId)
-                    subjectWithId!!.daysAbsentOfLogs++
-                    classAttendanceRepository.insertSubject(
-                        subjectWithId
-                    )
-                    val logsId = classAttendanceRepository.insertLogs(
-                        com.example.classattendanceapp.data.models.Log(
-                            0,
-                            subjectId,
-                            subjectName,
-                            Calendar.getInstance().time,
-                            false,
-                            latitude = currentLocation.latitude,
-                            longitude = currentLocation.longitude,
-                            distance = distance
-                        )
-                    )
-                    createNotificationChannelAndShowNotification(
-                        logsId = logsId.toInt(),
-                        markedPresentOrAbsent = false,
-                        timeTableId = timeTableId,
-                        subjectId = subjectId,
-                        subjectName = subjectName,
-                        hour = hour,
-                        minute = minute,
-                        context = context,
-                        message = "Absent \nLatitude = " + String.format("%.6f",
-                            currentLocation.latitude) + "\nLongitude = " + String.format(
-                            "%.6f",
-                            currentLocation.longitude) + "\nDistance = " + String.format(
-                            "%.6f",
-                            distance)
-                    )
-                }
             }
         }
         ClassAlarmManager.registerAlarm(

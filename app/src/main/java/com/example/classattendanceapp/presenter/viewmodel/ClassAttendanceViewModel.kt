@@ -7,13 +7,13 @@ import android.os.Build
 import android.util.Log.d
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.classattendanceapp.components.alarms.ClassAlarmManager
 import com.example.classattendanceapp.data.models.Log
 import com.example.classattendanceapp.data.models.Subject
 import com.example.classattendanceapp.data.models.TimeTable
 import com.example.classattendanceapp.domain.models.ModifiedLogs
 import com.example.classattendanceapp.domain.models.ModifiedSubjects
 import com.example.classattendanceapp.domain.usecases.usecase.ClassAttendanceUseCase
-import com.example.classattendanceapp.domain.utils.alarms.ClassAlarmManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.shreyaspatil.permissionFlow.MultiplePermissionState
 import dev.shreyaspatil.permissionFlow.PermissionFlow
@@ -27,8 +27,6 @@ class ClassAttendanceViewModel @Inject constructor(
     private val classAttendanceUseCase: ClassAttendanceUseCase,
     private val permissionFlow: PermissionFlow
 ): ViewModel() {
-
-
 
     private var _deniedPermissions = MutableStateFlow<List<String>>(emptyList())
     val deniedPermissions : StateFlow<List<String>> get() = _deniedPermissions
