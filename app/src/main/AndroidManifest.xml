@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.classattendanceapp">
+    package="com.gps.classattendanceapp">
 
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -18,7 +18,7 @@
     <uses-feature android:name="android.hardware.location.network"/>
 
     <application
-        android:name=".ClassAttendanceApplication"
+        android:name="com.gps.classattendanceapp.ClassAttendanceApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -27,7 +27,7 @@
         android:theme="@style/Theme.ClassAttendanceApp">
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.gps.classattendanceapp.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.ClassAttendanceApp">
@@ -36,7 +36,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".components.alarms.ClassAlarmBroadcastReceiver"
+        <receiver android:name="com.gps.classattendanceapp.components.alarms.ClassAlarmBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -44,7 +44,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
-        <receiver android:name=".components.resetalarmsonreboot.RebootBroadCastReceiver"
+        <receiver android:name="com.gps.classattendanceapp.components.resetalarmsonreboot.RebootBroadCastReceiver"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
             android:exported="true"
             android:enabled="true">
@@ -53,7 +53,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
-        <receiver android:name=".components.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver"
+        <receiver android:name="com.gps.classattendanceapp.components.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver"
             android:exported="true"
             android:enabled="true">
             <intent-filter>
@@ -62,7 +62,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".components.notifications.invertpreviouslymarkedattendance.InvertPreviouslyMarkedAttendanceBroadcastReceiver"
+        <receiver android:name="com.gps.classattendanceapp.components.notifications.invertpreviouslymarkedattendance.InvertPreviouslyMarkedAttendanceBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
