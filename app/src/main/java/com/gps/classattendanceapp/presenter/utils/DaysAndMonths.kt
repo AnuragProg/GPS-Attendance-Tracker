@@ -32,7 +32,7 @@ enum class Months(
 
     // Returns-> Number on success and null on failure
     fun getValueOfMonth(monthInStringFormat: String): Int?{
-        for(mon in Months.values()){
+        for(mon in values()){
             if(mon.month == monthInStringFormat){
                 return mon.value
             }

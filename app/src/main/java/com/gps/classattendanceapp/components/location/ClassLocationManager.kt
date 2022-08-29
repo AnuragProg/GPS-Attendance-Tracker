@@ -78,4 +78,5 @@ object ClassLocationManager {
             locationManager.removeUpdates(networkListener)
         }
     }
+
 }
