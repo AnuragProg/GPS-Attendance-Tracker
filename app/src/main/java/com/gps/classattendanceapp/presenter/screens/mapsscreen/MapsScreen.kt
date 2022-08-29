@@ -8,10 +8,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -142,7 +142,6 @@ fun MapsScreen(
                         }
                     }
                 ) { map ->
-
                     subjectsList
                         .forEach {
                             val marker = Marker(map)
@@ -152,7 +151,6 @@ fun MapsScreen(
 
                             map.overlays.add(marker)
                         }
-
                 }
                 LazyRow(
                     modifier = Modifier
@@ -184,6 +182,38 @@ fun MapsScreen(
                             }
                         }
                     }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 50.dp),
+                    contentAlignment = Alignment.BottomCenter
+                ){
+                    TextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        value = uiState.searchLocation.value,
+                        onValueChange = {
+                            uiState.searchLocation.value = it
+                        },
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            backgroundColor = Color.White,
+                            textColor = Color.Black
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        trailingIcon = {
+                            IconButton(onClick = { /*TODO*/ }) {
+                                Icon(
+                                    Icons.Filled.Search,
+                                    contentDescription = null
+                                )
+
+                            }
+                        }
+                    )
                 }
             }
         }else{

@@ -60,11 +60,11 @@ class Excel {
             cell.setCellValue(subject.attendancePercentage.toString() + "%")
         }
 
-        val externalFileLocation = context.getExternalFilesDir(null)
-        val excelFile = File(externalFileLocation , "Subject_Stats.xls")
+        val excelFile = File(context.getExternalFilesDir(null) , "Subject_Stats.xls")
         val outputStream = FileOutputStream(excelFile)
         workbook.write(outputStream)
         outputStream.close()
+
         return Uri.parse(excelFile.absolutePath)
     }
 
@@ -118,8 +118,7 @@ class Excel {
             cell.setCellValue(if(log.wasPresent)"Present" else "Absent")
         }
 
-        val externalFileLocation = context.getExternalFilesDir(null)
-        val excelFile = File(externalFileLocation, "Logs_Stats.xls")
+        val excelFile = File(context.getExternalFilesDir(null), "Logs_Stats.xls")
         val outputFileStream = FileOutputStream(excelFile)
         workbook.write(outputFileStream)
         outputFileStream.close()

@@ -20,7 +20,8 @@ data class MapsScreenUiState(
     val searchBarText : State<String>,
     val currentLocation: State<Location?>,
     val isInternetAlive: MutableState<Boolean>,
-    val coroutineScope: CoroutineScope
+    val coroutineScope: CoroutineScope,
+    val searchLocation: MutableState<String>
 )
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
@@ -38,6 +39,7 @@ fun rememberMapsScreenUiState(
     ),
     isInternetAlive: MutableState<Boolean> = mutableStateOf(false),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    searchLocation: MutableState<String> = mutableStateOf("")
 )  = remember{
     MapsScreenUiState(
         classAttendanceViewModel = classAttendanceViewModel,
@@ -46,6 +48,7 @@ fun rememberMapsScreenUiState(
         searchBarText = searchBarText,
         currentLocation = currentLocation,
         isInternetAlive = isInternetAlive,
-        coroutineScope = coroutineScope
+        coroutineScope = coroutineScope,
+        searchLocation = searchLocation
     )
 }

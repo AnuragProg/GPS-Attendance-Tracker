@@ -1,7 +1,9 @@
 package com.gps.classattendanceapp.presenter.navigationcomponents
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,13 +36,17 @@ fun OverflowMenu(
                     )
                     when(result){
                         SnackbarResult.ActionPerformed -> {
-                            val intent = Intent(Intent.ACTION_VIEW)
-                            intent.setDataAndType(uri, "*/*")
-                            context.startActivity(intent)
-                        }
-                        SnackbarResult.Dismissed -> {
+                            try{
+                                val intent = Intent(Intent.ACTION_VIEW)
+                                intent.setDataAndType(uri, "application/vnd.ms-excel")
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                context.startActivity(intent)
 
+                            }catch(e: ActivityNotFoundException){
+                                Toast.makeText(context, "No application available to view excel file!", Toast.LENGTH_SHORT).show()
+                            }
                         }
+                        SnackbarResult.Dismissed -> {}
                     }
                 }
                 changeOverflowMenuVisibility(false)
@@ -58,13 +64,16 @@ fun OverflowMenu(
                     )
                     when(result){
                         SnackbarResult.ActionPerformed->{
-                            val intent = Intent(Intent.ACTION_VIEW)
-                            intent.setDataAndType(uri, "*/*")
-                            context.startActivity(intent)
+                            try{
+                                val intent = Intent(Intent.ACTION_VIEW)
+                                intent.setDataAndType(uri, "application/vnd.ms-excel")
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                context.startActivity(intent)
+                            }catch(e: ActivityNotFoundException){
+                                Toast.makeText(context, "No application available to view excel file!", Toast.LENGTH_SHORT).show()
+                            }
                         }
-                        SnackbarResult.Dismissed->{
-
-                        }
+                        SnackbarResult.Dismissed->{}
                     }
                 }
                 changeOverflowMenuVisibility(false)
