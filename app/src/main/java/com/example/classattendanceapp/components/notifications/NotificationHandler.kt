@@ -90,7 +90,7 @@ object NotificationHandler {
         }
         val notification = if(message!=null){
             NotificationCompat.Builder(context, CHANNELID)
-                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setSmallIcon(R.drawable.marked)
                 .setContentTitle(context.getString(R.string.marked_your_attendance))
                 .setContentText(contentMessage)
                 .setContentIntent(pendingIntent)
@@ -100,19 +100,19 @@ object NotificationHandler {
                 ))
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setAutoCancel(true)
-                .addAction(R.drawable.ic_launcher_background,"No, I was $invertedAttendance",invertPreviouslyMarkedAttendancePendingIntent)
+                .addAction(R.drawable.marked,"No, I was $invertedAttendance",invertPreviouslyMarkedAttendancePendingIntent)
                 .build()
         }else{
             NotificationCompat.Builder(context, CHANNELID)
-                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setSmallIcon(R.drawable.exclamation_mark)
                 .setContentTitle(context.getString(R.string.mark_your_attendance))
                 .setContentText(contentMessage)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setAutoCancel(true)
-                .addAction(R.drawable.ic_launcher_background, "Present", markPresentPendingIntent)
-                .addAction(R.drawable.ic_launcher_background, "Absent", markAbsentPendingIntent)
+                .addAction(R.drawable.marked, "Present", markPresentPendingIntent)
+                .addAction(R.drawable.marked, "Absent", markAbsentPendingIntent)
                 .build()
         }
         with(NotificationManagerCompat.from(context)){

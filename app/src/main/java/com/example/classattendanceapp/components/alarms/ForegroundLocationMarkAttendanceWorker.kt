@@ -40,7 +40,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
 
         createForegroundNotificationChannel()
         val foregroundNotification = NotificationCompat.Builder(context, foregroundNotificationChannelId)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.processing)
             .setContentTitle("Location Retrieval")
             .setContentText("Retrieving Your Location")
             .build()
@@ -54,8 +54,8 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         val timeTableId = inputData.getInt(AlarmKeys.TIMETABLE_ID.key, -1)
         val hour = inputData.getInt(AlarmKeys.HOUR.key, -1)
         val minute = inputData.getInt(AlarmKeys.MINUTE.key, -1)
-        val day_of_the_week = inputData.getInt(AlarmKeys.DAYOFTHEWEEK.key, -1)
-        if(timeTableId == -1 || subjectId == -1 || subjectName == null || hour == -1 || minute == -1 || day_of_the_week == -1){
+        val dayOfTheWeek = inputData.getInt(AlarmKeys.DAYOFTHEWEEK.key, -1)
+        if(timeTableId == -1 || subjectId == -1 || subjectName == null || hour == -1 || minute == -1 || dayOfTheWeek == -1){
             return Result.retry()
         }
 
@@ -215,7 +215,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 subjectName,
                 hour,
                 minute,
-                day_of_the_week
+                dayOfTheWeek
             )
         )
 
