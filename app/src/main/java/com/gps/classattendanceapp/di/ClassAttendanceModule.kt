@@ -1,6 +1,9 @@
 package com.gps.classattendanceapp.di
 
 import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gps.classattendanceapp.data.db.ClassAttendanceDao
 import com.gps.classattendanceapp.data.db.ClassAttendanceDatabase
 import com.gps.classattendanceapp.data.excel.Excel
@@ -23,6 +26,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ClassAttendanceModule {
+
+    @Provides
+    @Singleton
+    fun providesFirebaseAuth(): FirebaseAuth {
+        return Firebase.auth
+    }
 
     @Provides
     @Singleton

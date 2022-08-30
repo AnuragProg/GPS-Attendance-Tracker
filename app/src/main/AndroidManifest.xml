@@ -3,81 +3,94 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.gps.classattendanceapp">
 
-
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-feature android:name="android.hardware.location.gps"/>
-    <uses-feature android:name="android.hardware.location.network"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-feature android:name="android.hardware.location.gps" />
+    <uses-feature android:name="android.hardware.location.network" />
 
     <application
-        android:name="com.gps.classattendanceapp.ClassAttendanceApplication"
+        android:name=".ClassAttendanceApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ClassAttendanceApp"
-        >
-
+        android:theme="@style/Theme.ClassAttendanceApp">
         <activity
-            android:name="com.gps.classattendanceapp.MainActivity"
+            android:name=".SignInActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.ClassAttendanceApp"
-            android:windowSoftInputMode="adjustPan"
-            >
+            android:label="@string/title_activity_sign_in"
+            android:theme="@style/Theme.ClassAttendanceApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name="com.gps.classattendanceapp.components.alarms.ClassAlarmBroadcastReceiver"
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.ClassAttendanceApp"
+            android:windowSoftInputMode="adjustPan">
+        </activity>
+
+        <receiver
+            android:name=".components.alarms.ClassAlarmBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.example.classattendanceapp.domain.utils.alarms.ClassAlarmBroadcastReceiver"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="com.example.classattendanceapp.domain.utils.alarms.ClassAlarmBroadcastReceiver" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.gps.classattendanceapp.components.resetalarmsonreboot.RebootBroadCastReceiver"
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
+        <receiver
+            android:name=".components.resetalarmsonreboot.RebootBroadCastReceiver"
+            android:enabled="true"
             android:exported="true"
-            android:enabled="true">
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.gps.classattendanceapp.components.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver"
-            android:exported="true"
-            android:enabled="true">
+        <receiver
+            android:name=".components.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.example.classattendanceapp.domain.utils.notification_manipulation_broadcasts.MarkPresentAbsentThroughNotificationBroadcastReceiver"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="com.example.classattendanceapp.domain.utils.notification_manipulation_broadcasts.MarkPresentAbsentThroughNotificationBroadcastReceiver" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".components.notifications.invertpreviouslymarkedattendance.InvertPreviouslyMarkedAttendanceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.classattendanceapp.domain.utils.notification_manipulation_broadcasts.InvertPreviouslyMarkedAttendanceBroadcastReceiver" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.gps.classattendanceapp.components.notifications.invertpreviouslymarkedattendance.InvertPreviouslyMarkedAttendanceBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.example.classattendanceapp.domain.utils.notification_manipulation_broadcasts.InvertPreviouslyMarkedAttendanceBroadcastReceiver"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </receiver>
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove">
-        </provider>
+            tools:node="remove"></provider>
     </application>
 
 </manifest>

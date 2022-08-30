@@ -33,4 +33,5 @@
     <string name="rangeInM">Range(in m)</string>
     <string name="save">Save</string>
     <string name="range">Range</string>
+    <string name="title_activity_sign_in">SignInActivity</string>
 </resources>
