@@ -4,18 +4,21 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import android.window.SplashScreen
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -48,6 +51,11 @@ class SignInActivity : ComponentActivity() {
             }
         }
 
+        if(auth.currentUser!=null){
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+
         val gos = GoogleSignInOptions.Builder()
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
@@ -56,7 +64,7 @@ class SignInActivity : ComponentActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, gos)
     }
 
-    fun handler(task : Task<GoogleSignInAccount>){
+    private fun handler(task : Task<GoogleSignInAccount>){
         if(task.isSuccessful){
             updateUi(task.result)
         }else{
@@ -86,9 +94,13 @@ fun SignInUI(
     signInIntent: Intent,
     handler: (Task<GoogleSignInAccount>) -> Unit
 ) {
+
+    val uiState = rememberSignInActivityUIState()
+
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ){result ->
+        uiState.showProgressBar.value = true
         if(result.resultCode == Activity.RESULT_OK){
             val googleAccountTask = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             handler(googleAccountTask)
@@ -98,16 +110,28 @@ fun SignInUI(
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
-    ){
-        AndroidView(
-            modifier = Modifier.fillMaxWidth()
-                .padding(10.dp),
-            factory = {context ->
-                SignInButton(context)
+    ) {
+        if(uiState.showProgressBar.value){
+            Column {
+                CircularProgressIndicator()
+                Text(
+                    text = "Loading...",
+                    fontSize = 20.sp,
+                    color = Color.White
+                )
             }
-        ){
-            it.setOnClickListener {
-                launcher.launch(signInIntent)
+        }else{
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                factory = { context ->
+                    SignInButton(context)
+                }
+            ) {
+                it.setOnClickListener {
+                    launcher.launch(signInIntent)
+                }
             }
         }
     }
