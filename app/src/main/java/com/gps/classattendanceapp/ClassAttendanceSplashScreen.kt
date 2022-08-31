@@ -55,7 +55,6 @@ fun SplashScreen(
     auth: FirebaseAuth
 ) {
 
-    val configuration = LocalConfiguration.current
     val context = LocalContext.current as Activity
     val animationDuration = remember{5000}
     LaunchedEffect(Unit){
