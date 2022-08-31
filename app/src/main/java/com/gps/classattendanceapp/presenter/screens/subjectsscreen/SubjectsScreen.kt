@@ -16,16 +16,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gps.classattendanceapp.R
-import com.gps.classattendanceapp.domain.models.ModifiedSubjects
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.launch
 
@@ -38,43 +35,18 @@ fun SubjectsScreen(
     addSubjectIdtoDelete: (Int)->Unit,
     removeSubjectIdToDelete: (Int)->Unit,
 ) {
-    val subjectsList = remember{
-        mutableStateListOf<ModifiedSubjects>()
-    }
-
-    val searchBarText by classAttendanceViewModel.searchBarText.collectAsStateWithLifecycle()
-
-    val coroutineScope = rememberCoroutineScope()
-
-    val context = LocalContext.current
-    val isInitialSubjectDataRetrievalDone =
-        classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsStateWithLifecycle()
-
-    val showAddSubjectDialog = classAttendanceViewModel.floatingButtonClicked.collectAsStateWithLifecycle()
-
-
-    var showLocationSelectionPopUp by remember{
-        mutableStateOf(false)
-    }
-
-    var subjectToEdit by remember{
-        mutableStateOf<ModifiedSubjects?>(null)
-    }
-
-    var latitudeFromMap by remember{
-        mutableStateOf<String?>(null)
-    }
-    var longitudeFromMap by remember{
-        mutableStateOf<String?>(null)
-    }
-
-    LaunchedEffect(searchBarText){
+    
+    val uiState = rememberSubjectScreenUiState(
+        classAttendanceViewModel = classAttendanceViewModel
+    )
+    
+    LaunchedEffect(uiState.searchBarText.value){
         classAttendanceViewModel.getSubjectsAdvanced().collect{
-            subjectsList.clear()
-            subjectsList.addAll(
+            uiState.subjectsList.clear()
+            uiState.subjectsList.addAll(
                 it.filter { subject ->
-                    if(searchBarText.isNotBlank()){
-                        searchBarText.lowercase() in subject.subjectName.lowercase()
+                    if(uiState.searchBarText.value.isNotBlank()){
+                        uiState.searchBarText.value.lowercase() in subject.subjectName.lowercase()
                     }else{
                         true
                     }
@@ -86,23 +58,10 @@ fun SubjectsScreen(
 
 
     // Alert Dialog -> To add new subject
-    if (showAddSubjectDialog.value) {
-        SubjectScreenAlertDialog(
-            subjectToEdit = subjectToEdit,
-            resetSubjectToEdit = {
-                subjectToEdit=null
-                latitudeFromMap = null
-                longitudeFromMap = null
-                                 },
-            changeShowLocationSelectionPopup = {showLocationSelectionPopUp=it},
-            classAttendanceViewModel = classAttendanceViewModel,
-            latitudeFromMap = latitudeFromMap,
-            longitudeFromMap = longitudeFromMap,
-            changeLatitudeFromMap = {latitudeFromMap=it},
-            changeLongitudeFromMap = {longitudeFromMap=it}
-        )
+    if (uiState.showAddSubjectDialog.value) {
+        
     }
-    if (subjectsList.isEmpty() && isInitialSubjectDataRetrievalDone.value) {
+    if (uiState.subjectsList.isEmpty() && uiState.isInitialSubjectDataRetrievalDone.value) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -125,7 +84,7 @@ fun SubjectsScreen(
                 fontWeight = FontWeight.Bold
             )
         }
-    } else if (subjectsList.isEmpty() && !isInitialSubjectDataRetrievalDone.value) {
+    } else if (uiState.subjectsList.isEmpty() && !uiState.isInitialSubjectDataRetrievalDone.value) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -141,7 +100,7 @@ fun SubjectsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(
-                    subjectsList,
+                    uiState.subjectsList,
                     key = {subject -> subject._id}
                 ) { subject ->
                     var isCardVisible by remember{mutableStateOf(false)}
@@ -153,13 +112,13 @@ fun SubjectsScreen(
                     }
 
                     if(dismissState.isDismissed(DismissDirection.StartToEnd)){
-                        coroutineScope.launch{
-                            classAttendanceViewModel.deleteSubject(subject._id, context)
+                        uiState.coroutineScope.launch{
+                            classAttendanceViewModel.deleteSubject(subject._id, uiState.context)
                         }
                     }else if(dismissState.isDismissed(DismissDirection.EndToStart)){
-                        subjectToEdit = subject
+                        uiState.subjectToEdit.value = subject
                         classAttendanceViewModel.changeFloatingButtonClickedState(state = true)
-                        coroutineScope.launch{ dismissState.reset() }
+                        uiState.coroutineScope.launch{ dismissState.reset() }
                     }
 
                     Box(
