@@ -16,5 +16,4 @@ enum class Screens(
     LOGSSCREEN("Logs","LogsScreen", Icons.Filled.Login),
     SUBJECTSSCREEN("Subjects","SubjectsScreen", Icons.Filled.Subject),
     TIMETABLESCREEN("TimeTable","TimeTableScreen", Icons.Filled.Timer),
-    MAPSSCREEN("Map", "SettingsScreen", Icons.Filled.Map)
 }

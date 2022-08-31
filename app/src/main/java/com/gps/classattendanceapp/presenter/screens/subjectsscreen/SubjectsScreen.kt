@@ -84,19 +84,6 @@ fun SubjectsScreen(
     }
 
 
-    if(showLocationSelectionPopUp){
-        LocationSelectionPopUp(
-            changeLatitude = {
-                latitudeFromMap = it.toString()
-            },
-            changeLongitude = {
-                longitudeFromMap = it.toString()
-            },
-            changeLocationSelectionVisibility ={
-                showLocationSelectionPopUp = it
-            }
-        )
-    }
 
     // Alert Dialog -> To add new subject
     if (showAddSubjectDialog.value) {

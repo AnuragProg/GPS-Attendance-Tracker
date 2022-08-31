@@ -59,11 +59,7 @@ fun SplashScreen(
     val animationDuration = remember{5000}
     LaunchedEffect(Unit){
         delay(animationDuration + 2000L)
-        if(auth.currentUser==null){
-            context.startActivity(Intent(context, SignInActivity::class.java))
-        }else{
-            context.startActivity(Intent(context, MainActivity::class.java))
-        }
+        context.startActivity(Intent(context, MainActivity::class.java))
         context.finish()
     }
     var startAnimation by remember{

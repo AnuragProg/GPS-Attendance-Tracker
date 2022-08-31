@@ -97,10 +97,6 @@ dependencies {
 
     implementation "com.google.accompanist:accompanist-permissions:0.24.12-rc"
 
-    implementation "androidx.datastore:datastore-preferences:1.0.0"
-
-    implementation 'org.osmdroid:osmdroid-android:6.1.13'
-
     implementation "androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha01"
 
     implementation 'org.apache.poi:poi:3.17'

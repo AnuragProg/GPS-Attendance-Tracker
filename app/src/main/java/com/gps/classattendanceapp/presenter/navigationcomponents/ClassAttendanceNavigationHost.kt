@@ -26,8 +26,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.gps.classattendanceapp.presenter.screens.logsscreen.LogsScreen
-import com.gps.classattendanceapp.presenter.screens.mapsscreen.DeniedPermissionMapScreen
-import com.gps.classattendanceapp.presenter.screens.mapsscreen.MapsScreen
 import com.gps.classattendanceapp.presenter.screens.subjectsscreen.SubjectsScreen
 import com.gps.classattendanceapp.presenter.screens.timetablescreen.TimeTableScreen
 
@@ -66,7 +64,6 @@ fun ClassAttendanceNavigationHost(){
             ClassAttendanceBottomNavigationBar(
                 navController = uiState.navController,
                 navigate = { route ->
-                    uiState.showFloatingActionButton.value = route != Screens.MAPSSCREEN.route
                     uiState.navController.navigate(route)
                 }
             )
@@ -81,11 +78,7 @@ fun ClassAttendanceNavigationHost(){
                 FloatingActionButton(
                     modifier = Modifier.size(50.dp),
                     onClick = {
-                        if (
-                            uiState.currentBackStackEntry.value?.destination?.route != Screens.MAPSSCREEN.route
-                        ) {
-                            uiState.classAttendanceViewModel.changeFloatingButtonClickedState(true)
-                        }
+                        uiState.classAttendanceViewModel.changeFloatingButtonClickedState(true)
                     }
                 ) {
                     Icon(
@@ -96,8 +89,8 @@ fun ClassAttendanceNavigationHost(){
                 }
             }
         },
-        isFloatingActionButtonDocked = true,
-        floatingActionButtonPosition = FabPosition.Center
+        isFloatingActionButtonDocked = false,
+        floatingActionButtonPosition = FabPosition.End
     ){
         Column(
             modifier = Modifier.fillMaxSize()
@@ -143,17 +136,6 @@ fun ClassAttendanceNavigationHost(){
                         uiState.context.moveTaskToBack(true)
                     }
                     TimeTableScreen(uiState.classAttendanceViewModel)
-                }
-
-                composable(Screens.MAPSSCREEN.route){
-                    BackHandler(enabled=true) {
-                        uiState.context.moveTaskToBack(true)
-                    }
-                    if("Location" in deniedPermissions){
-                        DeniedPermissionMapScreen()
-                    }else{
-                        MapsScreen(uiState.classAttendanceViewModel)
-                    }
                 }
             }
         }

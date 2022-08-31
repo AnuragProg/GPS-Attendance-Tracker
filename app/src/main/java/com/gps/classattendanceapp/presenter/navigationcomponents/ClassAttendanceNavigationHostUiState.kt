@@ -33,7 +33,7 @@ fun rememberClassAttendanceNavigationHostUiState(
     scaffoldState: ScaffoldState = rememberScaffoldState(),
     listOfSubjectIdsToDelete: SnapshotStateList<Int> = mutableStateListOf(),
     listOfLogIdsToDelete: SnapshotStateList<Int> = mutableStateListOf(),
-    showFloatingActionButton: MutableState<Boolean> = mutableStateOf(false)
+    showFloatingActionButton: MutableState<Boolean> = mutableStateOf(true)
 ): ClassAttendanceNavigationHostUiState{
     return remember{
         ClassAttendanceNavigationHostUiState(
