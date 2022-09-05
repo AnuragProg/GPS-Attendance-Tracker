@@ -81,7 +81,7 @@ fun SplashScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF00363a)),
+            .background(Color(0xFFB3E5FC)),
         contentAlignment = Alignment.Center
     ){
         Column(
@@ -93,10 +93,10 @@ fun SplashScreen(
                     .padding(50.dp)
                     .alpha(animatedDp),
                 shape = CircleShape,
-                backgroundColor = Color(0xFF65ba69)
+                backgroundColor = Color(0xFF4FC3F7)
             ) {
                 Image(
-                    painter = painterResource(R.drawable.splash_screen_icon),
+                    painter = painterResource(R.drawable.gps_attendance_tracker_icon),
                     contentDescription = null
                 )
             }

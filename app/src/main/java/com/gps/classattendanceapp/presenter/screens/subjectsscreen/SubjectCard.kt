@@ -129,25 +129,25 @@ fun SubjectCard(
                             Text("Range(in meter) :")
                             Spacer(modifier = Modifier.height(5.dp))
 
-                            Text("Days Present :")
+                            Text("Days present :")
                             Spacer(modifier = Modifier.height(5.dp))
 
-                            Text("Days Present Through Log :")
+                            Text("Days present through logs :")
                             Spacer(modifier = Modifier.height(5.dp))
 
-                            Text("Days Absent :")
+                            Text("Days absent :")
                             Spacer(modifier = Modifier.height(5.dp))
 
-                            Text("Days Absent Through Log :")
+                            Text("Days absent through logs :")
                             Spacer(modifier = Modifier.height(5.dp))
 
-                            Text("Total Presents :")
+                            Text("Total presents :")
                             Spacer(modifier = Modifier.height(5.dp))
 
-                            Text("Total Absents :")
+                            Text("Total absents :")
                             Spacer(modifier = Modifier.height(5.dp))
 
-                            Text("Total Days :")
+                            Text("Total days :")
 
                         }
                         Column(

@@ -129,20 +129,20 @@ fun LogsScreenAlertDialog(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedButton(
-                    onClick = {}
+                    onClick = {
+                        uiState.showSubjectListOverflowMenu = true
+                    }
                 ) {
                     Row(
                         modifier = Modifier,
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ){
-                        Text(uiState.subjectName ?: stringResource(R.string.select_subject))
+                        Text(uiState.subjectName)
                         if(logToEdit==null){
                             IconButton(
                                 onClick = {
-
                                     uiState.showSubjectListOverflowMenu = true
-
                                 }
                             ) {
                                 Icon(
@@ -296,6 +296,8 @@ fun LogsScreenAlertDialog(
         buttons = {
             Row(
                 modifier = Modifier.fillMaxWidth()
+                    .padding(10.dp),
+                horizontalArrangement = Arrangement.End
             ){
                 TextButton(
                     onClick = {

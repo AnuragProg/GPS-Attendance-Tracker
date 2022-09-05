@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 class LogsScreenAlertDialogUiState{
-    var subjectName by mutableStateOf<String?>("")
+    var subjectName by mutableStateOf("Subject")
     var isPresent by mutableStateOf(true)
     var showSubjectListOverflowMenu by mutableStateOf(false)
 }

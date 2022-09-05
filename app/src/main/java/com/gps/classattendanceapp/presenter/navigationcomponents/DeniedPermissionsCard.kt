@@ -8,12 +8,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,10 +31,11 @@ fun DeniedPermissionsCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
-                .border(5.dp, Color.Black)
+                .border(5.dp, Color.Transparent, RoundedCornerShape(20.dp)),
+            shape = RoundedCornerShape(20.dp)
         ) {
             Column(
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier.padding(10.dp),
             ) {
                 Text(
                     text = "Without following permissions some of the features will show undefined behaviour (if you've changed permissions just now, this message will disappear in some time)",

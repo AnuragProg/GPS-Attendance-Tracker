@@ -59,7 +59,9 @@ fun SubjectsScreen(
 
     // Alert Dialog -> To add new subject
     if (uiState.showAddSubjectDialog.value) {
-        
+        SubjectScreenAlertDialog(
+            subjectScreenUiState = uiState
+        )
     }
     if (uiState.subjectsList.isEmpty() && uiState.isInitialSubjectDataRetrievalDone.value) {
         Column(
@@ -117,6 +119,7 @@ fun SubjectsScreen(
                         }
                     }else if(dismissState.isDismissed(DismissDirection.EndToStart)){
                         uiState.subjectToEdit.value = subject
+                        uiState.fillFieldsWithSubjectToEditFields()
                         classAttendanceViewModel.changeFloatingButtonClickedState(state = true)
                         uiState.coroutineScope.launch{ dismissState.reset() }
                     }

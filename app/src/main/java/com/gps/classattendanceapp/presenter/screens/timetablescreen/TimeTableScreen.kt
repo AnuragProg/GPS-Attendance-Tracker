@@ -111,15 +111,32 @@ fun TimeTableScreen(
                         fontSize = 20.sp
                     )
 
-                    Spacer(modifier = Modifier.height(5.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Box{
                         OutlinedButton(
                             onClick = {
-                            showAddTimeTableSubjectNameAlertDialog = true
+                                showAddTimeTableSubjectNameAlertDialog = true
                             }
                         ) {
-                            Text(subjectInAlertDialog?.subjectName ?: stringResource(R.string.subject))
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Text(subjectInAlertDialog?.subjectName
+                                    ?: stringResource(R.string.subject))
+                                IconButton(
+                                    onClick = {
+                                        showAddTimeTableSubjectNameAlertDialog = true
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.ArrowDropDown,
+                                        contentDescription = null
+                                    )
+
+                                }
+                            }
                         }
                         DropdownMenu(
                             modifier = Modifier.requiredHeightIn(max=300.dp),
@@ -146,21 +163,28 @@ fun TimeTableScreen(
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(5.dp))
                     Box{
                         OutlinedButton(
                             onClick = {
                                 showSelectDayDropDownMenu = true
                             }
                         ) {
-                            Text(dayInDialog.ifBlank { stringResource(R.string.select_day) })
-                            Box(
-                                modifier = Modifier.width(60.dp),
-                                contentAlignment = Alignment.CenterEnd
-                            ){
-                                Icon(
-                                    Icons.Filled.ArrowDropDown,
-                                    contentDescription = null
-                                )
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(dayInDialog.ifBlank { stringResource(R.string.select_day) })
+                                IconButton(
+                                    onClick = {
+                                        showSelectDayDropDownMenu = true
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.Filled.ArrowDropDown,
+                                        contentDescription = null
+                                    )
+                                }
                             }
                         }
                         DropdownMenu(
@@ -182,6 +206,8 @@ fun TimeTableScreen(
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(5.dp))
+
                     Row{
                         OutlinedButton(
                             onClick = {
@@ -222,7 +248,8 @@ fun TimeTableScreen(
             },
             buttons = {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(10.dp),
                     horizontalArrangement = Arrangement.End
                 ){
                     TextButton(
@@ -287,7 +314,6 @@ fun TimeTableScreen(
                             .fillMaxWidth()
                             .padding(10.dp)
                             .animateItemPlacement(),
-                        border = BorderStroke(2.dp, Color.Black),
                         shape = RoundedCornerShape(10.dp)
                     ){
                         Column(

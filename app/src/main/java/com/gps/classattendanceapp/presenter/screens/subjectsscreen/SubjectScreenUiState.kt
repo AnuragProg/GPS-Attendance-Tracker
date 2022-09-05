@@ -19,13 +19,34 @@ data class SubjectScreenUiState(
     val showAddSubjectDialog: State<Boolean>,
     val subjectToEdit: MutableState<ModifiedSubjects?> = mutableStateOf(null),
     val isInitialSubjectDataRetrievalDone: State<Boolean>,
+
+
+    // AddSubjectDialogFields
     val latitude : MutableState<String>,
     val longitude : MutableState<String>,
     val range : MutableState<String>,
+    val subjectName: MutableState<String>,
+    val presents: MutableState<String>,
+    val absents: MutableState<String>,
 )
 
-fun SubjectScreenUiState.setLatitude(latitude: String){
+fun SubjectScreenUiState.clearDialogFields(){
+    subjectToEdit.value = null
+    latitude.value = ""
+    longitude.value = ""
+    range.value = ""
+    subjectName.value = ""
+    presents.value = ""
+    absents.value = ""
+}
 
+fun SubjectScreenUiState.fillFieldsWithSubjectToEditFields(){
+    subjectName.value = subjectToEdit.value!!.subjectName
+    presents.value = subjectToEdit.value!!.daysPresent.toString()
+    absents.value = subjectToEdit.value!!.daysAbsent.toString()
+    latitude.value = subjectToEdit.value!!.latitude.toString()
+    longitude.value = subjectToEdit.value!!.longitude.toString()
+    range.value = subjectToEdit.value!!.range.toString()
 }
 
 
@@ -43,6 +64,9 @@ fun rememberSubjectScreenUiState(
     latitude: MutableState<String> = mutableStateOf(""),
     longitude: MutableState<String> = mutableStateOf(""),
     range: MutableState<String> = mutableStateOf(""),
+    subjectName : MutableState<String> = mutableStateOf(""),
+    presents: MutableState<String> = mutableStateOf(""),
+    absents: MutableState<String> = mutableStateOf("")
 )= remember {
     SubjectScreenUiState(
         context = context,
@@ -55,6 +79,9 @@ fun rememberSubjectScreenUiState(
         isInitialSubjectDataRetrievalDone = isInitialSubjectDataRetrievalDone,
         latitude = latitude,
         longitude = longitude,
-        range = range
+        range = range,
+        subjectName = subjectName,
+        presents = presents,
+        absents = absents
     )
 }
