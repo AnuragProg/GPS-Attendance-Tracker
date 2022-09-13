@@ -55,8 +55,6 @@ fun ClassAttendanceNavigationHost(){
                 uiState.scaffoldState.snackbarHostState,
                 uiState.listOfSubjectIdsToDelete,
                 uiState.listOfLogIdsToDelete,
-                {uiState.listOfSubjectIdsToDelete.remove(it)},
-                {uiState.listOfLogIdsToDelete.remove(it)},
                 {uiState.listOfSubjectIdsToDelete.clear()},
                 {uiState.listOfLogIdsToDelete.clear()}
             )

@@ -33,8 +33,6 @@ fun ClassAttendanceTopBar(
     snackbarHostState: SnackbarHostState,
     listOfSubjectIdsToDelete: List<Int>,
     listOfLogIdsToDelete: List<Int>,
-    removeSubjectIdToDelete: (Int)->Unit,
-    removeLogIdToDelete: (Int)->Unit,
     clearSubjectIdsToDelete: ()->Unit,
     clearLogIdsToDelete: ()->Unit
 ){

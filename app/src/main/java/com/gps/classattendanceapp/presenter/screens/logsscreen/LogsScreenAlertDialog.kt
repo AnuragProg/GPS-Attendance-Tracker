@@ -136,7 +136,7 @@ fun LogsScreenAlertDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ){
-                        Text(uiState.subjectName ?: stringResource(R.string.select_subject))
+                        Text(uiState.subjectName)
                         if(logToEdit==null){
                             IconButton(
                                 onClick = {
@@ -295,13 +295,14 @@ fun LogsScreenAlertDialog(
         },
         buttons = {
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ){
                 TextButton(
                     onClick = {
                         coroutineScope.launch {
                             if(
-                                localLog.subjectName!=null
+                                !localLog.subjectName.isNullOrBlank()
                             ){
                                 val logsTime = Calendar.getInstance()
                                 logsTime.set(selectedYear, selectedMonth, selectedDay, selectedHour, selectedMinute, 0)
@@ -337,7 +338,7 @@ fun LogsScreenAlertDialog(
                                 classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                                 resetLogToEdit()
                             }else{
-                                Toast.makeText(context, "Subject Name cannot be empty!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Subject name cannot be empty!", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }

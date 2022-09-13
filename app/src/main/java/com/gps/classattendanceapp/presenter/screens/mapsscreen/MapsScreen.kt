@@ -43,16 +43,13 @@ fun MapsScreen(
         mutableStateListOf<ModifiedSubjects>()
     }
 
-    val mapView by remember{
-        mutableStateOf(
-            MapView(uiState.context).apply{
-                setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE)
-                setMultiTouchControls(true)
-                setBuiltInZoomControls(false)
-                controller.setZoom(16.5)
-
-            }
-        )
+    val mapView = remember{
+        MapView(uiState.context).apply{
+            setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE)
+            setMultiTouchControls(true)
+            setBuiltInZoomControls(false)
+            controller.setZoom(16.5)
+        }
     }
 
     /*

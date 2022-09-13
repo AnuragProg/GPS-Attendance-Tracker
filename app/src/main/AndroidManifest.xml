@@ -29,7 +29,6 @@
         <activity
             android:name=".ClassAttendanceSplashScreen"
             android:exported="true"
-            android:label="@string/title_activity_splash_screen"
             android:theme="@style/Theme.ClassAttendanceApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,12 +39,10 @@
         <activity
             android:name=".SignInActivity"
             android:exported="false"
-            android:label="@string/title_activity_sign_in"
             android:theme="@style/Theme.ClassAttendanceApp"/>
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:label="@string/app_name"
             android:theme="@style/Theme.ClassAttendanceApp"
             android:windowSoftInputMode="adjustPan" />
 
