@@ -100,11 +100,11 @@ fun SignInUI(
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ){result ->
-        uiState.showProgressBar.value = true
         if(result.resultCode == Activity.RESULT_OK){
             val googleAccountTask = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             handler(googleAccountTask)
         }
+        uiState.showProgressBar.value = false
     }
 
     Box(
@@ -112,14 +112,7 @@ fun SignInUI(
         contentAlignment = Alignment.Center
     ) {
         if(uiState.showProgressBar.value){
-            Column {
-                CircularProgressIndicator()
-                Text(
-                    text = "Loading...",
-                    fontSize = 20.sp,
-                    color = Color.White
-                )
-            }
+            CircularProgressIndicator()
         }else{
             AndroidView(
                 modifier = Modifier
@@ -130,6 +123,7 @@ fun SignInUI(
                 }
             ) {
                 it.setOnClickListener {
+                    uiState.showProgressBar.value = true
                     launcher.launch(signInIntent)
                 }
             }
