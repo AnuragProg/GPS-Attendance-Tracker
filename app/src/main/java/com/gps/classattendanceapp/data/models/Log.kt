@@ -22,8 +22,8 @@ data class Log(
 )
 
 @Keep
-fun Log.toModifiedLogs(): ModifiedLogs{
-    return ModifiedLogs(
+fun Log.toModifiedLogs(): com.gps.classattendanceapp.domain.models.ModifiedLogs {
+    return com.gps.classattendanceapp.domain.models.ModifiedLogs(
         _id = _id,
         subjectId = subjectId,
         subjectName = subjectName,

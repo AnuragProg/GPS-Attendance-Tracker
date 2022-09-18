@@ -9,7 +9,7 @@ class WriteSubjectsStatsToExcelUseCase(
     private val classAttendanceRepository: ClassAttendanceRepository
 ) {
 
-    operator fun invoke(context: Context, subjectsList: List<ModifiedSubjects>):Uri{
+    operator fun invoke(context: Context, subjectsList: List<com.gps.classattendanceapp.domain.models.ModifiedSubjects>):Uri{
         return classAttendanceRepository.writeSubjectsStatsToExcel(context, subjectsList)
     }
 }

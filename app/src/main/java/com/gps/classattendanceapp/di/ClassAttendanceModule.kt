@@ -1,9 +1,6 @@
 package com.gps.classattendanceapp.di
 
 import android.content.Context
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.gps.classattendanceapp.data.db.ClassAttendanceDao
 import com.gps.classattendanceapp.data.db.ClassAttendanceDatabase
 import com.gps.classattendanceapp.data.excel.Excel
@@ -20,24 +17,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import dev.shreyaspatil.permissionFlow.PermissionFlow
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object ClassAttendanceModule {
 
-    @Provides
-    @Singleton
-    fun providesFirebaseAuth(): FirebaseAuth {
-        return Firebase.auth
-    }
-
-    @Provides
-    @Singleton
-    fun providesPermissionFlow(): PermissionFlow{
-        return PermissionFlow.getInstance()
-    }
 
     @Provides
     @Singleton

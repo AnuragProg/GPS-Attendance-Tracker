@@ -2,6 +2,7 @@ package com.gps.classattendanceapp.data.excel
 
 import android.content.Context
 import android.net.Uri
+import com.gps.classattendanceapp.components.PATH_TO_SAVE_EXCEL_FILE
 import com.gps.classattendanceapp.domain.models.ModifiedLogs
 import com.gps.classattendanceapp.domain.models.ModifiedSubjects
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
@@ -60,7 +61,7 @@ class Excel {
             cell.setCellValue(subject.attendancePercentage.toString() + "%")
         }
 
-        val excelFile = File(context.getExternalFilesDir(null) , "Subject_Stats.xls")
+        val excelFile = File(PATH_TO_SAVE_EXCEL_FILE, "Subject_Stats.xls")
         val outputStream = FileOutputStream(excelFile)
         workbook.write(outputStream)
         outputStream.close()
@@ -118,7 +119,7 @@ class Excel {
             cell.setCellValue(if(log.wasPresent)"Present" else "Absent")
         }
 
-        val excelFile = File(context.getExternalFilesDir(null), "Logs_Stats.xls")
+        val excelFile = File(PATH_TO_SAVE_EXCEL_FILE, "Logs_Stats.xls")
         val outputFileStream = FileOutputStream(excelFile)
         workbook.write(outputFileStream)
         outputFileStream.close()

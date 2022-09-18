@@ -3,7 +3,6 @@
 package com.gps.classattendanceapp.presenter.screens.timetablescreen
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,7 +15,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -25,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gps.classattendanceapp.R
+import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.data.models.TimeTable
 import com.gps.classattendanceapp.domain.models.ModifiedSubjects
 import com.gps.classattendanceapp.presenter.utils.DateToSimpleFormat
@@ -66,7 +66,7 @@ fun TimeTableScreen(
 
 
     var subjectInAlertDialog by remember{
-        mutableStateOf<ModifiedSubjects?>(null)
+        mutableStateOf<com.gps.classattendanceapp.domain.models.ModifiedSubjects?>(null)
     }
 
     var showAddTimeTableSubjectNameAlertDialog by remember{
@@ -82,13 +82,17 @@ fun TimeTableScreen(
 
 
     LaunchedEffect(Unit){
-        classAttendanceViewModel.getTimeTableAdvanced().collectLatest { timetables ->
-            timetableList.clear()
-            timetables.keys.forEach{
-                timetableList[it] = mutableListOf()
-                timetableList[it]?.addAll(timetables[it]!!.sortedBy {
-                    it.hour+it.minute
-                })
+        classAttendanceViewModel.getTimeTable().collectLatest { timetables ->
+            timetables.data?.let{
+                timetableList.clear()
+                it.keys.forEach { day ->
+                    timetableList[day] = mutableListOf()
+                    timetableList[day]?.addAll(
+                        it[day]!!.sortedBy {
+                            it.hour * 60 + it.minute
+                        }
+                    )
+                }
             }
         }
     }
@@ -131,6 +135,10 @@ fun TimeTableScreen(
                                     }
                                 ) {
                                     Icon(
+                                        modifier = Modifier.rotate(
+                                            if(showAddTimeTableSubjectNameAlertDialog) 180f
+                                            else 0f
+                                        ),
                                         imageVector = Icons.Filled.ArrowDropDown,
                                         contentDescription = null
                                     )
@@ -145,10 +153,9 @@ fun TimeTableScreen(
                                 showAddTimeTableSubjectNameAlertDialog = false
                             }
                         ) {
-                            val subjectsList = classAttendanceViewModel.subjectsList.collectAsState()
-                            val isInitialSubjectDataRetrievalDone = classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
-                            if(subjectsList.value.isNotEmpty()){
-                                subjectsList.value.forEach{
+                            val subjectsList = classAttendanceViewModel.subjects.collectAsStateWithLifecycle()
+                            if(subjectsList.value.data?.size != 0){
+                                subjectsList.value.data!!.forEach{
                                     DropdownMenuItem(
                                         onClick = {
                                             subjectInAlertDialog = it
@@ -158,8 +165,11 @@ fun TimeTableScreen(
                                         Text(it.subjectName)
                                     }
                                 }
-                            }else if(subjectsList.value.isEmpty() && isInitialSubjectDataRetrievalDone.value){
-                                Text(stringResource(R.string.no_subject_to_select_from))
+                            }else{
+                                Text(
+                                    modifier = Modifier.padding(10.dp),
+                                    text = stringResource(R.string.no_subject_to_select_from)
+                                )
                             }
                         }
                     }
@@ -181,7 +191,11 @@ fun TimeTableScreen(
                                     }
                                 ) {
                                     Icon(
-                                        Icons.Filled.ArrowDropDown,
+                                        modifier = Modifier.rotate(
+                                            if(showSelectDayDropDownMenu) 180f
+                                            else 0f
+                                        ),
+                                        imageVector = Icons.Filled.ArrowDropDown,
                                         contentDescription = null
                                     )
                                 }
@@ -248,7 +262,8 @@ fun TimeTableScreen(
             },
             buttons = {
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(10.dp),
                     horizontalArrangement = Arrangement.End
                 ){

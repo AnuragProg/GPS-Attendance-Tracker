@@ -6,7 +6,9 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -21,12 +23,14 @@ data class ClassAttendanceNavigationHostUiState(
     val scaffoldState: ScaffoldState,
     val listOfSubjectIdsToDelete: SnapshotStateList<Int>,
     val listOfLogIdsToDelete: SnapshotStateList<Int>,
-    var showFloatingActionButton: MutableState<Boolean>
+    var showFloatingActionButton: MutableState<Boolean>,
+    val lifecycleOwner: LifecycleOwner,
 )
 
 @Composable
 fun rememberClassAttendanceNavigationHostUiState(
     context: Activity = LocalContext.current as Activity,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     navController: NavHostController = rememberNavController(),
     currentBackStackEntry: State<NavBackStackEntry?> = navController.currentBackStackEntryAsState(),
     classAttendanceViewModel: ClassAttendanceViewModel = hiltViewModel(),
@@ -37,7 +41,7 @@ fun rememberClassAttendanceNavigationHostUiState(
 ): ClassAttendanceNavigationHostUiState{
     return remember{
         ClassAttendanceNavigationHostUiState(
-            context, navController, currentBackStackEntry, classAttendanceViewModel, scaffoldState, listOfSubjectIdsToDelete, listOfLogIdsToDelete, showFloatingActionButton
+            context, navController, currentBackStackEntry, classAttendanceViewModel, scaffoldState, listOfSubjectIdsToDelete, listOfLogIdsToDelete, showFloatingActionButton, lifecycleOwner
         )
     }
 }

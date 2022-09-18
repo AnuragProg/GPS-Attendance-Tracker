@@ -3,11 +3,14 @@ package com.gps.classattendanceapp.presenter.navigationcomponents
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import com.gps.classattendanceapp.components.PATH_TO_SAVE_EXCEL_FILE
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.launch
 
@@ -28,7 +31,8 @@ fun OverflowMenu(
     ) {
         DropdownMenuItem(
             onClick = {
-                val uri = classAttendanceViewModel.writeSubjectsStatsToExcel(context, classAttendanceViewModel.subjectsList.value)
+                val uri = classAttendanceViewModel.writeSubjectsStatsToExcel(context, classAttendanceViewModel.subjects.value.data!!)
+                Log.d("excel", "Uri is $uri")
                 coroutineScope.launch{
                     val result = snackbarHostState.showSnackbar(
                         "Saved Successfully",
@@ -39,11 +43,15 @@ fun OverflowMenu(
                             try{
                                 val intent = Intent(Intent.ACTION_VIEW)
                                 intent.setDataAndType(uri, "application/vnd.ms-excel")
-                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                                 context.startActivity(intent)
 
                             }catch(e: ActivityNotFoundException){
                                 Toast.makeText(context, "No application available to view excel file!", Toast.LENGTH_SHORT).show()
+                                val intent = Intent(Intent.ACTION_VIEW)
+                                intent.setDataAndType(Uri.parse(PATH_TO_SAVE_EXCEL_FILE), "*/*")
+                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                context.startActivity(intent)
                             }
                         }
                         SnackbarResult.Dismissed -> {}
@@ -56,7 +64,7 @@ fun OverflowMenu(
         }
         DropdownMenuItem(
             onClick = {
-                val uri = classAttendanceViewModel.writeLogsStatsToExcel(context, classAttendanceViewModel.logsList.value)
+                val uri = classAttendanceViewModel.writeLogsStatsToExcel(context, classAttendanceViewModel.logs.value.data!!)
                 coroutineScope.launch{
                     val result = snackbarHostState.showSnackbar(
                         "Saved Successfully",
@@ -67,10 +75,14 @@ fun OverflowMenu(
                             try{
                                 val intent = Intent(Intent.ACTION_VIEW)
                                 intent.setDataAndType(uri, "application/vnd.ms-excel")
-                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                                 context.startActivity(intent)
                             }catch(e: ActivityNotFoundException){
                                 Toast.makeText(context, "No application available to view excel file!", Toast.LENGTH_SHORT).show()
+                                val intent = Intent(Intent.ACTION_VIEW)
+                                intent.setDataAndType(Uri.parse(PATH_TO_SAVE_EXCEL_FILE), "*/*")
+                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                context.startActivity(intent)
                             }
                         }
                         SnackbarResult.Dismissed->{}

@@ -6,6 +6,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.domain.models.ModifiedSubjects
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -14,11 +15,10 @@ data class SubjectScreenUiState(
     val context: Context,
     val coroutineScope: CoroutineScope,
     val classAttendanceViewModel: ClassAttendanceViewModel,
-    val subjectsList: SnapshotStateList<ModifiedSubjects>,
+    val subjectsList: State<Resource<List<com.gps.classattendanceapp.domain.models.ModifiedSubjects>>>,
     val searchBarText: State<String>,
     val showAddSubjectDialog: State<Boolean>,
-    val subjectToEdit: MutableState<ModifiedSubjects?> = mutableStateOf(null),
-    val isInitialSubjectDataRetrievalDone: State<Boolean>,
+    val subjectToEdit: MutableState<com.gps.classattendanceapp.domain.models.ModifiedSubjects?> = mutableStateOf(null),
 
 
     // AddSubjectDialogFields
@@ -36,8 +36,8 @@ fun SubjectScreenUiState.clearDialogFields(){
     longitude.value = ""
     range.value = ""
     subjectName.value = ""
-    presents.value = ""
-    absents.value = ""
+    presents.value = "0"
+    absents.value = "0"
 }
 
 fun SubjectScreenUiState.fillFieldsWithSubjectToEditFields(){
@@ -56,17 +56,16 @@ fun rememberSubjectScreenUiState(
     context: Context = LocalContext.current,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     classAttendanceViewModel: ClassAttendanceViewModel,
-    subjectsList: SnapshotStateList<ModifiedSubjects> = mutableStateListOf(),
+    subjectsList: State<Resource<List<com.gps.classattendanceapp.domain.models.ModifiedSubjects>>> = classAttendanceViewModel.filteredSubjects.collectAsStateWithLifecycle(),
     searchBarText: State<String> = classAttendanceViewModel.searchBarText.collectAsStateWithLifecycle(),
     showAddSubjectDialog: State<Boolean> = classAttendanceViewModel.floatingButtonClicked.collectAsStateWithLifecycle(),
-    subjectToEdit: MutableState<ModifiedSubjects?> = mutableStateOf(null),
-    isInitialSubjectDataRetrievalDone: State<Boolean> = classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsStateWithLifecycle(),
+    subjectToEdit: MutableState<com.gps.classattendanceapp.domain.models.ModifiedSubjects?> = mutableStateOf(null),
     latitude: MutableState<String> = mutableStateOf(""),
     longitude: MutableState<String> = mutableStateOf(""),
     range: MutableState<String> = mutableStateOf(""),
-    subjectName : MutableState<String> = mutableStateOf(""),
-    presents: MutableState<String> = mutableStateOf(""),
-    absents: MutableState<String> = mutableStateOf("")
+    subjectName: MutableState<String> = mutableStateOf(""),
+    presents: MutableState<String> = mutableStateOf("0"),
+    absents: MutableState<String> = mutableStateOf("0"),
 )= remember {
     SubjectScreenUiState(
         context = context,
@@ -76,7 +75,6 @@ fun rememberSubjectScreenUiState(
         searchBarText = searchBarText,
         showAddSubjectDialog = showAddSubjectDialog,
         subjectToEdit = subjectToEdit,
-        isInitialSubjectDataRetrievalDone = isInitialSubjectDataRetrievalDone,
         latitude = latitude,
         longitude = longitude,
         range = range,

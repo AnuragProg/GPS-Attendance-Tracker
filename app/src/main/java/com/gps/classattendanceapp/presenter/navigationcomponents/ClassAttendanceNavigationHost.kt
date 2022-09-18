@@ -1,3 +1,5 @@
+@file:Suppress("OPT_IN_IS_NOT_ENABLED")
+
 package com.gps.classattendanceapp.presenter.navigationcomponents
 
 import androidx.activity.compose.BackHandler
@@ -9,18 +11,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.FabPosition
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -28,6 +30,7 @@ import androidx.navigation.compose.composable
 import com.gps.classattendanceapp.presenter.screens.logsscreen.LogsScreen
 import com.gps.classattendanceapp.presenter.screens.subjectsscreen.SubjectsScreen
 import com.gps.classattendanceapp.presenter.screens.timetablescreen.TimeTableScreen
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class)
@@ -39,6 +42,28 @@ fun ClassAttendanceNavigationHost(){
 
     LaunchedEffect(Unit){
         uiState.showFloatingActionButton.value = true
+    }
+
+    LaunchedEffect(Unit){
+        if(deniedPermissions.isNotEmpty()){
+            for(i in 1..5){
+                delay(5000)
+                uiState.classAttendanceViewModel.refreshPermissions(uiState.context)
+                if(deniedPermissions.isEmpty()) break
+            }
+        }
+    }
+
+    DisposableEffect(uiState.lifecycleOwner){
+        val observer = LifecycleEventObserver{_, event ->
+            if(event == Lifecycle.Event.ON_START){
+                uiState.classAttendanceViewModel.refreshPermissions(uiState.context)
+            }
+        }
+        uiState.lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            uiState.lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     PermissionHandler()
@@ -53,8 +78,6 @@ fun ClassAttendanceNavigationHost(){
                 uiState.scaffoldState.snackbarHostState,
                 uiState.listOfSubjectIdsToDelete,
                 uiState.listOfLogIdsToDelete,
-                {uiState.listOfSubjectIdsToDelete.remove(it)},
-                {uiState.listOfLogIdsToDelete.remove(it)},
                 {uiState.listOfSubjectIdsToDelete.clear()},
                 {uiState.listOfLogIdsToDelete.clear()}
             )
@@ -79,7 +102,8 @@ fun ClassAttendanceNavigationHost(){
                     modifier = Modifier.size(50.dp),
                     onClick = {
                         uiState.classAttendanceViewModel.changeFloatingButtonClickedState(true)
-                    }
+                    },
+                    backgroundColor = MaterialTheme.colors.primarySurface
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Add,
@@ -98,7 +122,7 @@ fun ClassAttendanceNavigationHost(){
         ){
             DeniedPermissionsCard(
                 uiState = uiState,
-                deniedPermissions = deniedPermissions
+                deniedPermissions = deniedPermissions.toList()
             )
             NavHost(
                 modifier = Modifier
@@ -116,6 +140,7 @@ fun ClassAttendanceNavigationHost(){
                         uiState.classAttendanceViewModel,
                         {uiState.listOfLogIdsToDelete.add(it)},
                         {uiState.listOfLogIdsToDelete.remove(it)},
+                        uiState.scaffoldState.snackbarHostState
                     )
                 }
 
@@ -127,7 +152,8 @@ fun ClassAttendanceNavigationHost(){
                     SubjectsScreen(
                         uiState.classAttendanceViewModel,
                         {subjectId -> uiState.listOfSubjectIdsToDelete.add(subjectId)},
-                        {subjectId -> uiState.listOfSubjectIdsToDelete.remove(subjectId)}
+                        {subjectId -> uiState.listOfSubjectIdsToDelete.remove(subjectId)},
+                        uiState.scaffoldState.snackbarHostState
                     )
                 }
 

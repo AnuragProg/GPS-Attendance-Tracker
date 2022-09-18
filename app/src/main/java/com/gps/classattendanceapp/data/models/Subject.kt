@@ -22,7 +22,7 @@ data class Subject(
 )
 
 @Keep
-fun Subject.toModifiedSubjects(): ModifiedSubjects{
+fun Subject.toModifiedSubjects(): com.gps.classattendanceapp.domain.models.ModifiedSubjects {
 
     val totalPresents = daysPresent + daysPresentOfLogs
     val totalAbsents = daysAbsent + daysAbsentOfLogs
@@ -34,7 +34,7 @@ fun Subject.toModifiedSubjects(): ModifiedSubjects{
 
     val totalDays = totalPresents + totalAbsents
 
-    return ModifiedSubjects(
+    return com.gps.classattendanceapp.domain.models.ModifiedSubjects(
         _id = _id,
         subjectName = subjectName,
         attendancePercentage = percentage,

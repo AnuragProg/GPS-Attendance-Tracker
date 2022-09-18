@@ -33,8 +33,6 @@ fun ClassAttendanceTopBar(
     snackbarHostState: SnackbarHostState,
     listOfSubjectIdsToDelete: List<Int>,
     listOfLogIdsToDelete: List<Int>,
-    removeSubjectIdToDelete: (Int)->Unit,
-    removeLogIdToDelete: (Int)->Unit,
     clearSubjectIdsToDelete: ()->Unit,
     clearLogIdsToDelete: ()->Unit
 ){
@@ -67,12 +65,14 @@ fun ClassAttendanceTopBar(
                                 coroutineScope.launch{
                                     if (currentBackStackEntry.value?.destination?.route == Screens.SUBJECTSSCREEN.route) {
                                         clearSubjectIdsToDelete()
-                                        classAttendanceViewModel.deleteSubjectsInList(context,
-                                            classAttendanceViewModel.subjectsList.value.map { it._id })
+                                        classAttendanceViewModel.deleteSubjectsInList(
+                                            context,
+                                            classAttendanceViewModel.filteredSubjects.value.data!!.map { it._id }
+                                        )
                                     } else if (currentBackStackEntry.value?.destination?.route == Screens.LOGSSCREEN.route) {
                                         clearLogIdsToDelete()
                                         classAttendanceViewModel.deleteLogsInList(
-                                            classAttendanceViewModel.logsList.value.map { it._id!! })
+                                            classAttendanceViewModel.filteredLogs.value.data!!.map { it._id!! })
                                     }
                                 }
                             },

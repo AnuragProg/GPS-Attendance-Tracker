@@ -1,3 +1,5 @@
+@file:Suppress("OPT_IN_IS_NOT_ENABLED")
+
 package com.gps.classattendanceapp.presenter.screens.logsscreen
 
 import android.app.DatePickerDialog
@@ -10,6 +12,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -18,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gps.classattendanceapp.R
+import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.data.models.Log
 import com.gps.classattendanceapp.domain.models.ModifiedLogs
 import com.gps.classattendanceapp.presenter.utils.DateToSimpleFormat
@@ -35,7 +39,7 @@ import java.util.*
 @Composable
 fun LogsScreenAlertDialog(
     classAttendanceViewModel: ClassAttendanceViewModel,
-    logToEdit: ModifiedLogs?,
+    logToEdit: com.gps.classattendanceapp.domain.models.ModifiedLogs?,
     resetLogToEdit: ()->Unit
 ){
 
@@ -44,13 +48,12 @@ fun LogsScreenAlertDialog(
     }
 
     val localLog by remember{
-        mutableStateOf(logToEdit ?: ModifiedLogs())
+        mutableStateOf(logToEdit ?: com.gps.classattendanceapp.domain.models.ModifiedLogs())
     }
 
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val isInitialLogDataRetrievalDone = classAttendanceViewModel.isInitialLogDataRetrievalDone.collectAsStateWithLifecycle()
 
     val selectedYear by classAttendanceViewModel.currentYear.collectAsStateWithLifecycle()
     val selectedMonth by classAttendanceViewModel.currentMonth.collectAsStateWithLifecycle()
@@ -146,7 +149,11 @@ fun LogsScreenAlertDialog(
                                 }
                             ) {
                                 Icon(
-                                    Icons.Filled.ArrowDropDown,
+                                    modifier = Modifier.rotate(
+                                        if(uiState.showSubjectListOverflowMenu) 180f
+                                        else 0f
+                                    ),
+                                    imageVector = Icons.Filled.ArrowDropDown,
                                     contentDescription = null
                                 )
                             }
@@ -160,25 +167,38 @@ fun LogsScreenAlertDialog(
                             uiState.showSubjectListOverflowMenu = false
                         }
                     ) {
-                        val subjectsList = classAttendanceViewModel.subjectsList.collectAsStateWithLifecycle()
-                        val isInitialSubjectDataRetrievalDone = classAttendanceViewModel.isInitialSubjectDataRetrievalDone.collectAsState()
-                        if(subjectsList.value.isNotEmpty()){
-                            subjectsList.value.forEach{ subject->
-                                DropdownMenuItem(
-                                    onClick = {
-                                        localLog.subjectId = subject._id
+                        val subjectsList = classAttendanceViewModel.subjects.collectAsStateWithLifecycle()
 
-                                        uiState.subjectName = subject.subjectName /* To show user selected subject */
+                        when(subjectsList.value){
+                            is Resource.Error -> {}
+                            is Resource.Loading -> {
+                                CircularProgressIndicator()
+                            }
+                            is Resource.Success -> {
+                                if(subjectsList.value.data?.size == 0){
+                                    Text(
+                                        modifier = Modifier.padding(10.dp),
+                                        text = stringResource(R.string.no_subject_to_select_from)
+                                    )
+                                }else{
+                                    subjectsList.value.data!!.forEach { subject ->
+                                        DropdownMenuItem(
+                                            onClick = {
+                                                localLog.subjectId = subject._id
 
-                                        localLog.subjectName = subject.subjectName /* To enter into the database */
-                                        uiState.showSubjectListOverflowMenu = false
+                                                uiState.subjectName =
+                                                    subject.subjectName /* To show user selected subject */
+
+                                                localLog.subjectName =
+                                                    subject.subjectName /* To enter into the database */
+                                                uiState.showSubjectListOverflowMenu = false
+                                            }
+                                        ) {
+                                            Text(subject.subjectName)
+                                        }
                                     }
-                                ) {
-                                    Text(subject.subjectName)
                                 }
                             }
-                        }else if(subjectsList.value.isEmpty() && isInitialLogDataRetrievalDone.value){
-                            Text(stringResource(R.string.no_subject_to_select_from))
                         }
                     }
                 }
@@ -192,7 +212,10 @@ fun LogsScreenAlertDialog(
                             onClick = {
                                 uiState.isPresent = true /* To show user is Present */
                                 localLog.wasPresent = true /* To enter into database */
-                            }
+                            },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = MaterialTheme.colors.primarySurface
+                            )
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(
@@ -209,7 +232,10 @@ fun LogsScreenAlertDialog(
                             onClick = {
                                 uiState.isPresent = false /* To show user isAbsent */
                                 localLog.wasPresent = false /* To enter into database */
-                            }
+                            },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = MaterialTheme.colors.primarySurface
+                            )
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(
@@ -295,7 +321,8 @@ fun LogsScreenAlertDialog(
         },
         buttons = {
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(10.dp),
                 horizontalArrangement = Arrangement.End
             ){

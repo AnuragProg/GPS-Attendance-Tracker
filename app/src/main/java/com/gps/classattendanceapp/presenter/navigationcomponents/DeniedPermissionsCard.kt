@@ -5,9 +5,7 @@ import android.net.Uri
 import android.provider.Settings
 import android.util.Log
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -15,7 +13,6 @@ import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,15 +39,45 @@ fun DeniedPermissionsCard(
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
                 )
-                for (deniedPermission in deniedPermissions) {
-                    TextButton(
-                        onClick = {
-                            Log.d("debugging", "Clicked text button")
-                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", uiState.context.packageName, null))
-                            uiState.context.startActivity(intent)
+                for (deniedPermissionIndex in deniedPermissions.indices) {
+                    if(deniedPermissionIndex == deniedPermissions.size - 1){
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ){
+                            TextButton(
+                                onClick = {
+                                    Log.d("debugging", "Clicked text button")
+                                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                        Uri.fromParts("package", uiState.context.packageName, null))
+                                    uiState.context.startActivity(intent)
+                                }
+                            ) {
+                                Text(text = deniedPermissions[deniedPermissionIndex])
+                            }
+
+                            TextButton(
+                                onClick = {
+                                    uiState.classAttendanceViewModel.refreshPermissions(uiState.context)
+                                }
+                            ) {
+                                Text(
+                                    text = "Refresh"
+                                )
+                            }
                         }
-                    ){
-                        Text(text=deniedPermission)
+                    }
+                    else{
+                        TextButton(
+                            onClick = {
+                                Log.d("debugging", "Clicked text button")
+                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                    Uri.fromParts("package", uiState.context.packageName, null))
+                                uiState.context.startActivity(intent)
+                            }
+                        ) {
+                            Text(text = deniedPermissions[deniedPermissionIndex])
+                        }
                     }
                 }
             }

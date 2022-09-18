@@ -1,6 +1,7 @@
 package com.gps.classattendanceapp.domain.usecases.timetableusecase
 
 
+import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.data.models.TimeTable
 import com.gps.classattendanceapp.domain.repository.ClassAttendanceRepository
 import com.gps.classattendanceapp.presenter.utils.Days
@@ -12,7 +13,7 @@ class GetTimeTableUseCase(
     private val classAttendanceRepository: ClassAttendanceRepository
 ) {
 
-    operator fun invoke() : Flow<Map<String, List<TimeTable>>>{
+    operator fun invoke() : Flow<Resource<Map<String, List<TimeTable>>>>{
         return classAttendanceRepository.getTimeTable().map{
             val resultant = mutableMapOf<String, List<TimeTable>>()
             for(day in Days.values()){
@@ -20,7 +21,7 @@ class GetTimeTableUseCase(
                     it.dayOfTheWeek == day.value
                 }
             }
-            resultant
+            Resource.Success(resultant)
         }
     }
 }

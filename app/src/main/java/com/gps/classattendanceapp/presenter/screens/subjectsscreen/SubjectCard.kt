@@ -27,7 +27,7 @@ import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLifecycleComposeApi::class)
 @Composable
 fun SubjectCard(
-    subject: ModifiedSubjects,
+    subject: com.gps.classattendanceapp.domain.models.ModifiedSubjects,
     classAttendanceViewModel: ClassAttendanceViewModel,
     onSubjectSelected: (Boolean)->Unit
 

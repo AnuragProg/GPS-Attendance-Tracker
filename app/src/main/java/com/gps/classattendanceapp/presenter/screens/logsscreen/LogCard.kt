@@ -18,7 +18,7 @@ import com.gps.classattendanceapp.domain.models.ModifiedLogs
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LogCard(
-    log: ModifiedLogs,
+    log: com.gps.classattendanceapp.domain.models.ModifiedLogs,
     changeIsLogSelected: (Boolean)->Unit
 ){
     var showAdditionalCardDetails by remember{

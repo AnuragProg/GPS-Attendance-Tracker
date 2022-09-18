@@ -77,11 +77,11 @@ class ClassAttendanceRepositoryImpl(
         return dao.getTimeTableWithSubjectId(subjectId)
     }
 
-    override fun writeSubjectsStatsToExcel(context: Context, subjectsList: List<ModifiedSubjects>): Uri {
+    override fun writeSubjectsStatsToExcel(context: Context, subjectsList: List<com.gps.classattendanceapp.domain.models.ModifiedSubjects>): Uri {
         return excel.writeSubjectsStatsToExcel(context, subjectsList)
     }
 
-    override fun writeLogsStatsToExcel(context: Context, logsList: List<ModifiedLogs>): Uri {
+    override fun writeLogsStatsToExcel(context: Context, logsList: List<com.gps.classattendanceapp.domain.models.ModifiedLogs>): Uri {
         return excel.writeLogsStatsToExcel(context, logsList)
     }
 

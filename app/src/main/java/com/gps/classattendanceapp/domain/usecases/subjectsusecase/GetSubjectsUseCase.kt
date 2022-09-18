@@ -1,5 +1,6 @@
 package com.gps.classattendanceapp.domain.usecases.subjectsusecase
 
+import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.data.models.toModifiedSubjects
 import com.gps.classattendanceapp.domain.models.ModifiedSubjects
 import com.gps.classattendanceapp.domain.repository.ClassAttendanceRepository
@@ -10,11 +11,13 @@ class GetSubjectsUseCase(
     private val classAttendanceRepository: ClassAttendanceRepository
 ) {
 
-    operator fun invoke(): Flow<List<ModifiedSubjects>>{
+    operator fun invoke(): Flow<Resource<List<com.gps.classattendanceapp.domain.models.ModifiedSubjects>>>{
         return classAttendanceRepository.getAllSubjects().map{subjectsList->
-            subjectsList.map{ subject->
-                subject.toModifiedSubjects()
-            }
+            Resource.Success(
+                data = subjectsList.map{ subject->
+                    subject.toModifiedSubjects()
+                }
+            )
         }
     }
 }
