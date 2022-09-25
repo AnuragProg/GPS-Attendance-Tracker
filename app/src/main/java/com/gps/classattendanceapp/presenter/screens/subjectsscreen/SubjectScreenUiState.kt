@@ -44,9 +44,9 @@ fun SubjectScreenUiState.fillFieldsWithSubjectToEditFields(){
     subjectName.value = subjectToEdit.value!!.subjectName
     presents.value = subjectToEdit.value!!.daysPresent.toString()
     absents.value = subjectToEdit.value!!.daysAbsent.toString()
-    latitude.value = subjectToEdit.value!!.latitude.toString()
-    longitude.value = subjectToEdit.value!!.longitude.toString()
-    range.value = subjectToEdit.value!!.range.toString()
+    latitude.value = subjectToEdit.value!!.latitude?.toString() ?: ""
+    longitude.value = subjectToEdit.value!!.longitude?.toString() ?: ""
+    range.value = subjectToEdit.value!!.range?.toString() ?: ""
 }
 
 

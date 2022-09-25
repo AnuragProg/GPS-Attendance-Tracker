@@ -72,20 +72,13 @@ fun SplashScreen() {
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ){
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            Card(
-                modifier = Modifier
-                    .padding(50.dp)
-                    .alpha(animatedDp),
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.calendar),
-                    contentDescription = null
-                )
-            }
-        }
+
+        Image(
+            modifier = Modifier
+                .padding(50.dp)
+                .alpha(animatedDp),
+            painter = painterResource(R.drawable.calendar),
+            contentDescription = null
+        )
     }
 }

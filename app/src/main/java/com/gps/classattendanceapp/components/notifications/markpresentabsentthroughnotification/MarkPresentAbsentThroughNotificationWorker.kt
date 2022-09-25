@@ -25,11 +25,6 @@ class MarkPresentAbsentThroughNotificationWorker @AssistedInject constructor(
         }
         val subject = classAttendanceRepository.getSubjectWithId(subjectId)
         if(subject!=null){
-            if(attendance){
-                subject.daysPresentOfLogs++
-            }else{
-                subject.daysAbsentOfLogs++
-            }
             classAttendanceRepository.insertLogs(
                 com.gps.classattendanceapp.data.models.Log(
                     _id = 0,
@@ -41,9 +36,6 @@ class MarkPresentAbsentThroughNotificationWorker @AssistedInject constructor(
                     longitude = null,
                     distance = null
                 )
-            )
-            classAttendanceRepository.updateSubject(
-                subject
             )
         }
         return Result.success()

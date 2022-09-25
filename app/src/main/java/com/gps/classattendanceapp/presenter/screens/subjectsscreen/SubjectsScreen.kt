@@ -6,7 +6,6 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -103,7 +102,7 @@ fun SubjectsScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         items(
-                            uiState.subjectsList.value.data!!,
+                            uiState.subjectsList.value.data ?: emptyList(),
                             key = {subject -> subject._id}
                         ) { subject ->
                             var isCardVisible by remember{mutableStateOf(false)}

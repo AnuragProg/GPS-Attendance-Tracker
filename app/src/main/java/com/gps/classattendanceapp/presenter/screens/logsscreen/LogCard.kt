@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gps.classattendanceapp.R
@@ -48,34 +49,35 @@ fun LogCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    modifier = if(showAdditionalCardDetails) Modifier.fillMaxWidth() else Modifier.width(80.dp),
                     text = log.subjectName!!,
                     overflow = if (!showAdditionalCardDetails) {
                         TextOverflow.Ellipsis
                     } else {
                         TextOverflow.Visible
                     },
-                    maxLines = 1
+                    maxLines = 1,
                 )
                 AnimatedVisibility(
                     visible = !showAdditionalCardDetails
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Text(
-                            text = log.day + " | " + log.month + " " + log.date.toString() + "," + log.year.toString(),
-                        )
-                        Text(
-                            when (log.wasPresent) {
-                                true -> stringResource(R.string.present)
-                                else -> stringResource(R.string.absent)
-                            }
-                        )
-                    }
+                    Text(
+                        text = log.month + " " + log.date.toString() + "," + log.year.toString(),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
+                    )
                 }
+                AnimatedVisibility(
+                    visible = !showAdditionalCardDetails
+                ){
+                    Text(
+                        text = when (log.wasPresent) {
+                            true -> stringResource(R.string.present)
+                            else -> stringResource(R.string.absent)
+                        },
+                        maxLines = 1,
+                    )
+                }
+
             }
             AnimatedVisibility(
                 visible = showAdditionalCardDetails
@@ -116,11 +118,11 @@ fun LogCard(
                         horizontalAlignment = Alignment.End
                     ) {
                         Text(
-                            "${log.month} ${log.date}, ${log.year}"
+                            text = "${log.month} ${log.date}, ${log.year}"
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            "${
+                            text = "${
                                 if (log.hour !!< 10) "0${log.hour}"
                                 else log.hour
                             }:${
@@ -135,10 +137,10 @@ fun LogCard(
                         Spacer(modifier = Modifier.height(10.dp))
 
                         Text(
-                            when (log.wasPresent) {
+                            text = when (log.wasPresent) {
                                 true -> stringResource(R.string.present)
                                 else -> stringResource(R.string.absent)
-                            }
+                            },
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(

@@ -97,4 +97,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha01"
 
     implementation 'org.apache.poi:poi:3.17'
+
+    implementation "com.google.android.gms:play-services-location:20.0.0"
 }

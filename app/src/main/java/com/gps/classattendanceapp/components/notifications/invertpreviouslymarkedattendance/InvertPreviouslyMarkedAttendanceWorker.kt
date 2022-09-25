@@ -28,16 +28,6 @@ class InvertPreviouslyMarkedAttendanceWorker @AssistedInject constructor(
             retrievedLog.distance = null
             if(retrievedSubject!=null){
                 retrievedLog.wasPresent = !retrievedLog.wasPresent
-                if(retrievedLog.wasPresent){
-                    if(retrievedSubject.daysAbsentOfLogs>0){ retrievedSubject.daysAbsentOfLogs-- }
-                    retrievedSubject.daysPresentOfLogs++
-                }else{
-                    retrievedSubject.daysAbsentOfLogs++
-                    if(retrievedSubject.daysPresentOfLogs>0){ retrievedSubject.daysPresentOfLogs-- }
-                }
-                classAttendanceRepository.updateSubject(
-                    retrievedSubject
-                )
                 classAttendanceRepository.updateLog(
                     retrievedLog
                 )

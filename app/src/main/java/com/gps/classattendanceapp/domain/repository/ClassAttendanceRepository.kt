@@ -54,8 +54,8 @@ interface ClassAttendanceRepository {
 
     fun getTimeTableWithSubjectId(subjectId: Int): Flow<List<TimeTable>>
 
-    fun writeSubjectsStatsToExcel(context: Context, subjectsList: List<com.gps.classattendanceapp.domain.models.ModifiedSubjects>): Uri
+    fun getPresentThroughLogs(subjectId: Int): Flow<Int>
 
-    fun writeLogsStatsToExcel(context: Context, logsList: List<com.gps.classattendanceapp.domain.models.ModifiedLogs>): Uri
+    fun getAbsentThroughLogs(subjectId: Int): Flow<Int>
 
 }

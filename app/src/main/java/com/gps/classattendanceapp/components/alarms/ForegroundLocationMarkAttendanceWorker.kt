@@ -125,11 +125,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                         long2 = userSpecifiedLocation.second!!,
                     )
                     if (distance <= userSpecifiedLocation.third!!) {
-                        val subjectWithId = classAttendanceRepository.getSubjectWithId(subjectId)
-                        subjectWithId!!.daysPresentOfLogs++
-                        classAttendanceRepository.insertSubject(
-                            subjectWithId
-                        )
                         val logsId = classAttendanceRepository.insertLogs(
                             com.gps.classattendanceapp.data.models.Log(
                                 0,
@@ -159,11 +154,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                                 distance)
                         )
                     } else {
-                        val subjectWithId = classAttendanceRepository.getSubjectWithId(subjectId)
-                        subjectWithId!!.daysAbsentOfLogs++
-                        classAttendanceRepository.insertSubject(
-                            subjectWithId
-                        )
                         val logsId = classAttendanceRepository.insertLogs(
                             com.gps.classattendanceapp.data.models.Log(
                                 0,

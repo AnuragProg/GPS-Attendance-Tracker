@@ -322,8 +322,6 @@ fun SubjectScreenAlertDialog(
                                                 subjectName = subjectScreenUiState.subjectName.value.trim(),
                                                 daysPresent = daysPresent,
                                                 daysAbsent = daysAbsent,
-                                                daysPresentOfLogs = subject.daysPresentOfLogs,
-                                                daysAbsentOfLogs = subject.daysAbsentOfLogs,
                                                 latitude = lat,
                                                 longitude = lon,
                                                 range = ran
@@ -336,8 +334,6 @@ fun SubjectScreenAlertDialog(
                                                 subjectName = subjectScreenUiState.subjectName.value.trim(),
                                                 daysPresent = daysPresent,
                                                 daysAbsent = daysAbsent,
-                                                daysPresentOfLogs = 0,
-                                                daysAbsentOfLogs = 0,
                                                 latitude = lat,
                                                 longitude = lon,
                                                 range = ran

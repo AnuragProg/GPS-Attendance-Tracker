@@ -149,7 +149,6 @@ fun ClassAttendanceTopBar(
                 changeOverflowMenuVisibility = {isOverflowMenuVisible=it},
                 snackbarHostState = snackbarHostState
             )
-
         }
     )
 }

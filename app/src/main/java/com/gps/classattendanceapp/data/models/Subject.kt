@@ -12,8 +12,8 @@ data class Subject(
     @PrimaryKey(autoGenerate = true)
     val _id: Int,
     val subjectName: String,
-    var daysPresentOfLogs: Long ,
-    var daysAbsentOfLogs: Long,
+//    var daysPresentOfLogs: Long,
+//    var daysAbsentOfLogs: Long,
     var daysPresent: Long,
     var daysAbsent: Long,
     val latitude: Double?,
@@ -22,7 +22,10 @@ data class Subject(
 )
 
 @Keep
-fun Subject.toModifiedSubjects(): com.gps.classattendanceapp.domain.models.ModifiedSubjects {
+fun Subject.toModifiedSubjects(
+    daysPresentOfLogs: Long,
+    daysAbsentOfLogs: Long
+): ModifiedSubjects {
 
     val totalPresents = daysPresent + daysPresentOfLogs
     val totalAbsents = daysAbsent + daysAbsentOfLogs
@@ -34,7 +37,7 @@ fun Subject.toModifiedSubjects(): com.gps.classattendanceapp.domain.models.Modif
 
     val totalDays = totalPresents + totalAbsents
 
-    return com.gps.classattendanceapp.domain.models.ModifiedSubjects(
+    return ModifiedSubjects(
         _id = _id,
         subjectName = subjectName,
         attendancePercentage = percentage,

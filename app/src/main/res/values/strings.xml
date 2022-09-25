@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">GPS Attendance Tracker</string>
     <string name="select_subject">Select Subject</string>
-    <string name="no_subject_to_select_from">No Subjects to select from!!</string>
+    <string name="no_subject_to_select_from">No Subjects to select from!</string>
     <string name="present_absent">Present/Absent</string>
     <string name="log">Log</string>
     <string name="ok">Ok</string>

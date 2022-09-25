@@ -56,6 +56,14 @@ interface ClassAttendanceDao {
     fun getAllLogs(): Flow<List<Log>>
 
     @Transaction
+    @Query("select count(wasPresent) from log where wasPresent and subjectId = :subjectId")
+    fun getPresentThroughLogs(subjectId: Int): Flow<Int>
+
+    @Transaction
+    @Query("select count(wasPresent) from log where not wasPresent and subjectId = :subjectId")
+    fun getAbsentThroughLogs(subjectId: Int): Flow<Int>
+
+    @Transaction
     @Query("select * from timetable")
     fun getTimeTable(): Flow<List<TimeTable>>
 

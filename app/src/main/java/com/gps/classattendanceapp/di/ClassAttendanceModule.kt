@@ -3,11 +3,8 @@ package com.gps.classattendanceapp.di
 import android.content.Context
 import com.gps.classattendanceapp.data.db.ClassAttendanceDao
 import com.gps.classattendanceapp.data.db.ClassAttendanceDatabase
-import com.gps.classattendanceapp.data.excel.Excel
 import com.gps.classattendanceapp.data.repository.ClassAttendanceRepositoryImpl
 import com.gps.classattendanceapp.domain.repository.ClassAttendanceRepository
-import com.gps.classattendanceapp.domain.usecases.excelusecase.WriteLogsStatsToExcelUseCase
-import com.gps.classattendanceapp.domain.usecases.excelusecase.WriteSubjectsStatsToExcelUseCase
 import com.gps.classattendanceapp.domain.usecases.logsusecase.*
 import com.gps.classattendanceapp.domain.usecases.subjectsusecase.*
 import com.gps.classattendanceapp.domain.usecases.timetableusecase.*
@@ -23,14 +20,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ClassAttendanceModule {
 
-
-    @Provides
-    @Singleton
-    fun providesExcel():Excel{
-        return Excel()
-    }
-
-
     @Provides
     @Singleton
     fun providesClassAttendanceDao(@ApplicationContext context: Context): ClassAttendanceDao{
@@ -41,11 +30,9 @@ object ClassAttendanceModule {
     @Singleton
     fun providesClassAttendanceRepository(
         classAttendanceDao: ClassAttendanceDao,
-        excel: Excel
     ): ClassAttendanceRepository{
         return  ClassAttendanceRepositoryImpl(
             classAttendanceDao,
-            excel
         )
     }
 
@@ -76,8 +63,8 @@ object ClassAttendanceModule {
             getLogOfSubjectUseCase = GetLogOfSubjectUseCase(classAttendanceRepository),
             getLogOfSubjectIdUseCase = GetLogOfSubjectIdUseCase(classAttendanceRepository),
             getTimeTableOfDayUseCase = GetTimeTableOfDayUseCase(classAttendanceRepository),
-            writeSubjectsStatsToExcelUseCase = WriteSubjectsStatsToExcelUseCase(classAttendanceRepository),
-            writeLogsStatsToExcelUseCase = WriteLogsStatsToExcelUseCase(classAttendanceRepository)
+            getPresentThroughLogsUseCase = GetPresentThroughLogsUseCase(classAttendanceRepository),
+            getAbsentThroughLogsUseCase = GetAbsentThroughLogsUseCase(classAttendanceRepository)
         )
     }
 }

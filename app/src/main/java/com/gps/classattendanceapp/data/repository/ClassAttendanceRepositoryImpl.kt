@@ -1,21 +1,15 @@
 package com.gps.classattendanceapp.data.repository
 
-import android.content.Context
-import android.net.Uri
 import com.gps.classattendanceapp.data.db.ClassAttendanceDao
-import com.gps.classattendanceapp.data.excel.Excel
 import com.gps.classattendanceapp.data.models.Log
 import com.gps.classattendanceapp.data.models.Subject
 import com.gps.classattendanceapp.data.models.TimeTable
-import com.gps.classattendanceapp.domain.models.ModifiedLogs
-import com.gps.classattendanceapp.domain.models.ModifiedSubjects
 import com.gps.classattendanceapp.domain.repository.ClassAttendanceRepository
 import kotlinx.coroutines.flow.Flow
 
 
 class ClassAttendanceRepositoryImpl(
     private val dao: ClassAttendanceDao,
-    private val excel: Excel
 ) : ClassAttendanceRepository{
     override suspend fun updateSubject(subject: Subject) {
         dao.updateSubject(subject)
@@ -77,12 +71,12 @@ class ClassAttendanceRepositoryImpl(
         return dao.getTimeTableWithSubjectId(subjectId)
     }
 
-    override fun writeSubjectsStatsToExcel(context: Context, subjectsList: List<com.gps.classattendanceapp.domain.models.ModifiedSubjects>): Uri {
-        return excel.writeSubjectsStatsToExcel(context, subjectsList)
+    override fun getPresentThroughLogs(subjectId: Int): Flow<Int> {
+        return dao.getPresentThroughLogs(subjectId)
     }
 
-    override fun writeLogsStatsToExcel(context: Context, logsList: List<com.gps.classattendanceapp.domain.models.ModifiedLogs>): Uri {
-        return excel.writeLogsStatsToExcel(context, logsList)
+    override fun getAbsentThroughLogs(subjectId: Int): Flow<Int> {
+        return dao.getAbsentThroughLogs(subjectId)
     }
 
     override fun getAllSubjects(): Flow<List<Subject>> {

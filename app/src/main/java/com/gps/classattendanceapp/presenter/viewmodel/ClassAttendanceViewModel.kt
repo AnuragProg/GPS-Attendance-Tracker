@@ -3,20 +3,22 @@ package com.gps.classattendanceapp.presenter.viewmodel
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.util.Log.d
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.components.alarms.ClassAlarmManager
+import com.gps.classattendanceapp.components.excel.Excel
 import com.gps.classattendanceapp.data.models.Log
 import com.gps.classattendanceapp.data.models.Subject
 import com.gps.classattendanceapp.data.models.TimeTable
+import com.gps.classattendanceapp.data.models.toModifiedSubjects
 import com.gps.classattendanceapp.domain.models.ModifiedLogs
 import com.gps.classattendanceapp.domain.models.ModifiedSubjects
 import com.gps.classattendanceapp.domain.usecases.usecase.ClassAttendanceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -60,38 +62,34 @@ class ClassAttendanceViewModel @Inject constructor(
         _searchBarText.value = text
     }
 
-    private val _subjects = MutableStateFlow<Resource<List<com.gps.classattendanceapp.domain.models.ModifiedSubjects>>>(Resource.Loading())
+    private val _subjects = MutableStateFlow<Resource<List<ModifiedSubjects>>>(Resource.Loading())
     val subjects get() = _subjects.asStateFlow()
 
-    private val _logs = MutableStateFlow<Resource<List<com.gps.classattendanceapp.domain.models.ModifiedLogs>>>(Resource.Loading())
+    private val _logs = MutableStateFlow<Resource<List<ModifiedLogs>>>(Resource.Loading())
     val logs get() = _logs.asStateFlow()
 
-    private val _filteredSubjects = MutableStateFlow<Resource<List<com.gps.classattendanceapp.domain.models.ModifiedSubjects>>>(Resource.Loading())
+    private val _filteredSubjects = MutableStateFlow<Resource<List<ModifiedSubjects>>>(Resource.Loading())
     val filteredSubjects get() = _filteredSubjects.asStateFlow()
 
-    private val _filteredLogs = MutableStateFlow<Resource<List<com.gps.classattendanceapp.domain.models.ModifiedLogs>>>(Resource.Loading())
+    private val _filteredLogs = MutableStateFlow<Resource<List<ModifiedLogs>>>(Resource.Loading())
     val filteredLogs get() = _filteredLogs.asStateFlow()
 
-    fun getAllLogs() :Flow<Resource<List<com.gps.classattendanceapp.domain.models.ModifiedLogs>>>{
+    private fun getAllLogs() :Flow<Resource<List<ModifiedLogs>>>{
         return classAttendanceUseCase.getAllLogsUseCase()
     }
 
-    fun getAllSubjects() : Flow<Resource<List<com.gps.classattendanceapp.domain.models.ModifiedSubjects>>>{
+    private fun getAllSubjects() : Flow<Resource<List<Subject>>>{
         return classAttendanceUseCase.getSubjectsUseCase()
     }
 
-    init{
-        viewModelScope.launch{
-            getAllLogs().collectLatest{
-                _logs.value = it
-            }
-        }
+    private var logsJob : Job? = null
+    private var subjectsJob : Job? = null
 
-        viewModelScope.launch{
-            getAllSubjects().collectLatest{
-                _subjects.value = it
-            }
-        }
+    init{
+
+        refreshLogs()
+
+        refreshSubjects()
 
         viewModelScope.launch{
             combine(_searchBarText, _subjects){ searchQuery, subjectsList ->
@@ -109,7 +107,7 @@ class ClassAttendanceViewModel @Inject constructor(
                     is Resource.Success -> {
                         _filteredSubjects.value = Resource.Success(
                             searchAndSubjectList.second.data!!.filter{
-                                searchAndSubjectList.first.lowercase() in it.subjectName.lowercase()
+                                searchAndSubjectList.first.lowercase().trim() in it.subjectName.lowercase().trim()
                             }
                         )
                     }
@@ -133,7 +131,7 @@ class ClassAttendanceViewModel @Inject constructor(
                     is Resource.Success -> {
                         _filteredLogs.value = Resource.Success(
                             searchAndLogsList.second.data!!.filter{
-                                searchAndLogsList.first.lowercase() in it.subjectName!!.lowercase()
+                                searchAndLogsList.first.lowercase().trim() in it.subjectName!!.lowercase().trim()
                             }
                         )
                     }
@@ -146,6 +144,46 @@ class ClassAttendanceViewModel @Inject constructor(
         // Send Resource.Success only if the List of data is non empty
         // Otherwise send error with appropriate message
 
+    }
+
+    fun refreshSubjects(){
+        _subjects.value = Resource.Loading()
+        subjectsJob?.cancel()
+        subjectsJob = viewModelScope.launch{
+            getAllSubjects().collectLatest{ subjects ->
+                when(subjects){
+                    is Resource.Error -> {
+                        _subjects.value = Resource.Error("Unknown error!")
+                    }
+                    is Resource.Loading -> {
+                        _subjects.value = Resource.Loading()
+                    }
+                    is Resource.Success -> {
+                        _subjects.value = Resource.Success(
+                            subjects.data!!.map{
+                                val presentThroughLogs = classAttendanceUseCase.getPresentThroughLogsUseCase(it._id).first()
+                                val absentThroughLogs = classAttendanceUseCase.getAbsentThroughLogsUseCase(it._id).first()
+                                d("debugging", "present = $presentThroughLogs && absent = $absentThroughLogs")
+                                it.toModifiedSubjects(
+                                    presentThroughLogs.toLong(),
+                                    absentThroughLogs.toLong()
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun refreshLogs(){
+        _logs.value = Resource.Loading()
+        logsJob?.cancel()
+        logsJob =  viewModelScope.launch{
+            getAllLogs().collectLatest{
+                _logs.value = it
+            }
+        }
     }
 
 
@@ -258,26 +296,11 @@ class ClassAttendanceViewModel @Inject constructor(
     }
 
     suspend fun insertLogs(log: Log): Long{
-        val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(log.subjectId)
-
-        val subject = subjectWithId?.let{
-            if (log.wasPresent) {
-                it.daysPresentOfLogs++
-            } else {
-                it.daysAbsentOfLogs++
-            }
-            it
-        }
-        subject?.let{
-            classAttendanceUseCase.insertSubjectUseCase(subject)
-        }
         return classAttendanceUseCase.insertLogsUseCase(log)
     }
 
     suspend fun insertSubject(subject: Subject): Long{
-        return classAttendanceUseCase.insertSubjectUseCase(
-            subject
-        )
+        return classAttendanceUseCase.insertSubjectUseCase(subject)
     }
 
     suspend fun insertTimeTable(
@@ -295,17 +318,6 @@ class ClassAttendanceViewModel @Inject constructor(
     }
 
     suspend fun deleteLogs(id: Int){
-        val logWithId = classAttendanceUseCase.getLogsWithIdUseCase(id) ?: return
-
-        val subjectWithId = classAttendanceUseCase.getSubjectWithIdWithUseCase(logWithId.subjectId) ?: return
-        if(logWithId.wasPresent){
-            if(subjectWithId.daysPresentOfLogs>0){ subjectWithId.daysPresentOfLogs-- }
-        }else{
-            if(subjectWithId.daysAbsentOfLogs>0){ subjectWithId.daysAbsentOfLogs-- }
-        }
-        classAttendanceUseCase.insertSubjectUseCase(
-            subjectWithId
-        )
         classAttendanceUseCase.deleteLogsUseCase(id)
     }
 
@@ -351,11 +363,11 @@ class ClassAttendanceViewModel @Inject constructor(
         return cal.get(Calendar.MINUTE)
     }
 
-    fun writeSubjectsStatsToExcel(context: Context, subjectsList: List<com.gps.classattendanceapp.domain.models.ModifiedSubjects>): Uri{
-        return classAttendanceUseCase.writeSubjectsStatsToExcelUseCase(context, subjectsList)
+    fun writeSubjectsStatsToExcel(context: Context, subjectsList: List<ModifiedSubjects>): String{
+        return Excel.writeSubjectsStatsToExcel(context, subjectsList)
     }
-    fun writeLogsStatsToExcel(context: Context, logsList: List<com.gps.classattendanceapp.domain.models.ModifiedLogs>): Uri{
-        return classAttendanceUseCase.writeLogsStatsToExcelUseCase(context, logsList)
+    fun writeLogsStatsToExcel(context: Context, logsList: List<ModifiedLogs>): String{
+        return Excel.writeLogsStatsToExcel(context, logsList)
     }
 
     suspend fun deleteSubjectsInList(context: Context,subjectIds: List<Int>){

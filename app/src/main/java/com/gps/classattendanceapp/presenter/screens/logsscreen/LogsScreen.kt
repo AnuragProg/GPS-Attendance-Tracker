@@ -42,9 +42,6 @@ fun LogsScreen(
     removeLogIdToDelete: (Int)->Unit,
     snackbarHostState: SnackbarHostState
 ){
-    val logsList = remember{
-        mutableStateListOf<com.gps.classattendanceapp.domain.models.ModifiedLogs>()
-    }
     val logs = classAttendanceViewModel.filteredLogs.collectAsStateWithLifecycle()
 
     val coroutineScope = rememberCoroutineScope()
@@ -98,8 +95,7 @@ fun LogsScreen(
                         fontWeight = FontWeight.Bold
                     )
                 }
-            }
-            else{
+            }else{
                 Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -110,7 +106,7 @@ fun LogsScreen(
                         state = lazyScrollState
                     ) {
                         items(
-                            logsList,
+                            logs.value.data ?: emptyList(),
                             key = { it._id!! }
                         ) { log ->
                             var isCardVisible by remember { mutableStateOf(false) }

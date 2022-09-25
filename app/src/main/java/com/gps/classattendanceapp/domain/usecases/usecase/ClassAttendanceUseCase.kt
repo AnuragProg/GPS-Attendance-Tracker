@@ -1,7 +1,5 @@
 package com.gps.classattendanceapp.domain.usecases.usecase
 
-import com.gps.classattendanceapp.domain.usecases.excelusecase.WriteLogsStatsToExcelUseCase
-import com.gps.classattendanceapp.domain.usecases.excelusecase.WriteSubjectsStatsToExcelUseCase
 import com.gps.classattendanceapp.domain.usecases.logsusecase.*
 import com.gps.classattendanceapp.domain.usecases.subjectsusecase.*
 import com.gps.classattendanceapp.domain.usecases.timetableusecase.*
@@ -28,6 +26,8 @@ data class ClassAttendanceUseCase(
     val getLogOfSubjectUseCase: GetLogOfSubjectUseCase,
     val getLogOfSubjectIdUseCase: GetLogOfSubjectIdUseCase,
     val getTimeTableOfDayUseCase: GetTimeTableOfDayUseCase,
-    val writeSubjectsStatsToExcelUseCase: WriteSubjectsStatsToExcelUseCase,
-    val writeLogsStatsToExcelUseCase: WriteLogsStatsToExcelUseCase
+    val getPresentThroughLogsUseCase: GetPresentThroughLogsUseCase,
+    val getAbsentThroughLogsUseCase: GetAbsentThroughLogsUseCase,
+
+
 )

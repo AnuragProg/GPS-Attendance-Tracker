@@ -115,7 +115,8 @@ fun SubjectCard(
                     Box{
 
                         Column(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(10.dp),
                             horizontalAlignment = Alignment.Start,
                             verticalArrangement = Arrangement.Center
                         ) {
