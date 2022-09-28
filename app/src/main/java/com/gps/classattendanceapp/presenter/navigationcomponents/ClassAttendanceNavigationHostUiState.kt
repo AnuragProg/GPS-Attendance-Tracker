@@ -1,6 +1,7 @@
 package com.gps.classattendanceapp.presenter.navigationcomponents
 
 import android.app.Activity
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
@@ -15,7 +16,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 
-data class ClassAttendanceNavigationHostUiState(
+data class ClassAttendanceNavigationHostUiState @OptIn(ExperimentalMaterialApi::class) constructor(
     val context: Activity,
     val navController: NavHostController,
     val currentBackStackEntry: State<NavBackStackEntry?>,
@@ -27,6 +28,7 @@ data class ClassAttendanceNavigationHostUiState(
     val lifecycleOwner: LifecycleOwner,
 )
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberClassAttendanceNavigationHostUiState(
     context: Activity = LocalContext.current as Activity,

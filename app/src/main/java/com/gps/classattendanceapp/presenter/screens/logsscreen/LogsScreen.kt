@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gps.classattendanceapp.R
 import com.gps.classattendanceapp.components.Resource
+import com.gps.classattendanceapp.domain.models.ModifiedLogs
 import com.gps.classattendanceapp.presenter.theme.boxSizePercentage
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.launch
@@ -40,7 +41,8 @@ fun LogsScreen(
     classAttendanceViewModel: ClassAttendanceViewModel,
     addLogIdtoDelete: (Int)->Unit,
     removeLogIdToDelete: (Int)->Unit,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    showModalBottomSheet: suspend (ModifiedLogs)->Unit
 ){
     val logs = classAttendanceViewModel.filteredLogs.collectAsStateWithLifecycle()
 
@@ -190,6 +192,9 @@ fun LogsScreen(
                                                 }
 
                                                 isLogSelected = selected
+                                            },
+                                            onClick = {
+                                                coroutineScope.launch{ showModalBottomSheet(log) }
                                             }
                                         )
                                     }

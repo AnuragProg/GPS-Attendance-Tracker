@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gps.classattendanceapp.R
 import com.gps.classattendanceapp.components.Resource
+import com.gps.classattendanceapp.domain.models.ModifiedSubjects
 import com.gps.classattendanceapp.presenter.theme.boxSizePercentage
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.launch
@@ -38,7 +39,8 @@ fun SubjectsScreen(
     classAttendanceViewModel: ClassAttendanceViewModel,
     addSubjectIdtoDelete: (Int)->Unit,
     removeSubjectIdToDelete: (Int)->Unit,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    showModalBottomSheet: suspend (ModifiedSubjects) -> Unit,
 ) {
     
     val uiState = rememberSubjectScreenUiState(
@@ -46,6 +48,8 @@ fun SubjectsScreen(
     )
 
     val configuration = LocalConfiguration.current
+
+    val coroutineScope = rememberCoroutineScope()
 
     // Alert Dialog -> To add new subject
     if (uiState.showAddSubjectDialog.value) {
@@ -185,6 +189,11 @@ fun SubjectsScreen(
                                                     addSubjectIdtoDelete(subject._id)
                                                 }else{
                                                     removeSubjectIdToDelete(subject._id)
+                                                }
+                                            },
+                                            onClick = {
+                                                coroutineScope.launch{
+                                                    showModalBottomSheet(subject)
                                                 }
                                             }
                                         )

@@ -14,10 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -27,13 +24,18 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.gps.classattendanceapp.domain.models.ModifiedLogs
+import com.gps.classattendanceapp.domain.models.ModifiedSubjects
 import com.gps.classattendanceapp.presenter.screens.logsscreen.LogsScreen
+import com.gps.classattendanceapp.presenter.screens.logsscreen.LogsScreenBottomSheet
+import com.gps.classattendanceapp.presenter.screens.subjectsscreen.SubjectScreenBottomSheet
 import com.gps.classattendanceapp.presenter.screens.subjectsscreen.SubjectsScreen
 import com.gps.classattendanceapp.presenter.screens.timetablescreen.TimeTableScreen
 import kotlinx.coroutines.delay
 
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class,
+    ExperimentalMaterialApi::class)
 @Composable
 fun ClassAttendanceNavigationHost(){
 
@@ -113,11 +115,11 @@ fun ClassAttendanceNavigationHost(){
                 }
             }
         },
-        isFloatingActionButtonDocked = false,
         floatingActionButtonPosition = FabPosition.End
     ){
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(it)
         ){
             DeniedPermissionsCard(
@@ -136,12 +138,42 @@ fun ClassAttendanceNavigationHost(){
                     BackHandler(enabled = true) {
                         uiState.context.moveTaskToBack(true)
                     }
-                    LogsScreen(
-                        uiState.classAttendanceViewModel,
-                        {uiState.listOfLogIdsToDelete.add(it)},
-                        {uiState.listOfLogIdsToDelete.remove(it)},
-                        uiState.scaffoldState.snackbarHostState
+
+
+                    var selectedLog by remember{
+                        mutableStateOf<ModifiedLogs?>(null)
+                    }
+
+                    val modalBottomSheetState = rememberModalBottomSheetState(
+                        initialValue = ModalBottomSheetValue.Hidden,
+                        confirmStateChange = {
+                            when(it){
+                                ModalBottomSheetValue.Hidden -> {
+                                    selectedLog = null
+                                    true
+                                }
+                                else ->{
+                                    true
+                                }
+                            }
+                        }
                     )
+
+
+                    LogsScreenBottomSheet(
+                        sheetState = modalBottomSheetState,
+                        log = selectedLog
+                    ) {
+                        LogsScreen(
+                            uiState.classAttendanceViewModel,
+                            {uiState.listOfLogIdsToDelete.add(it)},
+                            {uiState.listOfLogIdsToDelete.remove(it)},
+                            uiState.scaffoldState.snackbarHostState
+                        ){
+                            selectedLog = it
+                            modalBottomSheetState.show()
+                        }
+                    }
                 }
 
                 composable(Screens.SUBJECTSSCREEN.route) {
@@ -149,12 +181,43 @@ fun ClassAttendanceNavigationHost(){
                     BackHandler(enabled=true) {
                         uiState.context.moveTaskToBack(true)
                     }
-                    SubjectsScreen(
-                        uiState.classAttendanceViewModel,
-                        {subjectId -> uiState.listOfSubjectIdsToDelete.add(subjectId)},
-                        {subjectId -> uiState.listOfSubjectIdsToDelete.remove(subjectId)},
-                        uiState.scaffoldState.snackbarHostState
+
+                    var selectedSubject by remember{
+                        mutableStateOf<ModifiedSubjects?>(null)
+                    }
+
+                    val modalBottomSheetState = rememberModalBottomSheetState(
+                        initialValue = ModalBottomSheetValue.Hidden,
+                        confirmStateChange = {
+                            when(it){
+                                ModalBottomSheetValue.Hidden -> {
+                                    selectedSubject = null
+                                    true
+                                }
+                                else ->{
+                                    true
+                                }
+                            }
+                        }
                     )
+
+
+                    SubjectScreenBottomSheet(
+                        sheetState = modalBottomSheetState,
+                        subject = selectedSubject
+                    ) {
+                        SubjectsScreen(
+                            uiState.classAttendanceViewModel,
+                            {subjectId -> uiState.listOfSubjectIdsToDelete.add(subjectId)},
+                            {subjectId -> uiState.listOfSubjectIdsToDelete.remove(subjectId)},
+                            uiState.scaffoldState.snackbarHostState,
+                            {
+                                selectedSubject = it
+                                modalBottomSheetState.show()
+                            }
+                        )
+
+                    }
                 }
 
                 composable(Screens.TIMETABLESCREEN.route) {
