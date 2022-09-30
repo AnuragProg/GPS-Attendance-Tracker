@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gps.classattendanceapp.domain.models.ModifiedLogs
@@ -32,7 +33,11 @@ fun LogsScreenBottomSheet(
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetContent = {
-            LogsScreenBottomSheetContent(log)
+            LogsScreenBottomSheetContent(
+                log=log,
+                headingSize = 18.sp,
+                contentSize = 13.sp
+            )
         },
         content = {
             logsScreen()
@@ -43,7 +48,9 @@ fun LogsScreenBottomSheet(
 
 @Composable
 fun LogsScreenBottomSheetContent(
-    log: ModifiedLogs?
+    log: ModifiedLogs?,
+    headingSize: TextUnit,
+    contentSize: TextUnit
 ) {
 
     if(log==null) {
@@ -55,7 +62,9 @@ fun LogsScreenBottomSheetContent(
 
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Text(
@@ -66,15 +75,19 @@ fun LogsScreenBottomSheetContent(
         )
 
         BottomSheetLocationCard(
-            modifier = Modifier.fillMaxWidth()
-                .padding(10.dp),
-            log = log
+            modifier = Modifier.padding(10.dp),
+            log = log,
+            headingSize = headingSize,
+            contentSize = contentSize
         )
-
+        Spacer(modifier=Modifier.height(10.dp))
         BottomSheetInformativeContent(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(10.dp),
-            log = log
+            log = log,
+            headingSize = headingSize,
+            contentSize = contentSize
         )
 
     }
@@ -84,7 +97,9 @@ fun LogsScreenBottomSheetContent(
 @Composable
 fun BottomSheetInformativeContent(
     modifier : Modifier = Modifier,
-    log: ModifiedLogs
+    log: ModifiedLogs,
+    headingSize: TextUnit,
+    contentSize: TextUnit
 ) {
     Card(
         modifier = modifier,
@@ -106,17 +121,20 @@ fun BottomSheetInformativeContent(
                         if (log.minute!! < 10) "0${log.minute}"
                         else log.minute
                     }",
-                    color = Color.White
+                    color = Color.White,
+                    fontSize = contentSize
                 )
                 Spacer(modifier=Modifier.height(5.dp))
                 Text(
                     text=log.day!!,
-                    color = Color.White
+                    color = Color.White,
+                    fontSize=contentSize
                 )
                 Spacer(modifier=Modifier.height(5.dp))
                 Text(
                     text = "${log.month} ${log.date}, ${log.year}",
-                    color = Color.White
+                    color = Color.White,
+                    fontSize=contentSize
                 )
 
                 Spacer(modifier=Modifier.height(5.dp))
@@ -125,7 +143,7 @@ fun BottomSheetInformativeContent(
 
             Text(
                 text = if(log.wasPresent) "Present" else "Absent",
-                fontSize = 20.sp,
+                fontSize = headingSize,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White
             )
@@ -138,62 +156,68 @@ fun BottomSheetInformativeContent(
 fun BottomSheetLocationCard(
     modifier : Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.medium,
-    log: ModifiedLogs
-
-    ) {
+    log: ModifiedLogs,
+    headingSize: TextUnit,
+    contentSize: TextUnit
+) {
     val context = LocalContext.current
-    Card(
-        modifier = modifier,
-        shape = shape
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
+
+    Column(
+        modifier=modifier
+    ){
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ){
+            Icon(
+                imageVector = Icons.Filled.LocationOn,
+                contentDescription = null
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ){
-                Icon(
-                    imageVector = Icons.Filled.LocationOn,
-                    contentDescription = null
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Location",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Button(
-                    onClick = {
-                        log.let{
-                            if(it.latitude==null||it.longitude==null){
-                                Toast.makeText(context, "Missing location fields!", Toast.LENGTH_SHORT).show()
-                            }else{
-                                val mapsUri = Uri.parse("geo:${it.latitude},${it.longitude}")
-                                val intent = Intent(Intent.ACTION_VIEW, mapsUri)
-                                    .apply{
-                                        `package` = "com.google.android.apps.maps"
-                                    }
-                                context.startActivity(intent)
-                            }
+            Text(
+                text = "Location",
+                fontSize = headingSize,
+                fontWeight = FontWeight.SemiBold
+            )
+            Button(
+                onClick = {
+                    log.let{
+                        if(it.latitude==null||it.longitude==null){
+                            Toast.makeText(context, "Missing location fields!", Toast.LENGTH_SHORT).show()
+                        }else{
+                            val mapsUri = Uri.parse("geo:${it.latitude},${it.longitude}")
+                            val intent = Intent(Intent.ACTION_VIEW, mapsUri)
+                                .apply{
+                                    `package` = "com.google.android.apps.maps"
+                                }
+                            context.startActivity(intent)
                         }
-                    },
-                    shape = RoundedCornerShape(30.dp)
-                ) {
-                    Text("Google Maps")
-                }
-            }
-            Column(
+                    }
+                },
+                shape = RoundedCornerShape(30.dp)
             ) {
-                Text("Latitude -> ${log.latitude ?: "Unknown"}")
-                Text("Longitude -> ${log.longitude ?: "Unknown"}")
-                Text("Distance from location ( in meters ) -> ${log.distance ?: "Unknown"}")
+                Text("Google Maps")
             }
         }
+        Column{
+            Text(
+                text="Latitude -> ${log.latitude ?: "Unknown"}",
+                fontSize=contentSize
+            )
+            Text(
+                text="Longitude -> ${log.longitude ?: "Unknown"}",
+                fontSize=contentSize
+            )
+            Text(
+                text="Distance from location -> ${log.distance?.let{"${String.format("%.2f",it)} meters"} ?: "Unknown"}",
+                fontSize=contentSize
+            )
+        }
     }
+
 }
