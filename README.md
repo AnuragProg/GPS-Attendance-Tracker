@@ -20,13 +20,11 @@ it decides whether the user is in class or not and marks the attendance accordin
 - GPS to automatically register user's attendance
 - Timetable Screen to register subjects for periodic alarms
 - Expanded Notification Features to mark attendance through notification only
-- Map Screen for seeing saved subject's location
-- Maps to select subject's location
 - Feature to export subject and logs data to excel document
 
 ### About the app:
 - Uses GPS service for retrieving user location
-- Uses WorkManager for doing long-running tasks when the alarm goes on
+- Uses WorkManager for doing long-running tasks (calculating distance, marking attendance) when the alarm goes on
 - Uses Dagger-Hilt for Dependency Injection
 - Kotlin Flows handle the flow of data between Database and UI
 - Uses Clean Architecture for code structure
