@@ -88,9 +88,7 @@ fun TimeTableScreen(
                 it.keys.forEach { day ->
                     timetableList[day] = mutableListOf()
                     timetableList[day]?.addAll(
-                        it[day]!!.sortedBy {
-                            it.hour * 60 + it.minute
-                        }
+                        it[day]!!.sortedWith(compareBy { it.hour*60 + it.minute })
                     )
                 }
             }

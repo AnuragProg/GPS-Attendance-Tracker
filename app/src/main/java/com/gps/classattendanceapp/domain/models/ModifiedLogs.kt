@@ -1,5 +1,6 @@
 package com.gps.classattendanceapp.domain.models
 
+import androidx.annotation.Keep
 
 
 /*
@@ -8,6 +9,7 @@ package com.gps.classattendanceapp.domain.models
            when user creates log, new log is generated with all fields preset
            to not initialize every value when we are taking information from the user
  */
+@Keep
 data class ModifiedLogs(
     val _id: Int?=null,
     var subjectId: Int?=null,

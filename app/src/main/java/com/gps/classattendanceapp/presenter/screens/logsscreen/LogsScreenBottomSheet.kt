@@ -190,7 +190,7 @@ fun BottomSheetLocationCard(
                         if(it.latitude==null||it.longitude==null){
                             Toast.makeText(context, "Missing location fields!", Toast.LENGTH_SHORT).show()
                         }else{
-                            val mapsUri = Uri.parse("geo:${it.latitude},${it.longitude}")
+                            val mapsUri = Uri.parse("geo:${it.latitude},${it.longitude}?q=${it.latitude},${it.longitude}(You were here!)")
                             val intent = Intent(Intent.ACTION_VIEW, mapsUri)
                                 .apply{
                                     `package` = "com.google.android.apps.maps"

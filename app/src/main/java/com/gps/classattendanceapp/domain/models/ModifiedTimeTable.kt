@@ -1,7 +1,10 @@
 package com.gps.classattendanceapp.domain.models
 
+import androidx.annotation.Keep
+
 
 // only to be used for providing to ui layer
+@Keep
 data class ModifiedTimeTable(
     val _id: Int,
     val day: String,

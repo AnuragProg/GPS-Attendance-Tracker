@@ -45,7 +45,7 @@ class ClassAttendanceSplashScreen : ComponentActivity() {
 fun SplashScreen() {
 
     val context = LocalContext.current as Activity
-    val animationDuration = remember{5000}
+    val animationDuration = remember{3000}
     LaunchedEffect(Unit){
         delay(animationDuration + 2000L)
         context.startActivity(Intent(context, MainActivity::class.java))
