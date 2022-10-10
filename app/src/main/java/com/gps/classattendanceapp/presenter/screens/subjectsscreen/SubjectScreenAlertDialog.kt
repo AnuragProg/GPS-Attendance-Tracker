@@ -13,9 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gps.classattendanceapp.R
@@ -50,7 +52,7 @@ fun SubjectScreenAlertDialog(
                     value = subjectScreenUiState.subjectName.value,
                     onValueChange = { subjectScreenUiState.subjectName.value = it },
                     label = {
-                        Text(stringResource(R.string.subject_name) + " (Required)")
+                        Text(stringResource(R.string.subject_name)+"*")
                     },
                     maxLines = 1,
                     trailingIcon = {
@@ -81,7 +83,7 @@ fun SubjectScreenAlertDialog(
                                 subjectScreenUiState.presents.value = it
                             },
                             label = {
-                                Text(stringResource(R.string.presents))
+                                Text(stringResource(R.string.presents)+"*")
                             },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number
@@ -136,7 +138,7 @@ fun SubjectScreenAlertDialog(
                                 subjectScreenUiState.absents.value = it
                             },
                             label = {
-                                Text(stringResource(R.string.absents))
+                                Text(stringResource(R.string.absents)+"*")
                             },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number
@@ -281,6 +283,14 @@ fun SubjectScreenAlertDialog(
                             }
                         }
                     }
+                )
+                Spacer(modifier=Modifier.height(8.dp))
+                Text(
+                    modifier=Modifier.fillMaxWidth(),
+                    text="(*)Required Fields",
+                    fontSize = 13.sp,
+                    textAlign = TextAlign.End,
+                    color = Color.Red
                 )
             }
         },

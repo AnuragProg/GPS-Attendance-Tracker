@@ -33,4 +33,7 @@
     <string name="rangeInM">Range(in m)</string>
     <string name="save">Save</string>
     <string name="range">Range</string>
+    <string name="title_activity_prominent_disclosure">ProminentDisclosure</string>
+    <string name="prominent_disclosure">GPS Attendance Tracker collects location data to enable the app to mark your attendance based on your location even when the app is closed or not in use.</string>
+    <string name="disclaimer">Disclaimer</string>
 </resources>

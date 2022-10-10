@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.gps.classattendanceapp.components.UserPreferences
 import com.gps.classattendanceapp.presenter.theme.ClassAttendanceAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -32,9 +33,10 @@ class ClassAttendanceSplashScreen : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val userPreferences = UserPreferences(this)
         setContent {
             ClassAttendanceAppTheme {
-                SplashScreen()
+                SplashScreen(userPreferences)
             }
         }
     }
@@ -42,13 +44,19 @@ class ClassAttendanceSplashScreen : ComponentActivity() {
 
 
 @Composable
-fun SplashScreen() {
+fun SplashScreen(
+    userPreferences: UserPreferences
+) {
 
     val context = LocalContext.current as Activity
     val animationDuration = remember{3000}
     LaunchedEffect(Unit){
         delay(animationDuration + 2000L)
-        context.startActivity(Intent(context, MainActivity::class.java))
+        val navigateToProminentDisclosure = userPreferences.showProminentDisclosure()
+        if(navigateToProminentDisclosure)
+            context.startActivity(Intent(context, ProminentDisclosureActivity::class.java))
+        else context.startActivity(Intent(context, MainActivity::class.java))
+        userPreferences.showedProminentDisclosure()
         context.finish()
     }
     var startAnimation by remember{

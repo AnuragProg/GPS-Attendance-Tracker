@@ -68,7 +68,7 @@ fun ClassAttendanceNavigationHost(){
         }
     }
 
-    PermissionHandler()
+
 
     Scaffold(
         scaffoldState = uiState.scaffoldState,
