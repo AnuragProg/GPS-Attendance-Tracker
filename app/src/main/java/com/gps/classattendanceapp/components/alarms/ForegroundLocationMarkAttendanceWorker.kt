@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -33,7 +34,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workerParameters){
 
     private val foregroundNotificationChannelId = "FOREGROUNDLOCATIONNOTIFICATIONCHANNEL"
-    private val foregroundNotificaitionId = -10
+    private val foregroundNotificationId = -10
 
 
     override suspend fun doWork(): Result {
@@ -45,7 +46,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
             .setContentText("Retrieving Your Location")
             .build()
 
-        val foregroundNotificationInfo = ForegroundInfo(foregroundNotificaitionId, foregroundNotification)
+        val foregroundNotificationInfo = ForegroundInfo(foregroundNotificationId, foregroundNotification)
         setForeground(foregroundNotificationInfo)
 
 
@@ -74,25 +75,25 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
             )
             return Result.success()
         }
-        if(
-            Build.VERSION.SDK_INT >= 29
-        ){
-            if(
-                context.checkSelfPermission(
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ) == PackageManager.PERMISSION_DENIED
-            ){
-                createNotificationChannelAndShowNotification(
-                    timeTableId = timeTableId,
-                    subjectId = subjectId,
-                    subjectName = subjectName,
-                    hour = hour,
-                    minute = minute,
-                    context = context
-                )
-                return Result.success()
-            }
-        }
+//        if(
+//            Build.VERSION.SDK_INT >= 29
+//        ){
+//            if(
+//                context.checkSelfPermission(
+//                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+//                ) == PackageManager.PERMISSION_DENIED
+//            ){
+//                createNotificationChannelAndShowNotification(
+//                    timeTableId = timeTableId,
+//                    subjectId = subjectId,
+//                    subjectName = subjectName,
+//                    hour = hour,
+//                    minute = minute,
+//                    context = context
+//                )
+//                return Result.success()
+//            }
+//        }
 
         val subject = classAttendanceRepository.getSubjectWithId(subjectId)
         val userSpecifiedLocation = Triple(
@@ -117,7 +118,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
 
 
                     val currentLocation = ClassLocationManager.getLocationFlow(context).first()
-
+                    Log.d("location", "Current location: ${currentLocation.latitude} ${currentLocation.longitude}")
                     val distance = CoordinateCalculations.distanceBetweenPointsInM(
                         lat1 = currentLocation.latitude,
                         long1 = currentLocation.longitude,
@@ -186,6 +187,7 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 }
             }
             catch(timeout: TimeoutCancellationException){
+                Log.d("location", "Unable to get current location")
                 createNotificationChannelAndShowNotification(
                     timeTableId = timeTableId,
                     subjectId = subjectId,

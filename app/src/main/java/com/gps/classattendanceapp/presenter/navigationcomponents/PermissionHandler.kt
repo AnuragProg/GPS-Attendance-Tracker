@@ -15,14 +15,28 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 @Composable
 fun PermissionHandler() {
 
-    val permissions = rememberMultiplePermissionsState(
-        listOf(Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.INTERNET,
-            Manifest.permission.ACCESS_NETWORK_STATE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,)
-    )
+    val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        rememberMultiplePermissionsState(
+            listOf(Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
+        )
+    } else {
+        rememberMultiplePermissionsState(
+            listOf(Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        )
+    }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner){

@@ -33,14 +33,26 @@ class ClassAttendanceViewModel @Inject constructor(
     val deniedPermissions : StateFlow<Set<String>> get() = _deniedPermissions
 
 
-    private val requiredPermissions = listOf(
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.INTERNET,
-        Manifest.permission.ACCESS_NETWORK_STATE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-    )
+    private val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        listOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.INTERNET,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+        )
+    } else {
+        listOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.INTERNET,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+        )
+    }
 
     private var _searchBarText = MutableStateFlow("")
     val searchBarText: StateFlow<String> get() = _searchBarText
@@ -182,8 +194,8 @@ class ClassAttendanceViewModel @Inject constructor(
             if(result != PackageManager.PERMISSION_GRANTED) {
                 deniedPermissions.add(
                     when (permission) {
-                        Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION-> {
-                            "Location"
+                        Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION-> {
+                            "Location (Allow all the time)"
                         }
                         Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET -> {
                             "Network"

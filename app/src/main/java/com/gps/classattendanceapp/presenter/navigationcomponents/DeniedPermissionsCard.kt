@@ -35,7 +35,7 @@ fun DeniedPermissionsCard(
                 modifier = Modifier.padding(10.dp),
             ) {
                 Text(
-                    text = "Without following permissions some of the features will show undefined behaviour (if you've changed permissions just now, this message will disappear in some time)",
+                    text = "Without following permissions some of the features will not work properly",
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
                 )
