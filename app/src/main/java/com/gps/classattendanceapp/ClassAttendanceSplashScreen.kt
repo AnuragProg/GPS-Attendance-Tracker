@@ -56,7 +56,7 @@ fun SplashScreen(
         if(navigateToProminentDisclosure)
             context.startActivity(Intent(context, ProminentDisclosureActivity::class.java))
         else context.startActivity(Intent(context, MainActivity::class.java))
-        userPreferences.showedProminentDisclosure()
+
         context.finish()
     }
     var startAnimation by remember{
