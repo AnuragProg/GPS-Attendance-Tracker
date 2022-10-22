@@ -1,6 +1,7 @@
 package com.gps.classattendanceapp.di
 
 import android.content.Context
+import com.gps.classattendanceapp.components.UserPreferences
 import com.gps.classattendanceapp.data.db.ClassAttendanceDao
 import com.gps.classattendanceapp.data.db.ClassAttendanceDatabase
 import com.gps.classattendanceapp.data.repository.ClassAttendanceRepositoryImpl
@@ -67,4 +68,10 @@ object ClassAttendanceModule {
             getAbsentThroughLogsUseCase = GetAbsentThroughLogsUseCase(classAttendanceRepository)
         )
     }
+
+    @Provides
+    @Singleton
+    fun providesUserPreferences(
+        @ApplicationContext context : Context
+    ) = UserPreferences(context)
 }

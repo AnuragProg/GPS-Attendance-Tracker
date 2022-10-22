@@ -21,12 +21,18 @@ import androidx.compose.ui.unit.dp
 import com.gps.classattendanceapp.components.UserPreferences
 import com.gps.classattendanceapp.ui.theme.ClassAttendanceAppTheme
 import com.gps.classattendanceapp.ui.theme.Dimens
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ProminentDisclosureActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var userPreferences: UserPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val userPreferences = UserPreferences(this)
         setContent {
             ClassAttendanceAppTheme {
                 val intent = Intent(this, MainActivity::class.java)

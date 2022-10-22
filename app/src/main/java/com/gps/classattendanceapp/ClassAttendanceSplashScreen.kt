@@ -23,17 +23,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.gps.classattendanceapp.components.UserPreferences
 import com.gps.classattendanceapp.presenter.theme.ClassAttendanceAppTheme
+import com.gps.classattendanceapp.ui.theme.Dimens
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import javax.inject.Inject
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
 class ClassAttendanceSplashScreen : ComponentActivity() {
 
+    @Inject
+    lateinit var userPreferences : UserPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val userPreferences = UserPreferences(this)
         setContent {
             ClassAttendanceAppTheme {
                 SplashScreen(userPreferences)
@@ -84,7 +87,8 @@ fun SplashScreen(
         Image(
             modifier = Modifier
                 .padding(50.dp)
-                .alpha(animatedDp),
+                .alpha(animatedDp)
+                .size(Dimens.dimen.splash_screen_image),
             painter = painterResource(R.drawable.calendar),
             contentDescription = null
         )

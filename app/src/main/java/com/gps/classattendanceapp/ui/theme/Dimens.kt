@@ -11,7 +11,8 @@ import androidx.compose.ui.unit.sp
 data class Dimensions(
     val disclaimer_title: TextUnit,
     val disclaimer_content: TextUnit,
-    val map_image: Dp = 150.dp
+    val map_image: Dp = 150.dp,
+    val splash_screen_image: Dp = 150.dp
 )
 
 val mdpi = Dimensions(
