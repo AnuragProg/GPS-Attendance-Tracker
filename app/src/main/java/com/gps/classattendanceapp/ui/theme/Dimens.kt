@@ -12,7 +12,10 @@ data class Dimensions(
     val disclaimer_title: TextUnit,
     val disclaimer_content: TextUnit,
     val map_image: Dp = 150.dp,
-    val splash_screen_image: Dp = 150.dp
+    val splash_screen_image: Dp = 150.dp,
+    val no_subject_lottie_size: Dp = 300.dp,
+    val loading_lottie_size: Dp = 300.dp,
+    val subject_attendance_status_lottie_size : Dp = 70.dp
 )
 
 val mdpi = Dimensions(
@@ -29,13 +32,19 @@ val hdpi = Dimensions(
 val xhdpi = Dimensions(
     disclaimer_title = 20.sp,
     disclaimer_content = 30.sp,
-    map_image = 150.dp
+    map_image = 150.dp,
+    no_subject_lottie_size = 270.dp,
+    loading_lottie_size = 270.dp,
+    subject_attendance_status_lottie_size = 70.dp
 )
 
 val xxhdpi = Dimensions(
     disclaimer_title = 23.sp,
     disclaimer_content = 33.sp,
-    map_image = 150.dp
+    map_image = 150.dp,
+    no_subject_lottie_size = 300.dp,
+    loading_lottie_size = 300.dp,
+    subject_attendance_status_lottie_size = 70.dp
 )
 
 object Dimens {

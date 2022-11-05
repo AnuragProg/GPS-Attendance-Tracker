@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,11 +25,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.*
 import com.gps.classattendanceapp.R
 import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.domain.models.ModifiedSubjects
 import com.gps.classattendanceapp.presenter.theme.boxSizePercentage
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
+import com.gps.classattendanceapp.ui.theme.Dimens
+import com.gps.classattendanceapp.ui.theme.VeryLightGray
 import kotlinx.coroutines.launch
 
 
@@ -63,10 +67,18 @@ fun SubjectsScreen(
         is Resource.Error -> {}
         is Resource.Loading -> {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
+                    .background(VeryLightGray),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+//                CircularProgressIndicator()
+                val lottieComposition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.hourglass_loading))
+                val progress by animateLottieCompositionAsState(composition = lottieComposition)
+                LottieAnimation(
+                    modifier = Modifier.size(Dimens.dimen.loading_lottie_size),
+                    composition = lottieComposition,
+                    progress = { progress }
+                )
             }
         }
         is Resource.Success -> {
@@ -74,19 +86,33 @@ fun SubjectsScreen(
 
             if((uiState.subjectsList.value.data?.size ?: 0) == 0){
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
+                        .background(VeryLightGray),
+
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    Image(
-                        modifier = Modifier
-                            .size(
-                                height = (configuration.screenHeightDp* boxSizePercentage).dp,
-                                width = (configuration.screenWidthDp* boxSizePercentage).dp
-                            ),
-                        painter = painterResource(id = R.drawable.box),
-                        contentDescription = null
+//                    Image(
+//                        modifier = Modifier
+//                            .size(
+//                                height = (configuration.screenHeightDp* boxSizePercentage).dp,
+//                                width = (configuration.screenWidthDp* boxSizePercentage).dp
+//                            ),
+//                        painter = painterResource(id = R.drawable.box),
+//                        contentDescription = null
+//                    )
+
+                    val lottieComposition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.empty_lottie))
+                    val progress by animateLottieCompositionAsState(
+                        composition = lottieComposition,
+                        iterations = LottieConstants.IterateForever
+                    )
+
+                    LottieAnimation(
+                        modifier = Modifier.size(Dimens.dimen.no_subject_lottie_size),
+                        composition = lottieComposition,
+                        progress = { progress }
                     )
 
                     Text(
@@ -99,7 +125,11 @@ fun SubjectsScreen(
                     )
                 }
             }else{
-                Box{
+                Box(
+                    modifier = Modifier
+                        .background(VeryLightGray),
+
+                    ){
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,

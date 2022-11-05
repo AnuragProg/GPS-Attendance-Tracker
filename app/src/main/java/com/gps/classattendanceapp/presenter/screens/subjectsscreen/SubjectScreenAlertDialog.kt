@@ -3,6 +3,7 @@ package com.gps.classattendanceapp.presenter.screens.subjectsscreen
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -36,6 +37,7 @@ fun SubjectScreenAlertDialog(
     }
 
     AlertDialog(
+        shape = RoundedCornerShape(10.dp),
         onDismissRequest = {
             subjectScreenUiState.classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
             subjectScreenUiState.subjectToEdit.value = null
@@ -68,7 +70,9 @@ fun SubjectScreenAlertDialog(
                                 )
                             }
                         }
-                    }
+                    },
+                    shape = RoundedCornerShape(10.dp)
+
                 )
                 Spacer(modifier = Modifier.height(5.dp))
                 Row(
@@ -88,7 +92,8 @@ fun SubjectScreenAlertDialog(
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number
                             ),
-                            maxLines = 1
+                            maxLines = 1,
+                            shape = RoundedCornerShape(10.dp)
                         )
                         Box(
                             modifier = Modifier.matchParentSize()
@@ -144,6 +149,8 @@ fun SubjectScreenAlertDialog(
                                 keyboardType = KeyboardType.Number
                             ),
                             maxLines = 1,
+                            shape = RoundedCornerShape(10.dp)
+
                         )
                         Box(
                             modifier = Modifier.matchParentSize()
@@ -204,6 +211,8 @@ fun SubjectScreenAlertDialog(
                                 keyboardType = KeyboardType.Decimal
                             ),
                             maxLines = 1,
+                            shape = RoundedCornerShape(10.dp)
+
                         )
                         Box(
                             modifier = Modifier
@@ -236,7 +245,9 @@ fun SubjectScreenAlertDialog(
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Decimal
                             ),
-                            maxLines = 1
+                            maxLines = 1,
+                            shape = RoundedCornerShape(10.dp)
+
                         )
                         Box(
                             modifier = Modifier
@@ -282,12 +293,14 @@ fun SubjectScreenAlertDialog(
                                 )
                             }
                         }
-                    }
+                    },
+                    shape = RoundedCornerShape(10.dp)
+
                 )
                 Spacer(modifier=Modifier.height(8.dp))
                 Text(
                     modifier=Modifier.fillMaxWidth(),
-                    text="(*)Required Fields",
+                    text="* Required Fields",
                     fontSize = 13.sp,
                     textAlign = TextAlign.End,
                     color = Color.Red
@@ -359,7 +372,10 @@ fun SubjectScreenAlertDialog(
                                         Toast.LENGTH_SHORT).show()
                                 }
                             }
-                        }
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = Color.Gray
+                        ),
                     ) {
                         Text(stringResource(R.string.add))
                     }
@@ -368,7 +384,10 @@ fun SubjectScreenAlertDialog(
                         onClick = {
                             subjectScreenUiState.classAttendanceViewModel.changeFloatingButtonClickedState(state = false)
                             subjectScreenUiState.clearDialogFields()
-                        }
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = Color.Gray
+                        )
                     ) {
                         Text(stringResource(R.string.cancel))
                     }

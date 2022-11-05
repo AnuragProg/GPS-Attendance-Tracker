@@ -5,6 +5,7 @@ package com.gps.classattendanceapp.presenter.screens.logsscreen
 import android.annotation.SuppressLint
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,11 +27,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airbnb.lottie.compose.*
 import com.gps.classattendanceapp.R
 import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.domain.models.ModifiedLogs
 import com.gps.classattendanceapp.presenter.theme.boxSizePercentage
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
+import com.gps.classattendanceapp.ui.theme.Dimens
+import com.gps.classattendanceapp.ui.theme.VeryLightGray
 import kotlinx.coroutines.launch
 
 
@@ -74,20 +78,34 @@ fun LogsScreen(
         is Resource.Success -> {
             if((logs.value.data?.size ?: 0) == 0){
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(VeryLightGray),
+
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ){
-                    Image(
-                        modifier = Modifier
-                            .size(
-                                height = (configuration.screenHeightDp* boxSizePercentage).dp,
-                                width = (configuration.screenWidthDp* boxSizePercentage).dp
-                            ),
-                        painter = painterResource(id = R.drawable.box),
-                        contentDescription = null
+//                    Image(
+//                        modifier = Modifier
+//                            .size(
+//                                height = (configuration.screenHeightDp* boxSizePercentage).dp,
+//                                width = (configuration.screenWidthDp* boxSizePercentage).dp
+//                            ),
+//                        painter = painterResource(id = R.drawable.box),
+//                        contentDescription = null
+//                    )
+
+                    val lottieComposition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.empty_lottie))
+                    val progress by animateLottieCompositionAsState(
+                        composition = lottieComposition,
+                        iterations = LottieConstants.IterateForever
                     )
 
+                    LottieAnimation(
+                        modifier = Modifier.size(Dimens.dimen.no_subject_lottie_size),
+                        composition = lottieComposition,
+                        progress = { progress }
+                    )
                     Text(
                         modifier = Modifier.padding(5.dp),
                         text = stringResource(R.string.no_logs),
@@ -99,8 +117,11 @@ fun LogsScreen(
                 }
             }else{
                 Box(
-                    modifier = Modifier.fillMaxSize()
-                ) {
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(VeryLightGray),
+
+                    ) {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
@@ -217,11 +238,23 @@ fun LogsScreen(
         }
         is Resource.Loading -> {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(VeryLightGray),
+
+            contentAlignment = Alignment.Center
 
             ){
-                CircularProgressIndicator()
+                val lottieComposition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.hourglass_loading))
+                val progress by animateLottieCompositionAsState(
+                    composition = lottieComposition,
+                    iterations = LottieConstants.IterateForever
+                )
+                LottieAnimation(
+                    modifier = Modifier.size(Dimens.dimen.loading_lottie_size),
+                    composition = lottieComposition,
+                    progress = { progress }
+                )
             }
         }
         is Resource.Error -> {}

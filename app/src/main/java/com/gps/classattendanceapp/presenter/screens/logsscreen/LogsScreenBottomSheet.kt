@@ -53,6 +53,8 @@ fun LogsScreenBottomSheetContent(
     contentSize: TextUnit
 ) {
 
+    val context = LocalContext.current
+
     if(log==null) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -74,12 +76,33 @@ fun LogsScreenBottomSheetContent(
             fontWeight = FontWeight.Bold
         )
 
-        BottomSheetLocationCard(
-            modifier = Modifier.padding(10.dp),
-            log = log,
-            headingSize = headingSize,
-            contentSize = contentSize
-        )
+//        BottomSheetLocationCard(
+//            modifier = Modifier.padding(10.dp),
+//            log = log,
+//            headingSize = headingSize,
+//            contentSize = contentSize
+//        )
+        if (log.latitude != null && log.longitude != null) {
+            Button(
+                onClick = {
+                    val mapsUri =
+                        Uri.parse("geo:${log.latitude},${log.longitude}?q=${log.latitude},${log.longitude}(${log.subjectName})")
+                    val intent = Intent(Intent.ACTION_VIEW, mapsUri)
+                        .apply {
+                            `package` = "com.google.android.apps.maps"
+                        }
+                    context.startActivity(intent)
+                },
+                shape = RoundedCornerShape(30.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.LocationOn,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+                Text("Google Maps")
+            }
+        }
         Spacer(modifier=Modifier.height(10.dp))
         BottomSheetInformativeContent(
             modifier = Modifier

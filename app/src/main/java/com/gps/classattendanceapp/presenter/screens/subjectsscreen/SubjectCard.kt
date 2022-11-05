@@ -7,6 +7,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -19,7 +20,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
+import com.gps.classattendanceapp.ui.theme.Dimens
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLifecycleComposeApi::class)
 @Composable
@@ -48,13 +54,33 @@ fun SubjectCard(
                     onSubjectSelected(true)
                 }
             )
-            .padding(10.dp)
+            .padding(10.dp),
+        shape = RoundedCornerShape(10.dp)
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
         ) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                val lottieComposition by rememberLottieComposition(
+                    spec = getSubjectStatusLottieCompositionSpec(subject.attendancePercentage)
+                )
+                val progress by animateLottieCompositionAsState(
+                    composition = lottieComposition,
+                    iterations = LottieConstants.IterateForever
+                )
+
+                LottieAnimation(
+                    modifier = Modifier.size(Dimens.dimen.subject_attendance_status_lottie_size),
+                    composition = lottieComposition,
+                    progress = { progress }
+                )
+
+            }
             Box(
                 contentAlignment = Alignment.CenterStart
             ) {
@@ -94,7 +120,11 @@ fun SubjectCard(
                                 style = Stroke(15f, cap = StrokeCap.Round)
                             )
                         }
-                        Text("${String.format("%.1f", target.value)}%")
+                        if(target.value == 0f){
+                            Text("--:- %")
+                        }else{
+                            Text("${String.format("%.1f", target.value)} %")
+                        }
                     }
                     LaunchedEffect(Unit) {
                         if (!startAttendanceArcAnimation.value) {
@@ -103,130 +133,10 @@ fun SubjectCard(
                     }
                 }
             }
-
-//            AnimatedVisibility(
-//                visible = showAdditionalCardDetails
-//            ) {
-//
-//                val modifier = Modifier.fillMaxWidth()
-//                val horizontalArrangement = Arrangement.Center
-//
-//                Box{
-//
-//                    Column(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(10.dp),
-//                        horizontalAlignment = Alignment.Start,
-//                        verticalArrangement = Arrangement.Center
-//                    ) {
-//
-//                        Row(
-//                            modifier = modifier,
-//                            horizontalArrangement = horizontalArrangement
-//                        ){
-//                            Text("Latitude :")
-//                            Text(
-//                                if (subject.latitude == null) {
-//                                    "Unknown"
-//                                } else {
-//                                    "${subject.latitude}"
-//                                }
-//                            )
-//                        }
-//                        Spacer(modifier = Modifier.height(5.dp))
-//
-//                        Row(
-//                            modifier = modifier,
-//                            horizontalArrangement = horizontalArrangement
-//                        ){
-//                            Text("Longitude :")
-//                            Text(
-//                                if (subject.longitude == null) {
-//                                    "Unknown"
-//                                } else {
-//                                    "${subject.longitude}"
-//                                }
-//                            )
-//                        }
-//                        Spacer(modifier = Modifier.height(5.dp))
-//
-//                        Row(
-//                            modifier = modifier,
-//                            horizontalArrangement = horizontalArrangement
-//                        ){
-//                            Text("Range(in meter) :")
-//                            Text(
-//                                if (subject.range == null) {
-//                                    "Unknown"
-//                                } else {
-//                                    "${subject.range}"
-//                                }
-//                            )
-//                        }
-//                        Spacer(modifier = Modifier.height(5.dp))
-//
-//                        Row(
-//                            modifier = modifier,
-//                            horizontalArrangement = horizontalArrangement
-//                        ){
-//                            Text("Days present :")
-//                            Text("${subject.daysPresent}")
-//                        }
-//                        Spacer(modifier = Modifier.height(5.dp))
-//
-//                        Row(
-//                            modifier = modifier,
-//                            horizontalArrangement = horizontalArrangement
-//                        ){
-//                            Text("Days present through logs :")
-//                            Text("${subject.daysPresentOfLogs}")
-//                        }
-//                        Spacer(modifier = Modifier.height(5.dp))
-//                        Row(
-//                            modifier = modifier,
-//                            horizontalArrangement = horizontalArrangement
-//                        ){
-//                            Text("Days absent :")
-//                            Text("${subject.daysAbsent}")
-//                        }
-//                        Spacer(modifier = Modifier.height(5.dp))
-//                        Row(
-//                            modifier = modifier,
-//                            horizontalArrangement = horizontalArrangement
-//                        ){
-//                            Text("Days absent through logs :")
-//                            Text("${subject.daysAbsentOfLogs}")
-//                        }
-//                        Spacer(modifier = Modifier.height(5.dp))
-//                        Row(
-//                            modifier = modifier,
-//                            horizontalArrangement = horizontalArrangement
-//                        ){
-//                            Text("Total presents :")
-//                            Text("${subject.totalPresents}")
-//                        }
-//                        Spacer(modifier = Modifier.height(5.dp))
-//                        Row(
-//                            modifier = modifier,
-//                            horizontalArrangement = horizontalArrangement
-//                        ){
-//                            Text("Total absents :")
-//                            Text("${subject.totalAbsents}")
-//                        }
-//                        Spacer(modifier = Modifier.height(5.dp))
-//
-//                        Row(
-//                            modifier = modifier,
-//                            horizontalArrangement = horizontalArrangement
-//                        ){
-//                            Text("Total days :")
-//                            Text("${subject.totalDays}")
-//                        }
-//                    }
-//                }
-//
-//            }
         }
+
+
+
+
     }
 }

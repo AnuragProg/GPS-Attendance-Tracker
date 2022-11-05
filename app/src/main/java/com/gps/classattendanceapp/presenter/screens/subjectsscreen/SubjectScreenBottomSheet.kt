@@ -10,8 +10,10 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -19,8 +21,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.*
 import com.gps.classattendanceapp.R
 import com.gps.classattendanceapp.domain.models.ModifiedSubjects
+import com.gps.classattendanceapp.presenter.theme.boxSizePercentage
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -41,9 +45,7 @@ fun SubjectScreenBottomSheet(
 
             )
         },
-        content = {
-                  subjectScreen()
-        },
+        content = { subjectScreen() },
         sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
     )
 }
@@ -54,6 +56,7 @@ fun BottomSheetContent(
     headingSize: TextUnit,
     contentSize: TextUnit
 ){
+    val context = LocalContext.current
     if(subject==null) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -73,13 +76,36 @@ fun BottomSheetContent(
             fontWeight = FontWeight.Bold
         )
 
-        BottomSheetLocationCard(
-            subject = subject,
-            modifier = Modifier.padding(10.dp),
-            shape = RoundedCornerShape(10.dp),
-            headingSize = headingSize,
-            contentSize = contentSize
-        )
+//        BottomSheetLocationCard(
+//            subject = subject,
+//            modifier = Modifier.padding(10.dp),
+//            shape = RoundedCornerShape(10.dp),
+//            headingSize = headingSize,
+//            contentSize = contentSize
+//        )
+
+        if (subject.latitude != null && subject.longitude != null) {
+            Button(
+                onClick = {
+                    val mapsUri =
+                        Uri.parse("geo:${subject.latitude},${subject.longitude}?q=${subject.latitude},${subject.longitude}(${subject.subjectName})")
+                    val intent = Intent(Intent.ACTION_VIEW, mapsUri)
+                        .apply {
+                            `package` = "com.google.android.apps.maps"
+                        }
+                    context.startActivity(intent)
+                },
+                shape = RoundedCornerShape(30.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.LocationOn,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+                Text("Google Maps")
+            }
+        }
+
         Spacer(modifier=Modifier.height(10.dp))
         BottomSheetInformativeContent(
             subject = subject,
@@ -104,9 +130,7 @@ fun BottomSheetInformativeContent(
         ) {
 
             Column{
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row{
                     Text(
                         text = "Present" ,
                         fontSize = headingSize,
@@ -120,24 +144,22 @@ fun BottomSheetInformativeContent(
                     )
                 }
                 Text(
-                    text="Manual -> ${subject.daysPresent}",
+                    text="Manual - ${subject.daysPresent}",
                     fontSize=contentSize
                 )
                 Text(
-                    text="Logs -> ${subject.daysPresentOfLogs}",
+                    text="Logs   - ${subject.daysPresentOfLogs}",
                     fontSize=contentSize
                 )
                 Text(
-                    text="Total -> ${subject.daysPresent + subject.daysPresentOfLogs}",
+                    text="Total  - ${subject.daysPresent + subject.daysPresentOfLogs}",
                     fontSize=contentSize
                 )
             }
 
 
-            Column {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            Column{
+                Row{
                     Text(
                         text = "Absent",
                         fontSize = headingSize,
@@ -151,45 +173,65 @@ fun BottomSheetInformativeContent(
                     )
                 }
                 Text(
-                    text="Manual -> ${subject.daysAbsent}",
+                    text="Manual - ${subject.daysAbsent}",
                     fontSize=contentSize
                 )
                 Text(
-                    text="Logs -> ${subject.daysAbsentOfLogs}",
+                    text="Logs   - ${subject.daysAbsentOfLogs}",
                     fontSize=contentSize
                 )
                 Text(
-                    text="Total -> ${subject.daysAbsent + subject.daysAbsentOfLogs}",
+                    text="Total  - ${subject.daysAbsent + subject.daysAbsentOfLogs}",
                     fontSize=contentSize
                 )
             }
 
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row{
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Column(
+                modifier = Modifier
+                    .padding(20.dp),
+            ) {
+                Row{
+                    Text(
+                        text="Summary",
+                        fontSize = headingSize,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
                 Text(
-                    text="Summary",
-                    fontSize = headingSize,
-                    fontWeight = FontWeight.SemiBold
+                    text="Total Presents - ${subject.daysPresent + subject.daysPresentOfLogs}",
+                    fontSize=contentSize
+                )
+                Text(
+                    text="Total Absents  - ${subject.daysAbsent + subject.daysAbsentOfLogs}",
+                    fontSize=contentSize
+                )
+                Text(
+                    text="Total Days     - ${subject.totalDays}",
+                    fontSize=contentSize
                 )
             }
-            Text(
-                text="Total Presents -> ${subject.daysPresent + subject.daysPresentOfLogs}",
-                fontSize=contentSize
+
+            val lottieComposition by rememberLottieComposition(
+                spec = getSubjectStatusLottieCompositionSpec(
+                    subject.attendancePercentage
+                )
             )
-            Text(
-                text="Total Absents -> ${subject.daysAbsent + subject.daysAbsentOfLogs}",
-                fontSize=contentSize
+            val progress by animateLottieCompositionAsState(
+                composition = lottieComposition,
+                iterations = LottieConstants.IterateForever
             )
-            Text(
-                text="Total Days -> ${subject.totalDays}",
-                fontSize=contentSize
+
+            LottieAnimation(
+                modifier = Modifier.size(100.dp),
+                composition = lottieComposition,
+                progress = { progress }
             )
         }
     }
@@ -245,9 +287,7 @@ fun BottomSheetLocationCard(
                     }
                 },
                 shape = RoundedCornerShape(30.dp)
-            ) {
-                Text("Google Maps")
-            }
+            ) { Text("Google Maps") }
         }
         Column(
         ) {

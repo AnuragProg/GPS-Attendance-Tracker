@@ -91,6 +91,7 @@ class ClassAttendanceViewModel @Inject constructor(
         refreshSubjects()
 
         viewModelScope.launch{
+
             combine(_searchBarText, _subjects){ searchQuery, subjectsList ->
                 Pair(searchQuery, subjectsList)
             }.collectLatest{ searchAndSubjectList ->

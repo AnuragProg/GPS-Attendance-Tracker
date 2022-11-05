@@ -2,8 +2,10 @@
 
 package com.gps.classattendanceapp.presenter.screens.timetablescreen
 
+import android.view.RoundedCorner
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -24,13 +27,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gps.classattendanceapp.R
-import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.data.models.TimeTable
-import com.gps.classattendanceapp.domain.models.ModifiedSubjects
 import com.gps.classattendanceapp.presenter.utils.DateToSimpleFormat
 import com.gps.classattendanceapp.presenter.utils.Days
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
+import com.gps.classattendanceapp.ui.theme.VeryLightGray
 import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.time.TimePickerDefaults
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import kotlinx.coroutines.flow.collectLatest
@@ -40,24 +43,25 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLifecycleComposeApi::class)
 @Composable
 fun TimeTableScreen(
-    classAttendanceViewModel: ClassAttendanceViewModel
-){
+    classAttendanceViewModel: ClassAttendanceViewModel,
+) {
 
     val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
 
-    val showAddTimeTableDialog = classAttendanceViewModel.floatingButtonClicked.collectAsStateWithLifecycle()
+    val showAddTimeTableDialog =
+        classAttendanceViewModel.floatingButtonClicked.collectAsStateWithLifecycle()
 
-    var showSelectDayDropDownMenu by remember{
+    var showSelectDayDropDownMenu by remember {
         mutableStateOf(false)
     }
 
-    var dayInDialog by remember{
+    var dayInDialog by remember {
         mutableStateOf("")
     }
 
-    val selectedTime = remember{
+    val selectedTime = remember {
         mutableStateListOf<Int?>(
             null, // hour
             null  // minute
@@ -65,30 +69,30 @@ fun TimeTableScreen(
     }
 
 
-    var subjectInAlertDialog by remember{
+    var subjectInAlertDialog by remember {
         mutableStateOf<com.gps.classattendanceapp.domain.models.ModifiedSubjects?>(null)
     }
 
-    var showAddTimeTableSubjectNameAlertDialog by remember{
+    var showAddTimeTableSubjectNameAlertDialog by remember {
         mutableStateOf(false)
     }
 
     val datetimeDialogState = rememberMaterialDialogState()
 
-    val timetableList = remember{
+    val timetableList = remember {
         mutableStateMapOf<String, MutableList<TimeTable>>()
     }
 
 
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         classAttendanceViewModel.getTimeTable().collectLatest { timetables ->
-            timetables.data?.let{
+            timetables.data?.let {
                 timetableList.clear()
                 it.keys.forEach { day ->
                     timetableList[day] = mutableListOf()
                     timetableList[day]?.addAll(
-                        it[day]!!.sortedWith(compareBy { it.hour*60 + it.minute })
+                        it[day]!!.sortedWith(compareBy { it.hour * 60 + it.minute })
                     )
                 }
             }
@@ -97,8 +101,9 @@ fun TimeTableScreen(
 
 
 
-    if(showAddTimeTableDialog.value) {
+    if (showAddTimeTableDialog.value) {
         AlertDialog(
+            shape = RoundedCornerShape(10.dp),
             onDismissRequest = {
                 classAttendanceViewModel.changeFloatingButtonClickedState(false)
                 dayInDialog = ""
@@ -106,7 +111,7 @@ fun TimeTableScreen(
                 selectedTime[1] = null // minute
             },
             text = {
-                Column{
+                Column {
                     Text(
                         text = stringResource(R.string.add_to_timetable),
                         fontWeight = FontWeight.Bold,
@@ -115,16 +120,20 @@ fun TimeTableScreen(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    Box{
+                    Box {
                         OutlinedButton(
                             onClick = {
                                 showAddTimeTableSubjectNameAlertDialog = true
-                            }
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color.Gray
+                            ),
+                            shape = RoundedCornerShape(10.dp)
                         ) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
-                            ){
+                            ) {
                                 Text(subjectInAlertDialog?.subjectName
                                     ?: stringResource(R.string.subject))
                                 IconButton(
@@ -134,7 +143,7 @@ fun TimeTableScreen(
                                 ) {
                                     Icon(
                                         modifier = Modifier.rotate(
-                                            if(showAddTimeTableSubjectNameAlertDialog) 180f
+                                            if (showAddTimeTableSubjectNameAlertDialog) 180f
                                             else 0f
                                         ),
                                         imageVector = Icons.Filled.ArrowDropDown,
@@ -145,15 +154,16 @@ fun TimeTableScreen(
                             }
                         }
                         DropdownMenu(
-                            modifier = Modifier.requiredHeightIn(max=300.dp),
+                            modifier = Modifier.requiredHeightIn(max = 300.dp),
                             expanded = showAddTimeTableSubjectNameAlertDialog,
                             onDismissRequest = {
                                 showAddTimeTableSubjectNameAlertDialog = false
                             }
                         ) {
-                            val subjectsList = classAttendanceViewModel.subjects.collectAsStateWithLifecycle()
-                            if(subjectsList.value.data?.size != 0){
-                                subjectsList.value.data!!.forEach{
+                            val subjectsList =
+                                classAttendanceViewModel.subjects.collectAsStateWithLifecycle()
+                            if (subjectsList.value.data?.size != 0) {
+                                subjectsList.value.data!!.forEach {
                                     DropdownMenuItem(
                                         onClick = {
                                             subjectInAlertDialog = it
@@ -163,7 +173,7 @@ fun TimeTableScreen(
                                         Text(it.subjectName)
                                     }
                                 }
-                            }else{
+                            } else {
                                 Text(
                                     modifier = Modifier.padding(10.dp),
                                     text = stringResource(R.string.no_subject_to_select_from)
@@ -172,11 +182,15 @@ fun TimeTableScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(5.dp))
-                    Box{
+                    Box {
                         OutlinedButton(
                             onClick = {
                                 showSelectDayDropDownMenu = true
-                            }
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color.Gray
+                            ),
+                            shape = RoundedCornerShape(10.dp)
                         ) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -190,7 +204,7 @@ fun TimeTableScreen(
                                 ) {
                                     Icon(
                                         modifier = Modifier.rotate(
-                                            if(showSelectDayDropDownMenu) 180f
+                                            if (showSelectDayDropDownMenu) 180f
                                             else 0f
                                         ),
                                         imageVector = Icons.Filled.ArrowDropDown,
@@ -220,19 +234,24 @@ fun TimeTableScreen(
                     }
                     Spacer(modifier = Modifier.height(5.dp))
 
-                    Row{
+                    Row {
                         OutlinedButton(
                             onClick = {
                                 datetimeDialogState.show()
-                            }
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color.Gray
+                            ),
+                            shape = RoundedCornerShape(10.dp)
                         ) {
                             Text(
-                                if(selectedTime[0]==null || selectedTime[1]==null) stringResource(R.string.select_time)
+                                if (selectedTime[0] == null || selectedTime[1] == null) stringResource(
+                                    R.string.select_time)
                                 else "${
-                                    if(selectedTime[0]!!<10) "0${selectedTime[0]}"
+                                    if (selectedTime[0]!! < 10) "0${selectedTime[0]}"
                                     else selectedTime[0]
                                 }:${
-                                    if(selectedTime[1]!!<10) "0${selectedTime[1]}"
+                                    if (selectedTime[1]!! < 10) "0${selectedTime[1]}"
                                     else selectedTime[1]
                                 }"
                             )
@@ -240,17 +259,24 @@ fun TimeTableScreen(
                         MaterialDialog(
                             dialogState = datetimeDialogState,
                             buttons = {
-                                positiveButton(stringResource(R.string.ok)){
+                                positiveButton(stringResource(R.string.ok)) {
 
                                 }
-                                negativeButton(stringResource(R.string.cancel)){
+                                negativeButton(stringResource(R.string.cancel)) {
                                     datetimeDialogState.hide()
                                 }
                             }
                         ) {
                             timepicker(
-                                is24HourClock = true
-                            ){
+                                is24HourClock = true,
+                                colors = TimePickerDefaults.colors(
+                                    activeBackgroundColor = Color.DarkGray,
+                                    inactiveBackgroundColor = Color.LightGray,
+                                    selectorColor = Color.White,
+                                    selectorTextColor = Color.Black,
+                                ),
+                                title = "Select Time"
+                            ) {
                                 selectedTime[0] = it.hour
                                 selectedTime[1] = it.minute
                             }
@@ -264,13 +290,13 @@ fun TimeTableScreen(
                         .fillMaxWidth()
                         .padding(10.dp),
                     horizontalArrangement = Arrangement.End
-                ){
+                ) {
                     TextButton(
                         onClick = {
-                            if(
-                                subjectInAlertDialog!=null && dayInDialog.isNotBlank() && selectedTime[0]!=null && selectedTime[1]!=null
-                            ){
-                                coroutineScope.launch{
+                            if (
+                                subjectInAlertDialog != null && dayInDialog.isNotBlank() && selectedTime[0] != null && selectedTime[1] != null
+                            ) {
+                                coroutineScope.launch {
                                     classAttendanceViewModel.insertTimeTable(
                                         TimeTable(
                                             0,
@@ -289,8 +315,10 @@ fun TimeTableScreen(
                                     dayInDialog = ""
                                 }
                             }
-
-                        }
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = Color.Gray
+                        )
                     ) {
                         Text(stringResource(R.string.add))
                     }
@@ -301,7 +329,10 @@ fun TimeTableScreen(
                             selectedTime[0] = null
                             selectedTime[1] = null
                             dayInDialog = ""
-                        }
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = Color.Gray
+                        )
                     ) {
                         Text(stringResource(R.string.cancel))
                     }
@@ -312,48 +343,54 @@ fun TimeTableScreen(
 
 
 
-    Box{
-        Column{
+    Box(
+        modifier = Modifier
+            .background(VeryLightGray),
+
+        ) {
+        Column {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .animateContentSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
-            ){
-                items(Days.values()){
+            ) {
+                items(Days.values()) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp)
                             .animateItemPlacement(),
                         shape = RoundedCornerShape(10.dp)
-                    ){
+                    ) {
                         Column(
                             modifier = Modifier
                                 .padding(10.dp)
                                 .animateContentSize()
-                        ){
+                        ) {
                             Text(
                                 text = it.day,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.height(20.dp))
-                            if(timetableList[it.day]?.isEmpty() == true){
+                            if (timetableList[it.day]?.isEmpty() == true) {
                                 Text(stringResource(R.string.nothing_here))
-                            }else{
-                                for(timetable in timetableList[it.day] ?: mutableListOf()){
-                                    Box{
+                            } else {
+                                for (timetable in timetableList[it.day] ?: mutableListOf()) {
+                                    Box {
                                         Box(
                                             modifier = Modifier.fillMaxWidth(),
                                             contentAlignment = Alignment.CenterEnd
-                                        ){
+                                        ) {
 
                                             IconButton(onClick = {
                                                 timetableList[it.day]?.remove(timetable)
-                                                coroutineScope.launch{
-                                                    classAttendanceViewModel.deleteTimeTable(timetable._id, context)
+                                                coroutineScope.launch {
+                                                    classAttendanceViewModel.deleteTimeTable(
+                                                        timetable._id,
+                                                        context)
                                                 }
                                             }) {
                                                 Icon(
@@ -364,7 +401,7 @@ fun TimeTableScreen(
                                             Box(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 contentAlignment = Alignment.CenterStart
-                                            ){
+                                            ) {
                                                 Text(
                                                     timetable.subjectName
                                                 )
@@ -372,18 +409,18 @@ fun TimeTableScreen(
                                             Box(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 contentAlignment = Alignment.Center
-                                            ){
+                                            ) {
                                                 Text(
                                                     "${
-                                                        if(timetable.hour<10){
-                                                            "0${timetable.hour}"   
-                                                        }else{
+                                                        if (timetable.hour < 10) {
+                                                            "0${timetable.hour}"
+                                                        } else {
                                                             timetable.hour
                                                         }
                                                     }:${
-                                                        if(timetable.minute<10){
+                                                        if (timetable.minute < 10) {
                                                             "0${timetable.minute}"
-                                                        }else{
+                                                        } else {
                                                             timetable.minute
                                                         }
                                                     }"
