@@ -31,6 +31,7 @@ import com.airbnb.lottie.compose.*
 import com.gps.classattendanceapp.R
 import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.domain.models.ModifiedLogs
+import com.gps.classattendanceapp.presenter.screens.DeleteConfirmationDialog
 import com.gps.classattendanceapp.presenter.theme.boxSizePercentage
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import com.gps.classattendanceapp.ui.theme.Dimens
@@ -62,7 +63,7 @@ fun LogsScreen(
 
 
     var logToEdit by remember{
-        mutableStateOf<com.gps.classattendanceapp.domain.models.ModifiedLogs?>(null)
+        mutableStateOf<ModifiedLogs?>(null)
     }
 
     // Making Log Dialog Box
@@ -134,34 +135,62 @@ fun LogsScreen(
                         ) { log ->
                             var isCardVisible by remember { mutableStateOf(false) }
                             var isLogSelected by remember { mutableStateOf(false) }
-                            val dismissState = rememberDismissState()
+                            var showDeleteConfirmationDialog by remember{mutableStateOf(false)}
+                            val dismissState = rememberDismissState(
+                                confirmStateChange = {
+                                    when(it){
+                                        DismissValue.DismissedToEnd ->{
+                                            showDeleteConfirmationDialog = true
+                                        }
+                                        DismissValue.DismissedToStart ->{
+                                            logToEdit = log
+                                            classAttendanceViewModel.changeFloatingButtonClickedState(true)
+                                        }
+                                        else ->{}
+                                    }
+                                    false
+                                }
+                            )
 
                             LaunchedEffect(Unit) {
                                 isCardVisible = true
                             }
 
-                            if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
-//
-                                LaunchedEffect(Unit) {
-                                    val result = snackbarHostState.showSnackbar(
-                                        message = "Confirm delete",
-                                        actionLabel = "Confirm",
-                                        duration = SnackbarDuration.Short
-                                    )
+                            if(showDeleteConfirmationDialog){
+                                DeleteConfirmationDialog(
+                                    onConfirm = {
+                                        coroutineScope.launch{
+                                            classAttendanceViewModel.deleteLogs(log._id!!)
+                                        }
+                                    },
+                                    onReject = {},
+                                    hide = {showDeleteConfirmationDialog = false}
+                                )
 
-                                    if (result.name == SnackbarResult.ActionPerformed.name) {
-                                        classAttendanceViewModel.deleteLogs(log._id!!)
-                                    } else {
-                                        dismissState.reset()
-                                    }
-                                }
-                            } else if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-                                logToEdit = log
-                                classAttendanceViewModel.changeFloatingButtonClickedState(true)
-                                coroutineScope.launch {
-                                    dismissState.reset()
-                                }
                             }
+
+//                            if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
+////
+//                                LaunchedEffect(Unit) {
+//                                    val result = snackbarHostState.showSnackbar(
+//                                        message = "Confirm delete",
+//                                        actionLabel = "Confirm",
+//                                        duration = SnackbarDuration.Short
+//                                    )
+//
+//                                    if (result.name == SnackbarResult.ActionPerformed.name) {
+//                                        classAttendanceViewModel.deleteLogs(log._id!!)
+//                                    } else {
+//                                        dismissState.reset()
+//                                    }
+//                                }
+//                            } else if (dismissState.isDismissed(DismissDirection.EndToStart)) {
+//                                logToEdit = log
+//                                classAttendanceViewModel.changeFloatingButtonClickedState(true)
+//                                coroutineScope.launch {
+//                                    dismissState.reset()
+//                                }
+//                            }
 
                             Box {
                                 AnimatedVisibility(
