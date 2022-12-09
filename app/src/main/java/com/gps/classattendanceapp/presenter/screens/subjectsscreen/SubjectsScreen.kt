@@ -5,7 +5,6 @@ package com.gps.classattendanceapp.presenter.screens.subjectsscreen
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.*
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -29,7 +27,7 @@ import com.airbnb.lottie.compose.*
 import com.gps.classattendanceapp.R
 import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.domain.models.ModifiedSubjects
-import com.gps.classattendanceapp.presenter.theme.boxSizePercentage
+import com.gps.classattendanceapp.presenter.screens.DeleteConfirmationDialog
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import com.gps.classattendanceapp.ui.theme.Dimens
 import com.gps.classattendanceapp.ui.theme.VeryLightGray
@@ -67,7 +65,8 @@ fun SubjectsScreen(
         is Resource.Error -> {}
         is Resource.Loading -> {
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .background(VeryLightGray),
                 contentAlignment = Alignment.Center
             ) {
@@ -86,7 +85,8 @@ fun SubjectsScreen(
 
             if((uiState.subjectsList.value.data?.size ?: 0) == 0){
                 Column(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
                         .background(VeryLightGray),
 
                     verticalArrangement = Arrangement.Center,
@@ -141,33 +141,41 @@ fun SubjectsScreen(
                         ) { subject ->
                             var isCardVisible by remember{mutableStateOf(false)}
                             var isSubjectSelected by remember{mutableStateOf(false)}
-                            val dismissState = rememberDismissState()
+                            var showDeleteConfirmationDialog by remember{mutableStateOf(false)}
+                            val dismissState = rememberDismissState(
+                                confirmStateChange = {
+                                    if(DismissValue.DismissedToEnd == it){
+                                        showDeleteConfirmationDialog = true
+                                        false
+                                    }else if(DismissValue.DismissedToStart == it){
+                                        uiState.subjectToEdit.value = subject
+                                        uiState.fillFieldsWithSubjectToEditFields()
+                                        classAttendanceViewModel.changeFloatingButtonClickedState(state = true)
+//                                        coroutineScope.launch{
+//                                        }
+                                        false
+                                    }else false
+                                }
+                            )
 
                             LaunchedEffect(Unit){
                                 isCardVisible = true
                             }
 
-                            if(dismissState.isDismissed(DismissDirection.StartToEnd)){
-                                LaunchedEffect(Unit){
-                                    val result = snackbarHostState.showSnackbar(
-                                        message = "Confirm delete",
-                                        actionLabel = "Confirm",
-                                        duration = SnackbarDuration.Short
-                                    )
-
-                                    if(result.name == SnackbarResult.ActionPerformed.name){
+                            if(showDeleteConfirmationDialog){
+                                Log.d("deleteConfirmation", "Inside showDeleteConfirmationDialog with value $showDeleteConfirmationDialog")
+                                DeleteConfirmationDialog(
+                                    onConfirm = {
                                         classAttendanceViewModel.deleteSubject(subject._id, uiState.context)
-                                    }else{
-                                        dismissState.reset()
-                                    }
-                                }
-                            }else if(dismissState.isDismissed(DismissDirection.EndToStart)){
-                                uiState.subjectToEdit.value = subject
-                                uiState.fillFieldsWithSubjectToEditFields()
-                                classAttendanceViewModel.changeFloatingButtonClickedState(state = true)
-                                uiState.coroutineScope.launch{ dismissState.reset() }
+                                    },
+                                    onReject = {
+                                           coroutineScope.launch{
+                                               dismissState.reset()
+                                           }
+                                    },
+                                    hide = {showDeleteConfirmationDialog=false}
+                                )
                             }
-
                             Box{
                                 AnimatedVisibility(
                                     visible = isCardVisible,

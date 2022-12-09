@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log.d
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.components.alarms.ClassAlarmManager
 import com.gps.classattendanceapp.components.excel.Excel
@@ -321,16 +322,18 @@ class ClassAttendanceViewModel @Inject constructor(
         classAttendanceUseCase.deleteLogsUseCase(id)
     }
 
-    suspend fun deleteSubject(id: Int, context: Context){
-        val timeTableWithSubjectId = classAttendanceUseCase.getTimeTableWithSubjectIdUseCase(id).first()
-        for(timeTable in timeTableWithSubjectId){
-            deleteTimeTable(
-                timeTable._id,
-                context
-            )
+    fun deleteSubject(id: Int, context: Context){
+        viewModelScope.launch{
+            val timeTableWithSubjectId = classAttendanceUseCase.getTimeTableWithSubjectIdUseCase(id).first()
+            for(timeTable in timeTableWithSubjectId){
+                deleteTimeTable(
+                    timeTable._id,
+                    context
+                )
+            }
+            classAttendanceUseCase.deleteLogsWithSubjectIdUseCase(id)
+            classAttendanceUseCase.deleteSubjectUseCase(id)
         }
-        classAttendanceUseCase.deleteLogsWithSubjectIdUseCase(id)
-        classAttendanceUseCase.deleteSubjectUseCase(id)
     }
 
     suspend fun deleteTimeTable(id: Int, context: Context){
