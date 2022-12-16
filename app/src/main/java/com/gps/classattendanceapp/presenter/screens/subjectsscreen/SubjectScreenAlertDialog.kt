@@ -305,6 +305,13 @@ fun SubjectScreenAlertDialog(
                     textAlign = TextAlign.End,
                     color = Color.Red
                 )
+                Text(
+                    modifier=Modifier.fillMaxWidth(),
+                    text="Lat,Lng-minimum 4 decimal digits",
+                    fontSize = 13.sp,
+                    textAlign = TextAlign.End,
+                    color = Color.Red
+                )
             }
         },
         buttons = {

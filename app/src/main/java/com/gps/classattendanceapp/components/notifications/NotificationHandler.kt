@@ -5,8 +5,12 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
 import android.media.RingtoneManager
 import android.os.Build
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.gps.classattendanceapp.MainActivity
@@ -44,6 +48,7 @@ object NotificationHandler {
         hour: Int, // show time in notification
         minute: Int, // show time in notification
         message: String?, // present or absent
+        reason: String = "", // in case of failure then reason of failure
     ){
 
         val intent = Intent(context, MainActivity::class.java).apply{
@@ -53,7 +58,7 @@ object NotificationHandler {
         val pendingIntent = PendingIntent.getActivity(context, ReservedPendingIntentRequestCodes.OPEN_MAIN_ACTIVITY.requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val contentMessage = message?.let{
-            "$subjectName - $hour:$minute marked $it"
+            "Marked $it"
         } ?: "$subjectName - $hour:$minute"
 
         val markPresentIntent = Intent(context, MarkPresentAbsentThroughNotificationBroadcastReceiver::class.java).apply{
@@ -88,15 +93,19 @@ object NotificationHandler {
             false -> "Present"
             else -> null
         }
+
+       val title =  "$subjectName: ${if(hour<10) "0$hour" else hour}:${if(minute<10)"0$minute" else minute}"
+       val boldTitle = SpannableString(title).apply{
+           setSpan(StyleSpan(Typeface.BOLD), 0, title.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+       }
         val notification = if(message!=null){
             NotificationCompat.Builder(context, CHANNELID)
                 .setSmallIcon(R.drawable.marked)
-                .setContentTitle(context.getString(R.string.marked_your_attendance))
-                .setContentText(contentMessage)
+                .setContentTitle(boldTitle) // context.getString(R.string.marked_your_attendance)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(
-                    message
+                    contentMessage
                 ))
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setAutoCancel(true)
@@ -105,14 +114,18 @@ object NotificationHandler {
         }else{
             NotificationCompat.Builder(context, CHANNELID)
                 .setSmallIcon(R.drawable.exclamation_mark)
-                .setContentTitle(context.getString(R.string.mark_your_attendance))
-                .setContentText(contentMessage)
+                .setContentTitle(boldTitle) // context.getString(R.string.marked_your_attendance)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setAutoCancel(true)
                 .addAction(R.drawable.marked, "Present", markPresentPendingIntent)
                 .addAction(R.drawable.marked, "Absent", markAbsentPendingIntent)
+                .apply{
+                    if(reason.isNotBlank())
+                        setStyle(NotificationCompat.BigTextStyle().bigText("$contentMessage\nReason: $reason"))
+                    else setContentText(contentMessage)
+                }
                 .build()
         }
         with(NotificationManagerCompat.from(context)){

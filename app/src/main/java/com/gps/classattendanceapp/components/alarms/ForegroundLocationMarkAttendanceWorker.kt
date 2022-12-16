@@ -14,6 +14,7 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.gps.classattendanceapp.R
 import com.gps.classattendanceapp.components.location.ClassLocationManager
+import com.gps.classattendanceapp.components.location.FusedLocation
 import com.gps.classattendanceapp.components.maths.CoordinateCalculations
 import com.gps.classattendanceapp.components.notifications.NotificationHandler
 import com.gps.classattendanceapp.data.models.TimeTable
@@ -75,25 +76,6 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
             )
             return Result.success()
         }
-//        if(
-//            Build.VERSION.SDK_INT >= 29
-//        ){
-//            if(
-//                context.checkSelfPermission(
-//                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-//                ) == PackageManager.PERMISSION_DENIED
-//            ){
-//                createNotificationChannelAndShowNotification(
-//                    timeTableId = timeTableId,
-//                    subjectId = subjectId,
-//                    subjectName = subjectName,
-//                    hour = hour,
-//                    minute = minute,
-//                    context = context
-//                )
-//                return Result.success()
-//            }
-//        }
 
         val subject = classAttendanceRepository.getSubjectWithId(subjectId)
         val userSpecifiedLocation = Triple(
@@ -110,14 +92,14 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                 subjectName = subjectName,
                 hour = hour,
                 minute = minute,
-                context = context
+                context = context,
+                reason = "Subject coordinates not provided!"
             )
         }else{
             try{
-                withTimeout(5000){
-
-
-                    val currentLocation = ClassLocationManager.getLocationFlow(context).first()
+                if(!FusedLocation.isGpsEnabled(context)) throw GpsNotEnabledException()
+                withTimeout(10000){
+                    val currentLocation = FusedLocation.getLocationFlow(context).first{it!=null}!!
                     Log.d("location", "Current location: ${currentLocation.latitude} ${currentLocation.longitude}")
                     val distance = CoordinateCalculations.distanceBetweenPointsInM(
                         lat1 = currentLocation.latitude,
@@ -147,11 +129,11 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             hour = hour,
                             minute = minute,
                             context = context,
-                            message = "Present \nLatitude = " + String.format("%.6f",
+                            message = "Present \nLatitude = " + String.format("%.4f",
                                 currentLocation.latitude) + "\nLongitude = " + String.format(
-                                "%.6f",
+                                "%.4f",
                                 currentLocation.longitude) + "\nDistance = " + String.format(
-                                "%.6f",
+                                "%.4f",
                                 distance)
                         )
                     } else {
@@ -176,11 +158,11 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                             hour = hour,
                             minute = minute,
                             context = context,
-                            message = "Absent \nLatitude = " + String.format("%.6f",
+                            message = "Absent \nLatitude = " + String.format("%.4f",
                                 currentLocation.latitude) + "\nLongitude = " + String.format(
-                                "%.6f",
+                                "%.4f",
                                 currentLocation.longitude) + "\nDistance = " + String.format(
-                                "%.6f",
+                                "%.4f",
                                 distance)
                         )
                     }
@@ -194,7 +176,18 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
                     subjectName = subjectName,
                     hour = hour,
                     minute = minute,
-                    context = context
+                    context = context,
+                    reason = "Unable to retrieve location!"
+                )
+            }catch(gpsNotEnabled: GpsNotEnabledException){
+                createNotificationChannelAndShowNotification(
+                    timeTableId = timeTableId,
+                    subjectId = subjectId,
+                    subjectName = subjectName,
+                    hour = hour,
+                    minute = minute,
+                    context = context,
+                    reason = "Gps not enabled!"
                 )
             }
         }
@@ -238,7 +231,8 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
         hour: Int,
         minute: Int,
         context: Context,
-        message: String? = null
+        message: String? = null,
+        reason: String = "",
     ){
         if (timeTableId == -1 || hour == -1 || minute == -1 || subjectName == null) {
             return
@@ -253,7 +247,11 @@ class ForegroundLocationMarkAttendanceWorker @AssistedInject constructor(
             subjectName = subjectName,
             hour = hour,
             minute = minute,
-            message = message
+            message = message,
+            reason = reason
         )
     }
 }
+
+
+class GpsNotEnabledException:Exception()
