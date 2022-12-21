@@ -1,23 +1,13 @@
 package com.gps.classattendanceapp.components.excel
 
-import android.content.ContentValues
 import android.content.Context
-import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
-import com.gps.classattendanceapp.components.LOGS_EXCEL_FILE_NAME
-import com.gps.classattendanceapp.components.SUBJECT_EXCEL_FILE_NAME
 import com.gps.classattendanceapp.domain.models.ModifiedLogs
 import com.gps.classattendanceapp.domain.models.ModifiedSubjects
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
-import org.apache.poi.ss.usermodel.Workbook
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStream
 
 object Excel {
 
-    fun writeSubjectsStatsToExcel(context: Context, subjectsList: List<ModifiedSubjects>): String {
+    fun writeSubjectsStatsToExcel(context: Context, subjectsList: List<ModifiedSubjects>): HSSFWorkbook{
         val workbook = HSSFWorkbook()
         val sheet = workbook.createSheet("Subjects Stats")
 
@@ -66,15 +56,16 @@ object Excel {
             cell = row.createCell(6)
             cell.setCellValue(subject.attendancePercentage.toString() + "%")
         }
-        val excelFile = File(context.getExternalFilesDir(null), SUBJECT_EXCEL_FILE_NAME)
-        val outputStream = FileOutputStream(excelFile)
-        workbook.write(outputStream)
-        outputStream.close()
-
-        return excelFile.absolutePath
+//        val excelFile = File(context.getExternalFilesDir(null), SUBJECT_EXCEL_FILE_NAME)
+//        val outputStream = FileOutputStream(excelFile)
+//        workbook.write(outputStream)
+//        outputStream.close()
+//
+//        return excelFile.absolutePath
+        return workbook
     }
 
-    fun writeLogsStatsToExcel(context: Context, logsList: List<ModifiedLogs>): String {
+    fun writeLogsStatsToExcel(context: Context, logsList: List<ModifiedLogs>): HSSFWorkbook{
         val workbook = HSSFWorkbook()
         val headers = listOf(
             "Subject Name",
@@ -124,10 +115,11 @@ object Excel {
             cell.setCellValue(if(log.wasPresent)"Present" else "Absent")
         }
 
-        val excelFile = File(context.getExternalFilesDir(null) , LOGS_EXCEL_FILE_NAME)
-        val outputFileStream = FileOutputStream(excelFile)
-        workbook.write(outputFileStream)
-        outputFileStream.close()
-        return excelFile.absolutePath
+//        val excelFile = File(context.getExternalFilesDir(null) , LOGS_EXCEL_FILE_NAME)
+//        val outputFileStream = FileOutputStream(excelFile)
+//        workbook.write(outputFileStream)
+//        outputFileStream.close()
+//        return excelFile.absolutePath
+        return workbook
     }
 }

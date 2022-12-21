@@ -1,19 +1,19 @@
 package com.gps.classattendanceapp.presenter.navigationcomponents
 
 import android.app.Activity
-import android.content.ActivityNotFoundException
+import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.net.Uri
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.SnackbarHostState
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
-import com.gps.classattendanceapp.components.LOGS_EXCEL_FILE_NAME
-import com.gps.classattendanceapp.components.SUBJECT_EXCEL_FILE_NAME
 import com.gps.classattendanceapp.presenter.viewmodel.ClassAttendanceViewModel
 import kotlinx.coroutines.launch
+import org.apache.poi.hssf.usermodel.HSSFWorkbook
 
 @Composable
 fun OverflowMenu(
@@ -22,8 +22,24 @@ fun OverflowMenu(
     changeOverflowMenuVisibility: (Boolean) -> Unit,
     snackbarHostState: SnackbarHostState
 ){
+
     val context = LocalContext.current as Activity
     val coroutineScope = rememberCoroutineScope()
+    val mimeType = remember{"application/vnd.ms-excel"}
+
+    var workbook by remember{mutableStateOf<HSSFWorkbook?>(null)}
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = {
+            if(it.resultCode == RESULT_OK){
+                val outputStream = context.contentResolver.openOutputStream(it.data!!.data!!)
+                workbook!!.write(outputStream)
+                outputStream?.flush()
+                outputStream?.close()
+            }
+        }
+    )
+
     DropdownMenu(
         expanded = isOverflowMenuVisible,
         onDismissRequest = {
@@ -47,15 +63,10 @@ fun OverflowMenu(
         }
         DropdownMenuItem(
             onClick = {
-                val filePath = classAttendanceViewModel.writeSubjectsStatsToExcel(context, classAttendanceViewModel.subjects.value.data!!)
-                Log.d("excel", "FilePath is $filePath")
-                coroutineScope.launch{
-                    snackbarHostState.showSnackbar(
-                        message = "Saved successfully at $filePath",
-                        actionLabel = null,
-                        duration = SnackbarDuration.Long
-                    )
-                }
+                val resultWorkbook = classAttendanceViewModel.writeSubjectsStatsToExcel(context, classAttendanceViewModel.subjects.value.data!!)
+                val intent = createIntentForSavingXlsFile("Subject.xls")
+                workbook = resultWorkbook
+                launcher.launch(intent)
                 changeOverflowMenuVisibility(false)
             }
         ) {
@@ -63,18 +74,23 @@ fun OverflowMenu(
         }
         DropdownMenuItem(
             onClick = {
-                val filePath = classAttendanceViewModel.writeLogsStatsToExcel(context, classAttendanceViewModel.logs.value.data!!)
-                coroutineScope.launch{
-                    snackbarHostState.showSnackbar(
-                        message = "Saved successfully at $filePath",
-                        actionLabel = null,
-                        duration = SnackbarDuration.Long
-                    )
-                }
+                val resultWorkbook = classAttendanceViewModel.writeLogsStatsToExcel(context, classAttendanceViewModel.logs.value.data!!)
+                val intent = createIntentForSavingXlsFile("Logs.xls")
+                workbook = resultWorkbook
+                launcher.launch(intent)
                 changeOverflowMenuVisibility(false)
             }
         ) {
             Text("Export Log Stats")
         }
+    }
+}
+
+
+fun createIntentForSavingXlsFile(filename: String):Intent{
+    return Intent(Intent.ACTION_CREATE_DOCUMENT).apply{
+        addCategory(Intent.CATEGORY_OPENABLE)
+        type = "application/vnd.ms-excel"
+        putExtra(Intent.EXTRA_TITLE, filename)
     }
 }

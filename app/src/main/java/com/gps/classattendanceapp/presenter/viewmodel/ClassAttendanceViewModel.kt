@@ -22,6 +22,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import java.util.*
 import javax.inject.Inject
 
@@ -366,10 +367,10 @@ class ClassAttendanceViewModel @Inject constructor(
         return cal.get(Calendar.MINUTE)
     }
 
-    fun writeSubjectsStatsToExcel(context: Context, subjectsList: List<ModifiedSubjects>): String{
+    fun writeSubjectsStatsToExcel(context: Context, subjectsList: List<ModifiedSubjects>): HSSFWorkbook{
         return Excel.writeSubjectsStatsToExcel(context, subjectsList)
     }
-    fun writeLogsStatsToExcel(context: Context, logsList: List<ModifiedLogs>): String{
+    fun writeLogsStatsToExcel(context: Context, logsList: List<ModifiedLogs>): HSSFWorkbook{
         return Excel.writeLogsStatsToExcel(context, logsList)
     }
 
