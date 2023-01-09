@@ -10,25 +10,34 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gps.classattendanceapp.R
+import com.gps.classattendanceapp.components.location.FusedLocation
 import com.gps.classattendanceapp.data.models.Subject
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 @Composable
 fun SubjectScreenAlertDialog(
     subjectScreenUiState: SubjectScreenUiState
 ){
+
+    val coroutineScope = rememberCoroutineScope()
+
+    var showSubjectNameError by remember{mutableStateOf(false)}
+    var showCoordinateError by remember{mutableStateOf(false)}
+    var showPresentsError by remember{mutableStateOf(false)}
+    var showAbsentsError by remember{mutableStateOf(false)}
+    var showRangeError by remember{mutableStateOf(false)}
 
     LaunchedEffect(Unit){
         if(subjectScreenUiState.subjectToEdit.value!=null){
@@ -54,7 +63,7 @@ fun SubjectScreenAlertDialog(
                     value = subjectScreenUiState.subjectName.value,
                     onValueChange = { subjectScreenUiState.subjectName.value = it },
                     label = {
-                        Text(stringResource(R.string.subject_name)+"*")
+                        Text(stringResource(R.string.subject_name))
                     },
                     maxLines = 1,
                     trailingIcon = {
@@ -71,9 +80,16 @@ fun SubjectScreenAlertDialog(
                             }
                         }
                     },
-                    shape = RoundedCornerShape(10.dp)
-
+                    shape = RoundedCornerShape(10.dp),
+                    isError = showSubjectNameError
                 )
+                if(showSubjectNameError){
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Text(
+                        text = "Subject name required",
+                        color = Color.Red, fontSize = 10.sp
+                    )
+                }
                 Spacer(modifier = Modifier.height(5.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -87,13 +103,14 @@ fun SubjectScreenAlertDialog(
                                 subjectScreenUiState.presents.value = it
                             },
                             label = {
-                                Text(stringResource(R.string.presents)+"*")
+                                Text(stringResource(R.string.presents))
                             },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number
                             ),
                             maxLines = 1,
-                            shape = RoundedCornerShape(10.dp)
+                            shape = RoundedCornerShape(10.dp),
+                            isError = showPresentsError
                         )
                         Box(
                             modifier = Modifier.matchParentSize()
@@ -143,14 +160,14 @@ fun SubjectScreenAlertDialog(
                                 subjectScreenUiState.absents.value = it
                             },
                             label = {
-                                Text(stringResource(R.string.absents)+"*")
+                                Text(stringResource(R.string.absents))
                             },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number
                             ),
                             maxLines = 1,
-                            shape = RoundedCornerShape(10.dp)
-
+                            shape = RoundedCornerShape(10.dp),
+                            isError = showAbsentsError
                         )
                         Box(
                             modifier = Modifier.matchParentSize()
@@ -211,8 +228,8 @@ fun SubjectScreenAlertDialog(
                                 keyboardType = KeyboardType.Decimal
                             ),
                             maxLines = 1,
-                            shape = RoundedCornerShape(10.dp)
-
+                            shape = RoundedCornerShape(10.dp),
+                            isError = showCoordinateError
                         )
                         Box(
                             modifier = Modifier
@@ -246,8 +263,8 @@ fun SubjectScreenAlertDialog(
                                 keyboardType = KeyboardType.Decimal
                             ),
                             maxLines = 1,
-                            shape = RoundedCornerShape(10.dp)
-
+                            shape = RoundedCornerShape(10.dp),
+                            isError = showCoordinateError
                         )
                         Box(
                             modifier = Modifier
@@ -267,8 +284,10 @@ fun SubjectScreenAlertDialog(
                         }
                     }
                 }
+                if(showCoordinateError){
+                    Text(text="Please provide complete coordinate details", color=Color.Red, fontSize=10.sp)
+                }
                 OutlinedTextField(
-
                     value = subjectScreenUiState.range.value,
                     onValueChange = {
                         subjectScreenUiState.range.value = it
@@ -294,24 +313,43 @@ fun SubjectScreenAlertDialog(
                             }
                         }
                     },
-                    shape = RoundedCornerShape(10.dp)
-
+                    shape = RoundedCornerShape(10.dp),
+                    isError = showRangeError
                 )
+                if(showRangeError){
+                    Spacer(modifier=Modifier.height(8.dp))
+                    Text(text="Range is required", color=Color.Red, fontSize=10.sp)
+                }
                 Spacer(modifier=Modifier.height(8.dp))
-                Text(
-                    modifier=Modifier.fillMaxWidth(),
-                    text="* Required Fields",
-                    fontSize = 13.sp,
-                    textAlign = TextAlign.End,
-                    color = Color.Red
-                )
-                Text(
-                    modifier=Modifier.fillMaxWidth(),
-                    text="Lat,Lng-minimum 4 decimal digits",
-                    fontSize = 13.sp,
-                    textAlign = TextAlign.End,
-                    color = Color.Red
-                )
+                OutlinedButton(
+                    onClick = {
+                        coroutineScope.launch{
+                            val context = subjectScreenUiState.context
+                            FusedLocation.apply{
+                                if(!isGpsEnabled(context)){
+                                    Toast.makeText(context, "Please enable GPS", Toast.LENGTH_SHORT).show()
+                                    return@launch
+                                }
+                                if(!isPermissionGiven(context)){
+                                    Toast.makeText(context, "Please provide location permission to use this feature", Toast.LENGTH_SHORT).show()
+                                    return@launch
+                                }
+
+                                val locationResult = withTimeoutOrNull(5000){
+                                    getLocationFlow(context).first{it!=null}
+                                }
+                                if(locationResult == null){
+                                    Toast.makeText(context, "Unable to fetch current location", Toast.LENGTH_SHORT).show()
+                                    return@launch
+                                }
+                                subjectScreenUiState.latitude.value = locationResult.latitude.toString()
+                                subjectScreenUiState.longitude.value = locationResult.longitude.toString()
+                            }
+                        }
+                    }
+                ) {
+                    Text("Use current location")
+                }
             }
         },
         buttons = {
@@ -328,11 +366,10 @@ fun SubjectScreenAlertDialog(
                                 if (
                                     subjectScreenUiState.subjectName.value.isBlank()
                                 ) {
-                                    Toast.makeText(subjectScreenUiState.context,
-                                        "Subject Name can't be empty!",
-                                        Toast.LENGTH_SHORT).show()
+                                    showSubjectNameError = true
                                     return@launch
                                 }
+                                showSubjectNameError = false
                                 try {
                                     val daysPresent =
                                         if (subjectScreenUiState.presents.value.isBlank()) 0 else subjectScreenUiState.presents.value.toLong()
@@ -340,8 +377,17 @@ fun SubjectScreenAlertDialog(
                                         if (subjectScreenUiState.absents.value.isBlank()) 0 else subjectScreenUiState.absents.value.toLong()
                                     val lat = if(subjectScreenUiState.latitude.value.isBlank()) null  else  subjectScreenUiState.latitude.value.toDouble()
                                     val lon = if(subjectScreenUiState.longitude.value.isBlank()) null  else  subjectScreenUiState.longitude.value.toDouble()
+                                    if(lat!=null && lon == null){
+                                        showCoordinateError = true
+                                        return@launch
+                                    }
+                                    showCoordinateError = false
+                                    if(lat != null && lon != null){
+                                        showRangeError = true
+                                        return@launch
+                                    }
+                                    showRangeError = false
                                     val ran = if(subjectScreenUiState.range.value.isBlank()) null else subjectScreenUiState.range.value.toDouble()
-
 
                                     if (subjectScreenUiState.subjectToEdit.value != null) {
                                         val subject = subjectScreenUiState.classAttendanceViewModel.getSubjectWithId(

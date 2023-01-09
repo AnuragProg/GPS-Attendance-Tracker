@@ -1,8 +1,11 @@
 package com.gps.classattendanceapp.components.location
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.Build
 import android.os.Looper
 import com.google.android.gms.location.*
 import kotlinx.coroutines.channels.awaitClose
@@ -14,6 +17,22 @@ object FusedLocation {
     fun isGpsEnabled(context: Context): Boolean{
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
+    fun isPermissionGiven(context: Context): Boolean{
+        return context.run{
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        &&
+                        checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        &&
+                        checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+            } else {
+                checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        &&
+                        checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            }
+        }
     }
 
     @SuppressLint("MissingPermission", "VisibleForTests")

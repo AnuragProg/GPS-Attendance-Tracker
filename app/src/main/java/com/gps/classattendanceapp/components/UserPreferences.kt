@@ -12,6 +12,7 @@ class UserPreferences(
 ){
     private val Context.datastore by preferencesDataStore("UserPreferences")
     private val prominentDisclosureKey = booleanPreferencesKey("prominentDisclosure")
+    private val alarmsAllowedKey = booleanPreferencesKey("alarmsAllowed")
 
     suspend fun showProminentDisclosure():Boolean{
          return context.datastore.data.map{pref-> pref[prominentDisclosureKey] }.first() ?: true
@@ -20,6 +21,14 @@ class UserPreferences(
     suspend fun showedProminentDisclosure(){
         context.datastore.edit{ pref->
             pref[prominentDisclosureKey] = false
+        }
+    }
+
+    suspend fun alarmsAllowed() = context.datastore.data.map{pref-> pref[alarmsAllowedKey]}.first() ?: true
+
+    suspend fun setAlarmsAllowed(status: Boolean){
+        context.datastore.edit{ pref->
+            pref[alarmsAllowedKey] = status
         }
     }
 }

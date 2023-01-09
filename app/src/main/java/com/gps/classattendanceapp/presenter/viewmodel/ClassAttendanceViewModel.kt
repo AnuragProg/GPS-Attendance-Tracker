@@ -184,6 +184,7 @@ class ClassAttendanceViewModel @Inject constructor(
         logsJob =  viewModelScope.launch{
             getAllLogs().collectLatest{
                 _logs.value = it
+                refreshSubjects()
             }
         }
     }

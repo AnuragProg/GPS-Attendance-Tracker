@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
-import android.media.RingtoneManager
 import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
@@ -15,9 +14,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.gps.classattendanceapp.MainActivity
 import com.gps.classattendanceapp.R
+import com.gps.classattendanceapp.components.notifications.deletepreviouslymarkedattendance.DeletePreviouslyMarkedAttendanceBroadcastReceiver
 import com.gps.classattendanceapp.components.notifications.invertpreviouslymarkedattendance.InvertPreviouslyMarkedAttendanceBroadcastReceiver
 import com.gps.classattendanceapp.components.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver
 import com.gps.classattendanceapp.components.reservedPendingIntentRequestCodes.ReservedPendingIntentRequestCodes
+import kotlin.random.Random
 
 object NotificationHandler {
 
@@ -87,6 +88,13 @@ object NotificationHandler {
         }
         val invertPreviouslyMarkedAttendancePendingIntent = PendingIntent.getBroadcast(context, ReservedPendingIntentRequestCodes.INVERT_PREVIOUSLY_MARKED_ATTENDANCE.requestCode, invertPreviouslyMarkedAttendanceIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
+        val deletePreviouslyMarkedAttendanceIntent = Intent(context, DeletePreviouslyMarkedAttendanceBroadcastReceiver::class.java)
+            .apply{
+                action = "com.gps.classattendanceapp.components.notifications.deletepreviouslymarkedattendance.DeletePreviouslyMarkedAttendanceBroadcastReceiver"
+                putExtra(NotificationKeys.NOTIFICATION_ID.key, timeTableId)
+                putExtra(NotificationKeys.LOGS_ID.key, logsId)
+            }
+        val deletePreviouslyMarkedAttendancePendingIntent = PendingIntent.getBroadcast(context, Random.nextInt(), deletePreviouslyMarkedAttendanceIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val invertedAttendance = when (markedPresentOrAbsent) {
             true -> "Absent"
@@ -107,9 +115,10 @@ object NotificationHandler {
                 .setStyle(NotificationCompat.BigTextStyle().bigText(
                     contentMessage
                 ))
-                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+//                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setAutoCancel(true)
                 .addAction(R.drawable.marked,"No, I was $invertedAttendance",invertPreviouslyMarkedAttendancePendingIntent)
+                .addAction(R.drawable.marked, "Delete", deletePreviouslyMarkedAttendancePendingIntent)
                 .build()
         }else{
             NotificationCompat.Builder(context, CHANNELID)
@@ -117,7 +126,7 @@ object NotificationHandler {
                 .setContentTitle(boldTitle) // context.getString(R.string.marked_your_attendance)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+//                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setAutoCancel(true)
                 .addAction(R.drawable.marked, "Present", markPresentPendingIntent)
                 .addAction(R.drawable.marked, "Absent", markAbsentPendingIntent)

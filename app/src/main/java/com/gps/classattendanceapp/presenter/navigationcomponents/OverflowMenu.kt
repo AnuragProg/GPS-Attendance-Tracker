@@ -46,21 +46,21 @@ fun OverflowMenu(
             changeOverflowMenuVisibility(false)
         },
     ) {
-        DropdownMenuItem(
-            onClick = {
-                changeOverflowMenuVisibility(false)
-                listOf(
-                    classAttendanceViewModel::refreshSubjects,
-                    classAttendanceViewModel::refreshLogs
-                ).forEach{
-                    coroutineScope.launch {
-                        it()
-                    }
-                }
-            }
-        ) {
-            Text("Refresh")
-        }
+//        DropdownMenuItem(
+//            onClick = {
+//                changeOverflowMenuVisibility(false)
+//                listOf(
+//                    classAttendanceViewModel::refreshSubjects,
+//                    classAttendanceViewModel::refreshLogs
+//                ).forEach{
+//                    coroutineScope.launch {
+//                        it()
+//                    }
+//                }
+//            }
+//        ) {
+//            Text("Refresh")
+//        }
         DropdownMenuItem(
             onClick = {
                 val resultWorkbook = classAttendanceViewModel.writeSubjectsStatsToExcel(context, classAttendanceViewModel.subjects.value.data!!)
