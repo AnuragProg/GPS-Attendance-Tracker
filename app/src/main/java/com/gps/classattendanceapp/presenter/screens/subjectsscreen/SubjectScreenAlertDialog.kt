@@ -33,6 +33,7 @@ fun SubjectScreenAlertDialog(
 
     val coroutineScope = rememberCoroutineScope()
 
+    var isLoadingCurrentLocation by remember{mutableStateOf(false)}
     var showSubjectNameError by remember{mutableStateOf(false)}
     var showCoordinateError by remember{mutableStateOf(false)}
     var showPresentsError by remember{mutableStateOf(false)}
@@ -321,34 +322,44 @@ fun SubjectScreenAlertDialog(
                     Text(text="Range is required", color=Color.Red, fontSize=10.sp)
                 }
                 Spacer(modifier=Modifier.height(8.dp))
-                OutlinedButton(
-                    onClick = {
-                        coroutineScope.launch{
-                            val context = subjectScreenUiState.context
-                            FusedLocation.apply{
-                                if(!isGpsEnabled(context)){
-                                    Toast.makeText(context, "Please enable GPS", Toast.LENGTH_SHORT).show()
-                                    return@launch
-                                }
-                                if(!isPermissionGiven(context)){
-                                    Toast.makeText(context, "Please provide location permission to use this feature", Toast.LENGTH_SHORT).show()
-                                    return@launch
-                                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    OutlinedButton(
+                        onClick = {
+                            coroutineScope.launch{
+                                val context = subjectScreenUiState.context
+                                isLoadingCurrentLocation = true
+                                FusedLocation.apply{
+                                    if(!isGpsEnabled(context)){
+                                        Toast.makeText(context, "Please enable GPS", Toast.LENGTH_SHORT).show()
+                                        return@apply
+                                    }
+                                    if(!isPermissionGiven(context)){
+                                        Toast.makeText(context, "Please provide location permission to use this feature", Toast.LENGTH_SHORT).show()
+                                        return@apply
+                                    }
 
-                                val locationResult = withTimeoutOrNull(5000){
-                                    getLocationFlow(context).first{it!=null}
+                                    val locationResult = withTimeoutOrNull(5000){
+                                        getLocationFlow(context).first{it!=null}
+                                    }
+                                    if(locationResult == null){
+                                        Toast.makeText(context, "Unable to fetch current location", Toast.LENGTH_SHORT).show()
+                                        return@apply
+                                    }
+                                    subjectScreenUiState.latitude.value = locationResult.latitude.toString()
+                                    subjectScreenUiState.longitude.value = locationResult.longitude.toString()
                                 }
-                                if(locationResult == null){
-                                    Toast.makeText(context, "Unable to fetch current location", Toast.LENGTH_SHORT).show()
-                                    return@launch
-                                }
-                                subjectScreenUiState.latitude.value = locationResult.latitude.toString()
-                                subjectScreenUiState.longitude.value = locationResult.longitude.toString()
+                                isLoadingCurrentLocation = false
                             }
                         }
+                    ) {
+                        Text("Use current location")
                     }
-                ) {
-                    Text("Use current location")
+                    if(isLoadingCurrentLocation){
+                        Spacer(Modifier.width(10.dp))
+                        CircularProgressIndicator(modifier=Modifier.size(15.dp))
+                    }
                 }
             }
         },
@@ -382,12 +393,12 @@ fun SubjectScreenAlertDialog(
                                         return@launch
                                     }
                                     showCoordinateError = false
-                                    if(lat != null && lon != null){
+                                    val ran = if(subjectScreenUiState.range.value.isBlank()) null else subjectScreenUiState.range.value.toDouble()
+                                    if(lat != null && lon != null && ran == null){
                                         showRangeError = true
                                         return@launch
                                     }
                                     showRangeError = false
-                                    val ran = if(subjectScreenUiState.range.value.isBlank()) null else subjectScreenUiState.range.value.toDouble()
 
                                     if (subjectScreenUiState.subjectToEdit.value != null) {
                                         val subject = subjectScreenUiState.classAttendanceViewModel.getSubjectWithId(
