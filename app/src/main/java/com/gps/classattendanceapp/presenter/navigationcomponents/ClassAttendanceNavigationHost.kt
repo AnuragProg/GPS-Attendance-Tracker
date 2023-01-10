@@ -210,7 +210,6 @@ fun ClassAttendanceNavigationHost(){
                             uiState.classAttendanceViewModel,
                             {subjectId -> uiState.listOfSubjectIdsToDelete.add(subjectId)},
                             {subjectId -> uiState.listOfSubjectIdsToDelete.remove(subjectId)},
-                            uiState.scaffoldState.snackbarHostState,
                             {
                                 selectedSubject = it
                                 modalBottomSheetState.show()

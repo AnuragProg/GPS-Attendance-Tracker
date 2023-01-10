@@ -17,7 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -41,15 +40,12 @@ fun SubjectsScreen(
     classAttendanceViewModel: ClassAttendanceViewModel,
     addSubjectIdtoDelete: (Int)->Unit,
     removeSubjectIdToDelete: (Int)->Unit,
-    snackbarHostState: SnackbarHostState,
     showModalBottomSheet: suspend (ModifiedSubjects) -> Unit,
 ) {
     
     val uiState = rememberSubjectScreenUiState(
         classAttendanceViewModel = classAttendanceViewModel
     )
-
-    val configuration = LocalConfiguration.current
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -82,7 +78,6 @@ fun SubjectsScreen(
         }
         is Resource.Success -> {
             Log.d("debugging", "Subject Screen Success UI invoked")
-
             if((uiState.subjectsList.value.data?.size ?: 0) == 0){
                 Column(
                     modifier = Modifier
@@ -142,19 +137,18 @@ fun SubjectsScreen(
                             var isCardVisible by remember{mutableStateOf(false)}
                             var isSubjectSelected by remember{mutableStateOf(false)}
                             var showDeleteConfirmationDialog by remember{mutableStateOf(false)}
+
                             val dismissState = rememberDismissState(
                                 confirmStateChange = {
                                     if(DismissValue.DismissedToEnd == it){
                                         showDeleteConfirmationDialog = true
-                                        false
                                     }else if(DismissValue.DismissedToStart == it){
-                                        uiState.subjectToEdit.value = subject
-                                        uiState.fillFieldsWithSubjectToEditFields()
+//                                        uiState.classAttendanceViewModel.setSubjectToEdit(subject)
+                                        uiState.subjectToEditId = subject._id
+                                        Log.d("debugging", "subjectToEdit is $subject")
                                         classAttendanceViewModel.changeFloatingButtonClickedState(state = true)
-//                                        coroutineScope.launch{
-//                                        }
-                                        false
-                                    }else false
+                                    }
+                                    false
                                 }
                             )
 

@@ -141,6 +141,7 @@ fun LogsScreenAlertDialog(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedButton(
+                    modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         uiState.showSubjectListOverflowMenu = true
                     },
@@ -155,22 +156,22 @@ fun LogsScreenAlertDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ){
                         Text(uiState.subjectName)
-                        if(logToEdit==null){
-                            IconButton(
-                                onClick = {
-                                    uiState.showSubjectListOverflowMenu = true
-                                }
-                            ) {
-                                Icon(
-                                    modifier = Modifier.rotate(
-                                        if(uiState.showSubjectListOverflowMenu) 180f
-                                        else 0f
-                                    ),
-                                    imageVector = Icons.Filled.ArrowDropDown,
-                                    contentDescription = null
-                                )
-                            }
-                        }
+//                        if(logToEdit==null){
+//                            IconButton(
+//                                onClick = {
+//                                    uiState.showSubjectListOverflowMenu = true
+//                                }
+//                            ) {
+//                                Icon(
+//                                    modifier = Modifier.rotate(
+//                                        if(uiState.showSubjectListOverflowMenu) 180f
+//                                        else 0f
+//                                    ),
+//                                    imageVector = Icons.Filled.ArrowDropDown,
+//                                    contentDescription = null
+//                                )
+//                            }
+//                        }
                     }
 
                     DropdownMenu(

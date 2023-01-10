@@ -7,7 +7,6 @@ import android.os.Build
 import android.util.Log.d
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gps.classattendanceapp.components.Resource
 import com.gps.classattendanceapp.components.alarms.ClassAlarmManager
 import com.gps.classattendanceapp.components.excel.Excel
@@ -141,11 +140,6 @@ class ClassAttendanceViewModel @Inject constructor(
                 d("debugging", "${filteredLogs.value} new logs")
             }
         }
-
-
-        // Send Resource.Success only if the List of data is non empty
-        // Otherwise send error with appropriate message
-
     }
 
     fun refreshSubjects(){
