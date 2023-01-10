@@ -57,8 +57,8 @@ fun SubjectScreenAlertDialog(
 //    val range by subjectScreenUiState.classAttendanceViewModel.range.collectAsStateWithLifecycle()
 
     var subjectName by remember{mutableStateOf("")}
-    var presents by remember{ mutableStateOf("") }
-    var absents by   remember{ mutableStateOf("") }
+    var presents by remember{ mutableStateOf("0") }
+    var absents by   remember{ mutableStateOf("0") }
     var latitude by remember{ mutableStateOf("") }
     var longitude  by remember{ mutableStateOf("") }
     var range by remember{ mutableStateOf("") }
@@ -75,7 +75,6 @@ fun SubjectScreenAlertDialog(
         longitude = subject.longitude?.toString() ?: ""
         range = subject.range?.toString() ?: ""
     }
-
 
 
     AlertDialog(
