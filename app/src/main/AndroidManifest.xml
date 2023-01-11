@@ -76,7 +76,7 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.example.classattendanceapp.domain.utils.notification_manipulation_broadcasts.MarkPresentAbsentThroughNotificationBroadcastReceiver" />
+                <action android:name="com.gps.classattendanceapp.components.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -86,7 +86,7 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.example.classattendanceapp.domain.utils.notification_manipulation_broadcasts.InvertPreviouslyMarkedAttendanceBroadcastReceiver" />
+                <action android:name="com.gps.classattendanceapp.components.notifications.invertpreviouslymarkedattendance.InvertPreviouslyMarkedAttendanceBroadcastReceiver" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

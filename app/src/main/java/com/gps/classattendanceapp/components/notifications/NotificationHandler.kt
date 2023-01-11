@@ -10,6 +10,7 @@ import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.gps.classattendanceapp.MainActivity
@@ -56,37 +57,38 @@ object NotificationHandler {
             putExtra(NotificationKeys.TIMETABLE_ID.key, timeTableId)
         }
 
-        val pendingIntent = PendingIntent.getActivity(context, ReservedPendingIntentRequestCodes.OPEN_MAIN_ACTIVITY.requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getActivity(context, ReservedPendingIntentRequestCodes.OPEN_MAIN_ACTIVITY.requestCode, intent,PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
         val contentMessage = message?.let{
             "Marked $it"
         } ?: "$subjectName - $hour:$minute"
 
         val markPresentIntent = Intent(context, MarkPresentAbsentThroughNotificationBroadcastReceiver::class.java).apply{
-            action = "com.example.classattendanceapp.domain.utils.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver"
+            action = "com.gps.classattendanceapp.components.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver"
             putExtra(NotificationKeys.ATTENDANCE_STATUS.key, true)
+            Log.d("alarms", "Putting notification id in the pendingintent $timeTableId")
             putExtra(NotificationKeys.NOTIFICATION_PUSH.key, timeTableId)
             putExtra(NotificationKeys.SUBJECT_ID.key, subjectId)
         }
 
-        val markPresentPendingIntent = PendingIntent.getBroadcast(context, ReservedPendingIntentRequestCodes.MARK_PRESENT.requestCode, markPresentIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-
+        val markPresentPendingIntent = PendingIntent.getBroadcast(context, ReservedPendingIntentRequestCodes.MARK_PRESENT.requestCode, markPresentIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val markAbsentIntent = Intent(context, MarkPresentAbsentThroughNotificationBroadcastReceiver::class.java).apply{
-            action = "com.example.classattendanceapp.domain.utils.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver"
+            action = "com.gps.classattendanceapp.components.notifications.markpresentabsentthroughnotification.MarkPresentAbsentThroughNotificationBroadcastReceiver"
             putExtra(NotificationKeys.ATTENDANCE_STATUS.key, false)
+            Log.d("alarms", "Putting notification id in the pendingintent $timeTableId")
             putExtra(NotificationKeys.NOTIFICATION_PUSH.key, timeTableId)
             putExtra(NotificationKeys.SUBJECT_ID.key, subjectId)
         }
-        val markAbsentPendingIntent = PendingIntent.getBroadcast(context, ReservedPendingIntentRequestCodes.MARK_ABSENT.requestCode, markAbsentIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val markAbsentPendingIntent = PendingIntent.getBroadcast(context, ReservedPendingIntentRequestCodes.MARK_ABSENT.requestCode, markAbsentIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
         val invertPreviouslyMarkedAttendanceIntent = Intent(
             context, InvertPreviouslyMarkedAttendanceBroadcastReceiver::class.java
         ).apply{
-            action = "com.example.classattendanceapp.domain.utils.notifications.invertpreviouslymarkedattendance.InvertPreviouslyMarkedAttendanceBroadcastReceiver"
+            action = "com.gps.classattendanceapp.components.notifications.invertpreviouslymarkedattendance.InvertPreviouslyMarkedAttendanceBroadcastReceiver"
             putExtra(NotificationKeys.NOTIFICATION_ID.key, timeTableId)
             putExtra(NotificationKeys.LOGS_ID.key, logsId)
         }
-        val invertPreviouslyMarkedAttendancePendingIntent = PendingIntent.getBroadcast(context, ReservedPendingIntentRequestCodes.INVERT_PREVIOUSLY_MARKED_ATTENDANCE.requestCode, invertPreviouslyMarkedAttendanceIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val invertPreviouslyMarkedAttendancePendingIntent = PendingIntent.getBroadcast(context, ReservedPendingIntentRequestCodes.INVERT_PREVIOUSLY_MARKED_ATTENDANCE.requestCode, invertPreviouslyMarkedAttendanceIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
         val deletePreviouslyMarkedAttendanceIntent = Intent(context, DeletePreviouslyMarkedAttendanceBroadcastReceiver::class.java)
             .apply{
@@ -94,7 +96,7 @@ object NotificationHandler {
                 putExtra(NotificationKeys.NOTIFICATION_ID.key, timeTableId)
                 putExtra(NotificationKeys.LOGS_ID.key, logsId)
             }
-        val deletePreviouslyMarkedAttendancePendingIntent = PendingIntent.getBroadcast(context, Random.nextInt(), deletePreviouslyMarkedAttendanceIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val deletePreviouslyMarkedAttendancePendingIntent = PendingIntent.getBroadcast(context, Random.nextInt(), deletePreviouslyMarkedAttendanceIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
         val invertedAttendance = when (markedPresentOrAbsent) {
             true -> "Absent"
@@ -138,6 +140,7 @@ object NotificationHandler {
                 .build()
         }
         with(NotificationManagerCompat.from(context)){
+            Log.d("alarms", "Timetableid or the notification id is $timeTableId")
             notify(timeTableId, notification)
         }
     }

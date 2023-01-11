@@ -3,6 +3,7 @@ package com.gps.classattendanceapp.components.notifications.markpresentabsentthr
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -16,6 +17,7 @@ class MarkPresentAbsentThroughNotificationBroadcastReceiver: BroadcastReceiver()
             val subjectId = intent.getIntExtra(NotificationKeys.SUBJECT_ID.key, -1)
             val notificationId = intent.getIntExtra(NotificationKeys.NOTIFICATION_PUSH.key, -1)
             if(notificationId!=-1 && subjectId!=-1){
+                Log.d("alarms", "notificationId = $notificationId and subjectId = $subjectId")
                 NotificationManagerCompat.from(context).cancel(notificationId)
                 val markPresentAbsentThroughNotificationWorkerData = workDataOf(
                     NotificationKeys.SUBJECT_ID.key to subjectId,
