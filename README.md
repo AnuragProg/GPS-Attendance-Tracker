@@ -4,7 +4,7 @@
 It is always painful to keep track of your attendance and asking teacher again and again isn't an option.
 Depending heavily on college portal to give exact attendance calculations is not so productive.
 Keeping a diary to keep daily attendance track is also very painful.
-There are app's that allow keeping track of attendance but are same as doing regular entry except for the fact that you don't have to write with hand.
+There are app's that allow keeping track of attendance but are same as doing regular entry except for the fact that you don't have to carry a physical notebook for records.
 Is there a way to make it more simple and automatic so that the user doesn't have to keep track at all and some other entity would take care of it?
 And if the user wants to see the attendance stats, this supposed worker will present him/her with detailed data.
 
