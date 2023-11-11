@@ -1,26 +1,51 @@
-# GPS-Attendance-Tracker
+# GPS Attendance Tracker
 
-## Problem Statement:
-It is always painful to keep track of your attendance and asking teacher again and again isn't an option.
-Depending heavily on college portal to give exact attendance calculations is not so productive.
-Keeping a diary to keep daily attendance track is also very painful.
-There are app's that allow keeping track of attendance but are same as doing regular entry except for the fact that you don't have to carry a physical notebook for records.
-Is there a way to make it more simple and automatic so that the user doesn't have to keep track at all and some other entity would take care of it?
-And if the user wants to see the attendance stats, this supposed worker will present him/her with detailed data.
+## Problem Statement
 
-## Solution:
-This is where the GPS-Attendance-Tracker comes in.
-GAT(in short) is an Android App that does all the work for you and makes everything very easy and effortless for you.
-GAT uses User's GPS to retrieve user's current location and based on the distance between the institution and user's current location,
-it decides whether the user is in class or not and marks the attendance accordingly. The only thing user has to do is to turn on internet and GPS and that's it.
+Tracking attendance manually can be cumbersome and relying on college portals for accurate attendance calculations isn't always efficient. Traditional methods like maintaining a diary or using attendance-tracking apps still require manual input. Is there a way to automate attendance tracking seamlessly, eliminating the need for manual entries? The GPS Attendance Tracker (GAT) aims to provide a solution by automating attendance based on the user's location.
 
-## Features:
-1. Android app that marks your attendance automatically ( provided that you provide Coordinates(lat, lng) and range (acceptable distance from the class in which you will be marked present) of your class ). 
-2. Users can simply add their subject and then add that subject along with its timing in the timetable.
-3. When the time of the class arrives, app retrieves users current location and calculates the distance between current location and class location, if user falls under the provided range, user is marked present otherwise absent.
-4. In case, app is unable to retrieve user's location or the coordinates of the class is not provided, then app allows user to mark attendance from notification only. User doesn't have to open the app at all.
-5. In case of wrong attendance marked by the app (say your class happened somewhere else than usual place and app marked you absent), you can change the attendance status from the notification only. User doesn't have to open the app at all in this case as well.
-6. Users can also take out the data of attendance in Excel file.
+## Solution
 
-### Tech Used: Jetpack Compose(UI), Dagger-Hilt(Dependency Injection), Kotlin-Flows(Asynchronous Programming), BroadcastReceiver, AlarmManager, LocationManager, WorkManager, ApachePOI(Writing to Excel sheets)
-### Architecture Used: Clean Architecture
+GAT is an Android app that simplifies attendance tracking by using the user's GPS location. It determines the user's presence in class by comparing their current location with the specified coordinates and acceptable distance range from the class. All the user needs to do is enable internet and GPS on their device.
+
+## Features
+
+- Automatically marks attendance based on user's location (requires input of class coordinates and acceptable distance).
+- Allows users to add subjects and schedule them in the timetable.
+- Retrieves the user's location at the scheduled class time and marks attendance accordingly.
+- Provides the option to manually mark attendance from notifications if location retrieval fails or coordinates are not provided.
+- Allows users to correct attendance status directly from notifications.
+- Enables users to export attendance data to an Excel file.
+
+## Screenshots
+
+<img src="https://github.com/AnuragProg/GPS-Attendance-Tracker/assets/95378716/bb51e9fe-6965-434e-b0c6-8fcc7a46a080" alt="Screenshot 1" width="200" height="450"/>
+<img src="https://github.com/AnuragProg/GPS-Attendance-Tracker/assets/95378716/2ecc5670-c24e-4fc2-86d8-94e96e23f7a6" alt="Screenshot 2" width="200" height="450"/>
+<img src="https://github.com/AnuragProg/GPS-Attendance-Tracker/assets/95378716/01bdf03f-670c-42f9-82cf-b2afbd1d2fb7" alt="Screenshot 3" width="200" height="450"/>
+<img src="https://github.com/AnuragProg/GPS-Attendance-Tracker/assets/95378716/2e3d0a2a-864f-4103-9666-f10ae20b65e4" alt="Screenshot 4" width="200" height="450"/>
+<img src="https://github.com/AnuragProg/GPS-Attendance-Tracker/assets/95378716/c50b2a9f-40ae-4e1d-bb11-bbf6623984d7" alt="Screenshot 5" width="200" height="450"/>
+
+
+
+## Tech Stack
+
+- Jetpack Compose (UI)
+- Dagger-Hilt (Dependency Injection)
+- Kotlin Flows (Asynchronous Programming)
+- BroadcastReceiver, AlarmManager, LocationManager, WorkManager
+- ApachePOI (Writing to Excel sheets)
+
+## Architecture
+
+Clean Architecture
+
+## Getting Started
+
+1. Clone the repository.
+2. Open the project in Android Studio.
+3. Configure class coordinates and acceptable distance in the app.
+4. Build and run the app on your Android device.
+
+## Contributions
+
+Contributions are welcome! Feel free to open issues or submit pull requests.
